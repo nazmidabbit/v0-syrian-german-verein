@@ -13,13 +13,32 @@ import { useLanguage } from "@/components/language-provider"
 
 export default function KontaktPage() {
   const [formStatus, setFormStatus] = useState<"idle" | "sending" | "sent" | "error">("idle")
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    subject: "",
+    message: "",
+  })
   const { t } = useLanguage()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setFormStatus("sending")
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setFormStatus("sent")
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+      if (res.ok) {
+        setFormStatus("sent")
+      } else {
+        setFormStatus("error")
+      }
+    } catch {
+      setFormStatus("error")
+    }
   }
 
   return (
@@ -141,17 +160,36 @@ export default function KontaktPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
                         <Label htmlFor="firstName">{t.contact.firstName}</Label>
-                        <Input id="firstName" name="firstName" required />
+                        <Input
+                          id="firstName"
+                          name="firstName"
+                          required
+                          value={formData.firstName}
+                          onChange={e => setFormData({ ...formData, firstName: e.target.value })}
+                        />
                       </div>
                       <div className="flex flex-col gap-2">
                         <Label htmlFor="lastName">{t.contact.lastName}</Label>
-                        <Input id="lastName" name="lastName" required />
+                        <Input
+                          id="lastName"
+                          name="lastName"
+                          required
+                          value={formData.lastName}
+                          onChange={e => setFormData({ ...formData, lastName: e.target.value })}
+                        />
                       </div>
                     </div>
 
                     <div className="flex flex-col gap-2">
                       <Label htmlFor="email">{t.contact.emailLabel}</Label>
-                      <Input id="email" name="email" type="email" required />
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={e => setFormData({ ...formData, email: e.target.value })}
+                      />
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -161,6 +199,8 @@ export default function KontaktPage() {
                         name="subject"
                         placeholder={t.contact.subjectPlaceholder}
                         required
+                        value={formData.subject}
+                        onChange={e => setFormData({ ...formData, subject: e.target.value })}
                       />
                     </div>
 
@@ -172,6 +212,8 @@ export default function KontaktPage() {
                         placeholder={t.contact.messagePlaceholder}
                         rows={5}
                         required
+                        value={formData.message}
+                        onChange={e => setFormData({ ...formData, message: e.target.value })}
                       />
                     </div>
 
