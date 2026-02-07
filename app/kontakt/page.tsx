@@ -60,7 +60,7 @@ export default function KontaktPage() {
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">{t.contact.email}</h3>
                       <a
-                        href="mailto:info@syrische-gemeinschaft-saarland.de"
+                        href="mailto:info@sygs.de"
                         className="text-muted-foreground hover:text-primary transition-colors"
                       >
                         info@syrische-gemeinschaft-saarland.de
