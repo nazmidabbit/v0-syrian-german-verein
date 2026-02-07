@@ -63,7 +63,7 @@ export default function KontaktPage() {
                         href="mailto:info@sygs.de"
                         className="text-muted-foreground hover:text-primary transition-colors"
                       >
-                        info@syrische-gemeinschaft-saarland.de
+                        info@sygs.de
                       </a>
                     </div>
                   </div>
