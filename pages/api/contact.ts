@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer"
+import type { NextApiRequest, NextApiResponse } from "next"
 
-export default async function handler(req, res) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" })
   }
@@ -27,7 +28,16 @@ export default async function handler(req, res) {
   try {
     await transporter.sendMail(mailOptions)
     return res.status(200).json({ success: true })
-  } catch (error) {
-    return res.status(500).json({ success: false, error: error.message })
+  } catch (error: unknown) {
+    let errorMsg = "Unbekannter Fehler"
+    if (error instanceof Error) {
+      errorMsg = error.message
+    } else if (typeof error === "string") {
+      errorMsg = error
+    }
+    // Logge den Fehler für Debugging
+    // eslint-disable-next-line no-console
+    console.error("Mail Error:", error)
+    return res.status(500).json({ success: false, error: errorMsg })
   }
 }
