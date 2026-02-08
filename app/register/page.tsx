@@ -40,31 +40,27 @@ export default function RegisterPage() {
               onChange={e => setEmail(e.target.value)}
               required
             />
-            {/* ...existing code... */}
+            <Input
+              type="password"
+              placeholder="Passwort"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+            />
+            <Input
+              type="password"
+              placeholder="Passwort bestätigen"
+              value={confirm}
+              onChange={e => setConfirm(e.target.value)}
+              required
+            />
+            <Button type="submit" className="w-full">Registrieren</Button>
+            {error && <div className="text-red-500 mt-2">{error}</div>}
           </form>
-        </div>
-      </main>
-      <Footer />
-    </div>
-          />
-          <Input
-            type="password"
-            placeholder="Passwort"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
-          <Input
-            type="password"
-            placeholder="Passwort bestätigen"
-            value={confirm}
-            onChange={e => setConfirm(e.target.value)}
-            required
-          />
-          <Button type="submit" className="w-full">Registrieren</Button>
-          {error && <div className="text-red-500 mt-2">{error}</div>}
-        </form>
-        <div className="mt-6 text-center">
+          {/* ...existing code... */}
+        </main>
+        <Footer />
+      </div>
           Bereits registriert? <a href="/login" className="text-primary underline">Login</a>
         </div>
       </main>

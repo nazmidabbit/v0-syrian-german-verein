@@ -44,17 +44,13 @@ export default function LoginPage() {
               onChange={e => setPassword(e.target.value)}
               required
             />
-            {/* ...existing code... */}
+            <Button type="submit" className="w-full">Login</Button>
+            {error && <div className="text-red-500 mt-2">{error}</div>}
           </form>
-        </div>
-      </main>
-      <Footer />
-    </div>
-            placeholder="Passwort"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
+          {/* ...existing code... */}
+        </main>
+        <Footer />
+      </div>
           <Button type="submit" className="w-full">Login</Button>
           {error && <div className="text-red-500 mt-2">{error}</div>}
         </form>
