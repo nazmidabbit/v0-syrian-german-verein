@@ -54,10 +54,6 @@ export default function LoginPage() {
       </main>
       <Footer />
     </div>
-          Noch kein Account? <a href="/register" className="text-primary underline">Registrieren</a>
-        </div>
-      </main>
-      <Footer />
     </div>
   )
 }

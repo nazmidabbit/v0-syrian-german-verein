@@ -64,6 +64,5 @@ export default function RegisterPage() {
       </main>
       <Footer />
     </div>
-    </div>
   )
 }
