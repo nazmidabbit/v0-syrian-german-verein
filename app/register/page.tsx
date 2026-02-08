@@ -29,15 +29,23 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 pt-20 px-6 max-w-md mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Registrieren</h1>
-        <form onSubmit={handleRegister} className="flex flex-col gap-4">
-          <Input
-            type="email"
-            placeholder="E-Mail"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
+      <main className="flex-1 flex items-center justify-center px-6">
+        <div className="w-full max-w-md">
+          <h1 className="text-3xl font-bold mb-6 text-center">Registrieren</h1>
+          <form onSubmit={handleRegister} className="flex flex-col gap-4">
+            <Input
+              type="email"
+              placeholder="E-Mail"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+            />
+            {/* ...existing code... */}
+          </form>
+        </div>
+      </main>
+      <Footer />
+    </div>
           />
           <Input
             type="password"
