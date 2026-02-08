@@ -22,8 +22,22 @@ export default function RegisterPage() {
       setError("Passwörter stimmen nicht überein.")
       return
     }
-    // Demo: Immer Fehler
-    setError("Registrierung nicht implementiert.")
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, name: email }) // name als Platzhalter
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || "Fehler bei der Registrierung.")
+        return
+      }
+      setError("")
+      alert("Registrierung erfolgreich! Bitte E-Mail bestätigen.")
+    } catch (err) {
+      setError("Serverfehler. Bitte später versuchen.")
+    }
   }
 
   return (
