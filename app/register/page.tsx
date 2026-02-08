@@ -57,14 +57,13 @@ export default function RegisterPage() {
             <Button type="submit" className="w-full">Registrieren</Button>
             {error && <div className="text-red-500 mt-2">{error}</div>}
           </form>
-          {/* ...existing code... */}
-        </main>
-        <Footer />
-      </div>
-          Bereits registriert? <a href="/login" className="text-primary underline">Login</a>
+          <div className="mt-6 text-center">
+            Bereits registriert? <a href="/login" className="text-primary underline">Login</a>
+          </div>
         </div>
       </main>
       <Footer />
+    </div>
     </div>
   )
 }

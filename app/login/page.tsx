@@ -47,14 +47,13 @@ export default function LoginPage() {
             <Button type="submit" className="w-full">Login</Button>
             {error && <div className="text-red-500 mt-2">{error}</div>}
           </form>
-          {/* ...existing code... */}
-        </main>
-        <Footer />
-      </div>
-          <Button type="submit" className="w-full">Login</Button>
-          {error && <div className="text-red-500 mt-2">{error}</div>}
-        </form>
-        <div className="mt-6 text-center">
+          <div className="mt-6 text-center">
+            Noch kein Konto? <a href="/register" className="text-primary underline">Registrieren</a>
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
           Noch kein Account? <a href="/register" className="text-primary underline">Registrieren</a>
         </div>
       </main>
