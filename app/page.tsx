@@ -18,30 +18,30 @@ export default function HomePage() {
 
       <main className="flex-1 pt-20">
         {/* Hero Section */}
-        <section className="relative flex flex-col items-center justify-center min-h-[60vh] py-16 bg-gradient-to-b from-white to-primary/10">
-          <div className="w-full flex justify-center mb-8 mt-12">
+        <section className="relative flex flex-col items-center justify-center min-h-[60vh] py-8 sm:py-16 bg-gradient-to-b from-white to-primary/10">
+          <div className="w-full flex justify-center mb-6 sm:mb-8 mt-6 sm:mt-12">
             <Image
               src="/images/ramadan-invitation.jpg"
               alt="Ramadan Einladung"
-              width={420}
-              height={420}
-              className="rounded-2xl shadow-xl border-4 border-white bg-white"
+              width={320}
+              height={320}
+              className="rounded-2xl shadow-xl border-4 border-white bg-white w-[90vw] max-w-[350px] sm:max-w-[420px] h-auto"
               priority
             />
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-primary mb-4 drop-shadow-lg">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-primary mb-3 sm:mb-4 drop-shadow-lg">
             {t.hero.title}
           </h1>
           {locale === "de" && (
-            <p className="text-2xl md:text-3xl text-primary/80 mb-4" dir="rtl">
+            <p className="text-lg sm:text-2xl md:text-3xl text-primary/80 mb-3 sm:mb-4" dir="rtl">
               {t.hero.titleAr}
             </p>
           )}
-          <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto">
+          <p className="text-base sm:text-xl md:text-2xl text-muted-foreground mb-6 sm:mb-10 max-w-xs sm:max-w-2xl mx-auto">
             {t.hero.subtitle}
           </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 text-lg rounded-full shadow-md">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center w-full px-2">
+            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg rounded-full shadow-md w-full sm:w-auto">
               <Link href="/ueber-uns">
                 {t.hero.cta} <ArrowRight className="h-5 w-5 ms-2" />
               </Link>
@@ -50,7 +50,7 @@ export default function HomePage() {
               asChild
               variant="outline"
               size="lg"
-              className="border-primary text-primary hover:bg-primary/10 hover:text-primary-foreground bg-white px-8 py-4 text-lg rounded-full shadow-md"
+              className="border-primary text-primary hover:bg-primary/10 hover:text-primary-foreground bg-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg rounded-full shadow-md w-full sm:w-auto"
             >
               <Link href="/kontakt">{t.hero.ctaContact}</Link>
             </Button>
