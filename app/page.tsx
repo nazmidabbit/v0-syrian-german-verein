@@ -18,59 +18,42 @@ export default function HomePage() {
 
       <main className="flex-1 pt-20">
         {/* Hero Section */}
-        <section className="relative h-[70vh] min-h-[500px] flex items-center justify-center">
-          <div className="absolute inset-0">
+        <section className="relative flex flex-col items-center justify-center min-h-[60vh] py-16 bg-gradient-to-b from-white to-primary/10">
+          <div className="w-full flex justify-center mb-8 mt-12">
             <Image
-              src="/images/saarschleife.png"
-              alt="Saarschleife - Das Wahrzeichen des Saarlandes"
-              fill
-              className="object-cover"
+              src="/images/ramadan-invitation.jpg"
+              alt="Ramadan Einladung"
+              width={420}
+              height={420}
+              className="rounded-2xl shadow-xl border-4 border-white bg-white"
               priority
             />
-            <div className="absolute inset-0 bg-foreground/50" />
           </div>
-
-          <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-            <div className="flex justify-center mb-6">
-              <Image
-                src="/images/logo.jpg"
-                alt="Logo der Syrischen Gemeinschaft"
-                width={120}
-                height={120}
-                className="rounded-xl shadow-lg"
-              />
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-background mb-4 text-balance">
-              {t.hero.title}
-            </h1>
-            {locale === "de" && (
-              <p className="text-2xl md:text-3xl text-background/90 mb-4" dir="rtl">
-                {t.hero.titleAr}
-              </p>
-            )}
-            <div className="flex justify-center gap-2 text-accent mb-8">
-              <span className="text-2xl">&#9733;</span>
-              <span className="text-2xl">&#9733;</span>
-              <span className="text-2xl">&#9733;</span>
-            </div>
-            <p className="text-lg md:text-xl text-background/80 mb-8">
-              {t.hero.subtitle}
+          <h1 className="text-5xl md:text-6xl font-bold text-primary mb-4 drop-shadow-lg">
+            {t.hero.title}
+          </h1>
+          {locale === "de" && (
+            <p className="text-2xl md:text-3xl text-primary/80 mb-4" dir="rtl">
+              {t.hero.titleAr}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                <Link href="/ueber-uns">
-                  {t.hero.cta} <ArrowRight className="h-4 w-4 ms-2" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="border-background text-background hover:bg-background hover:text-foreground bg-transparent"
-              >
-                <Link href="/kontakt">{t.hero.ctaContact}</Link>
-              </Button>
-            </div>
+          )}
+          <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto">
+            {t.hero.subtitle}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 text-lg rounded-full shadow-md">
+              <Link href="/ueber-uns">
+                {t.hero.cta} <ArrowRight className="h-5 w-5 ms-2" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="border-primary text-primary hover:bg-primary/10 hover:text-primary-foreground bg-white px-8 py-4 text-lg rounded-full shadow-md"
+            >
+              <Link href="/kontakt">{t.hero.ctaContact}</Link>
+            </Button>
           </div>
         </section>
 
