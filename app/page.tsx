@@ -72,38 +72,20 @@ export default function HomePage() {
     locale === "ar" && event.description_ar ? event.description_ar : event.description
 
   return (
-    <div className="min-h-screen flex flex-col px-2 sm:px-0">
+    <div className="min-h-screen flex flex-col">
       <Header />
 
       <main className="flex-1 pt-20">
         {/* Hero Section */}
-        <section className="relative flex flex-col items-center justify-center min-h-[60vh] py-8 sm:py-16 bg-gradient-to-b from-white to-primary/10">
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-primary mb-3 sm:mb-4 drop-shadow-lg mt-6 sm:mt-12">
-            {t.hero.title}
-          </h1>
-          {locale === "de" && (
-            <p className="text-lg sm:text-2xl md:text-3xl text-primary/80 mb-3 sm:mb-4" dir="rtl">
-              {t.hero.titleAr}
-            </p>
-          )}
-          <p className="text-base sm:text-xl md:text-2xl text-muted-foreground mb-6 sm:mb-10 max-w-xs sm:max-w-2xl mx-auto">
-            {t.hero.subtitle}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center w-full px-2">
-            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg rounded-full shadow-md w-full sm:w-auto">
-              <Link href="/ueber-uns">
-                {t.hero.cta} <ArrowRight className="h-5 w-5 ms-2" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="border-primary text-primary hover:bg-primary/10 hover:text-primary-foreground bg-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg rounded-full shadow-md w-full sm:w-auto"
-            >
-              <Link href="/kontakt">{t.hero.ctaContact}</Link>
-            </Button>
-          </div>
+        <section className="relative flex flex-col items-center justify-center min-h-[40vh] py-6 sm:py-10 px-6" style={{ backgroundColor: "#ebebeb" }}>
+          <Image
+            src={locale === "ar" ? "/Title_ar.png" : "/Title_de.png"}
+            alt={locale === "ar" ? t.hero.titleAr : t.hero.title}
+            width={600}
+            height={200}
+            className="mt-6 sm:mt-12 max-w-full h-auto"
+            priority
+          />
         </section>
 
         {/* Latest Events Section */}
