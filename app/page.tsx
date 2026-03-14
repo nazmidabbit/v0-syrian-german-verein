@@ -72,7 +72,7 @@ export default function HomePage() {
     locale === "ar" && event.description_ar ? event.description_ar : event.description
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col px-2 sm:px-0">
       <Header />
 
       <main className="flex-1 pt-20">
@@ -217,11 +217,10 @@ function LatestEvents({
         {/* Animated Header */}
         <div
           ref={header.ref}
-          className={`text-center mb-14 transition-all duration-700 ${
-            header.isVisible
+          className={`text-center mb-14 transition-all duration-700 ${header.isVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-8"
-          }`}
+            }`}
         >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             {t.events.title}
@@ -247,11 +246,10 @@ function LatestEvents({
 
         {/* Animated Button */}
         <div
-          className={`text-center mt-12 transition-all duration-700 delay-500 ${
-            header.isVisible
+          className={`text-center mt-12 transition-all duration-700 delay-500 ${header.isVisible
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y-8"
-          }`}
+            }`}
         >
           <Button asChild variant="outline" size="lg" className="rounded-full px-8 hover:scale-105 transition-transform">
             <Link href="/veranstaltungen">{t.events.allEvents}</Link>
@@ -280,11 +278,10 @@ function AnimatedEventCard({
   return (
     <div
       ref={card.ref}
-      className={`group bg-background border border-border rounded-2xl overflow-hidden shadow-sm transition-all duration-700 ${
-        card.isVisible
+      className={`group bg-background border border-border rounded-2xl overflow-hidden shadow-sm transition-all duration-700 ${card.isVisible
           ? "opacity-100 translate-y-0"
           : "opacity-0 translate-y-12"
-      }`}
+        }`}
       style={{ transitionDelay: `${index * 150}ms` }}
     >
       {/* Image with zoom on hover */}

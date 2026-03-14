@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   title: "Syrische Gemeinschaft im Saarland",
   description:
     "Herzlich willkommen bei der Syrischen Gemeinschaft im Saarland - تجمع السوريين في زارلاند",
-    generator: 'v0.app'
+  generator: 'v0.app'
 }
 
 export default function RootLayout({
