@@ -1,5 +1,6 @@
-import { put } from "@vercel/blob"
 import { type NextRequest, NextResponse } from "next/server"
+import { getSupabase } from "@/lib/supabase"
+import crypto from "crypto"
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,7 +11,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Keine Datei angegeben" }, { status: 400 })
     }
 
-    // Validiere Dateityp
     const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"]
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Maximale Dateigröße: 10MB
     const maxSize = 10 * 1024 * 1024
     if (file.size > maxSize) {
       return NextResponse.json(
@@ -28,13 +27,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Upload zu Vercel Blob
-    const blob = await put(file.name, file, {
-      access: "public",
-    })
+    const supabase = getSupabase()
+
+    // Eindeutigen Dateinamen generieren
+    const ext = file.name.split(".").pop() || "jpg"
+    const uniqueName = `${crypto.randomUUID()}.${ext}`
+    const filePath = `images/${uniqueName}`
+
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+
+    const { error } = await supabase.storage
+      .from("uploads")
+      .upload(filePath, buffer, {
+        contentType: file.type,
+        upsert: false,
+      })
+
+    if (error) {
+      console.error("Supabase Storage Fehler:", error)
+      return NextResponse.json({ error: "Upload fehlgeschlagen" }, { status: 500 })
+    }
+
+    const { data: urlData } = supabase.storage
+      .from("uploads")
+      .getPublicUrl(filePath)
 
     return NextResponse.json({
-      url: blob.url,
+      url: urlData.publicUrl,
       filename: file.name,
       size: file.size,
       type: file.type,

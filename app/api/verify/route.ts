@@ -1,27 +1,29 @@
 import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
-import User from '../../../lib/user';
-
-mongoose.connect(process.env.MONGODB_URI || '', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+import { getSupabase } from '@/lib/supabase';
 
 export async function GET(request: Request) {
+  const supabase = getSupabase();
   const { searchParams } = new URL(request.url);
   const token = searchParams.get('token');
+
   if (!token) {
     return NextResponse.json({ error: 'Token fehlt.' }, { status: 400 });
   }
 
-  const user = await User.findOne({ verificationToken: token });
+  const { data: user } = await supabase
+    .from('users')
+    .select('id')
+    .eq('verification_token', token)
+    .single();
+
   if (!user) {
     return NextResponse.json({ error: 'Ungültiger Token.' }, { status: 400 });
   }
 
-  user.isVerified = true;
-  user.verificationToken = '';
-  await user.save();
+  await supabase
+    .from('users')
+    .update({ is_verified: true, verification_token: '' })
+    .eq('id', user.id);
 
   return NextResponse.json({ message: 'E-Mail erfolgreich bestätigt.' });
 }

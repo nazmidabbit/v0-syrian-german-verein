@@ -11,6 +11,7 @@ export const translations = {
     nav: {
       home: "Startseite",
       about: "Über uns",
+      events: "Veranstaltungen",
       gallery: "Galerie",
       contact: "Kontakt",
     },
@@ -51,6 +52,17 @@ export const translations = {
         title: "Heimat Saarland",
         text: "Gemeinsam entdecken wir die Schönheit des Saarlandes und machen es zu unserer neuen Heimat.",
       },
+    },
+
+    // Events
+    events: {
+      title: "Aktuelle Veranstaltungen",
+      subtitle: "Entdecken Sie unsere kommenden und vergangenen Events",
+      pageTitle: "Veranstaltungen",
+      pageSubtitle: "Alle Events unserer Gemeinschaft",
+      allEvents: "Alle Veranstaltungen",
+      noEvents: "Derzeit sind keine Veranstaltungen geplant.",
+      loading: "Veranstaltungen werden geladen...",
     },
 
     // Gallery
@@ -149,6 +161,7 @@ export const translations = {
     nav: {
       home: "الصفحة الرئيسية",
       about: "من نحن",
+      events: "الفعاليات",
       gallery: "معرض الصور",
       contact: "اتصل بنا",
     },
@@ -189,6 +202,17 @@ export const translations = {
         title: "وطننا زارلاند",
         text: "معاً نكتشف جمال زارلاند ونجعلها وطننا الجديد.",
       },
+    },
+
+    // Events
+    events: {
+      title: "الفعاليات الحالية",
+      subtitle: "اكتشف فعالياتنا القادمة والسابقة",
+      pageTitle: "الفعاليات",
+      pageSubtitle: "جميع فعاليات مجتمعنا",
+      allEvents: "جميع الفعاليات",
+      noEvents: "لا توجد فعاليات مخططة حالياً.",
+      loading: "جاري تحميل الفعاليات...",
     },
 
     // Gallery

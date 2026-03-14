@@ -1,19 +1,9 @@
-import mongoose, { Schema, Document } from 'mongoose';
-
-export interface IUser extends Document {
+export interface IUser {
+  id: string;
   email: string;
   password: string;
   name: string;
-  isVerified: boolean;
-  verificationToken: string;
+  is_verified: boolean;
+  verification_token: string;
+  created_at: string;
 }
-
-const UserSchema = new Schema<IUser>({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  name: { type: String, required: true },
-  isVerified: { type: Boolean, default: false },
-  verificationToken: { type: String, required: true },
-});
-
-export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
