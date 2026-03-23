@@ -22,8 +22,8 @@ export async function GET(request: Request) {
 
   await supabase
     .from('users')
-    .update({ is_verified: true, verification_token: '' })
+    .update({ email_verified: true, verification_token: '' })
     .eq('id', user.id);
 
-  return NextResponse.json({ message: 'E-Mail erfolgreich bestätigt.' });
+  return NextResponse.json({ message: 'E-Mail erfolgreich bestätigt! Ihr Konto muss noch vom Administrator freigegeben werden.' });
 }

@@ -13,7 +13,10 @@
       "Bash(find /c/Users/nazmi.dabbit/v0-syrian-german-verein -name *supabase* -o -name *middleware*)",
       "Bash(grep -r \"NEXT_PUBLIC_BASE_URL\\\\|IMAP_\\\\|SMTP_\" /c/Users/nazmi.dabbit/v0-syrian-german-verein --include=*.ts --include=*.tsx --include=*.js)",
       "Bash(grep -r \"password\\\\|credential\\\\|secret\" /c/Users/nazmi.dabbit/v0-syrian-german-verein --include=*.md --include=*.txt)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(find /c/Users/nazmi.dabbit/v0-syrian-german-verein -type f \\\\\\(-name *header* -o -name *nav* -o -name *menu* \\\\\\))",
+      "Bash(xargs grep:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

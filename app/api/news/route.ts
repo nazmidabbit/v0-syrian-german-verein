@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { getSupabase } from '@/lib/supabase';
+import { getAuthUser, canEdit } from '@/lib/auth';
 
 export async function GET(request: Request) {
   try {
@@ -31,16 +31,14 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('auth-token')?.value;
-
-    if (!token) {
-      return NextResponse.json({ error: 'Nicht autorisiert.' }, { status: 401 });
+    const user = await getAuthUser();
+    if (!user || !canEdit(user.role)) {
+      return NextResponse.json({ error: 'Keine Berechtigung.' }, { status: 403 });
     }
 
     const supabase = getSupabase();
     const body = await request.json();
-    const { title, titleAr, content, contentAr, imageUrl } = body;
+    const { title, titleAr, content, contentAr, imageUrl, videoUrls, link } = body;
 
     if (!title || !content) {
       return NextResponse.json(
@@ -57,6 +55,8 @@ export async function POST(request: Request) {
         content,
         content_ar: contentAr || '',
         image_url: imageUrl || '',
+        video_urls: videoUrls || [],
+        link: link || '',
         published_at: new Date().toISOString(),
       })
       .select()

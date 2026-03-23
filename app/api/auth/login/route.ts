@@ -35,9 +35,16 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!user.email_verified) {
+      return NextResponse.json(
+        { error: 'Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse über den Link in der zugesendeten E-Mail.' },
+        { status: 403 }
+      );
+    }
+
     if (!user.is_verified) {
       return NextResponse.json(
-        { error: 'E-Mail wurde noch nicht bestätigt.' },
+        { error: 'Ihr Konto wurde noch nicht vom Administrator freigegeben. Bitte warten Sie auf die Freigabe.' },
         { status: 403 }
       );
     }

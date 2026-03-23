@@ -5,7 +5,7 @@ import Image from "next/image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { useLanguage } from "@/components/language-provider"
-import { Newspaper, CalendarDays } from "lucide-react"
+import { Newspaper, CalendarDays, ExternalLink } from "lucide-react"
 
 interface NewsItem {
   id: string
@@ -14,6 +14,8 @@ interface NewsItem {
   content: string
   content_ar: string
   image_url: string
+  video_urls: string[]
+  link: string
   published_at: string
 }
 
@@ -97,6 +99,24 @@ export default function NewsPage() {
                           />
                         </div>
                       )}
+                      {/* Videos */}
+                      {item.video_urls && item.video_urls.length > 0 && (
+                        <div className="px-6 md:px-8 pt-6 space-y-4">
+                          {item.video_urls.map((url, i) => (
+                            <video
+                              key={i}
+                              src={url}
+                              controls
+                              autoPlay
+                              muted
+                              loop
+                              playsInline
+                              className="w-full max-h-[500px] rounded-lg bg-black"
+                              preload="metadata"
+                            />
+                          ))}
+                        </div>
+                      )}
                       <div className="p-6 md:p-8">
                         <div className="flex items-center gap-2 text-primary mb-3">
                           <CalendarDays className="h-4 w-4" />
@@ -119,6 +139,17 @@ export default function NewsPage() {
                           >
                             {isExpanded ? (locale === "ar" ? "عرض أقل" : "Weniger anzeigen") : t.news.readMore}
                           </button>
+                        )}
+                        {item.link && (
+                          <a
+                            href={item.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-4 inline-flex items-center gap-2 text-primary font-medium hover:underline"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                            {locale === "ar" ? "رابط خارجي" : "Mehr erfahren"}
+                          </a>
                         )}
                       </div>
                     </article>

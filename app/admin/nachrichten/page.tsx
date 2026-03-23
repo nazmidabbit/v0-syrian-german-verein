@@ -7,21 +7,22 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Trash2, Pencil, Plus, X, Loader2, CalendarDays, LogIn, Upload, ImageIcon, ArrowLeft, ArrowRight, KeyRound, Video, Shield } from "lucide-react"
+import { Trash2, Pencil, Plus, X, Loader2, Newspaper, LogIn, ImageIcon, Video, LinkIcon, Shield } from "lucide-react"
 
-interface Event {
+interface NewsItem {
   id: string
   title: string
   title_ar: string
-  description: string
-  description_ar: string
-  date: string
-  image_urls: string[]
+  content: string
+  content_ar: string
+  image_url: string
   video_urls: string[]
+  link: string
+  published_at: string
 }
 
-export default function AdminEventsPage() {
-  const [events, setEvents] = useState<Event[]>([])
+export default function AdminNewsPage() {
+  const [news, setNews] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState(true)
   const [authenticated, setAuthenticated] = useState(false)
   const [userRole, setUserRole] = useState("")
@@ -33,31 +34,22 @@ export default function AdminEventsPage() {
   const [loginError, setLoginError] = useState("")
   const [loginLoading, setLoginLoading] = useState(false)
 
-  // Event form
+  // News form
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState({
     title: "",
     titleAr: "",
-    description: "",
-    descriptionAr: "",
-    date: "",
+    content: "",
+    contentAr: "",
+    link: "",
   })
-  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [imageUrl, setImageUrl] = useState("")
   const [videoUrls, setVideoUrls] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
   const [uploadingVideo, setUploadingVideo] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
-
-  // Password reset
-  const [showPasswordForm, setShowPasswordForm] = useState(false)
-  const [currentPassword, setCurrentPassword] = useState("")
-  const [newPassword, setNewPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [passwordLoading, setPasswordLoading] = useState(false)
-  const [passwordMessage, setPasswordMessage] = useState("")
-  const [passwordError, setPasswordError] = useState("")
 
   const canEdit = userRole === "admin" || userRole === "editor"
 
@@ -76,20 +68,20 @@ export default function AdminEventsPage() {
     }
   }, [])
 
-  const loadEvents = useCallback(async () => {
+  const loadNews = useCallback(async () => {
     try {
-      const res = await fetch("/api/events")
+      const res = await fetch("/api/news")
       const data = await res.json()
-      setEvents(data.events || [])
+      setNews(data.news || [])
     } catch {
-      setEvents([])
+      setNews([])
     } finally {
       setLoading(false)
     }
   }, [])
 
   useEffect(() => { checkAuth() }, [checkAuth])
-  useEffect(() => { if (authenticated) loadEvents() }, [authenticated, loadEvents])
+  useEffect(() => { if (authenticated) loadNews() }, [authenticated, loadNews])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -120,64 +112,58 @@ export default function AdminEventsPage() {
   }
 
   const resetForm = () => {
-    setForm({ title: "", titleAr: "", description: "", descriptionAr: "", date: "" })
-    setImageUrls([])
+    setForm({ title: "", titleAr: "", content: "", contentAr: "", link: "" })
+    setImageUrl("")
     setVideoUrls([])
     setEditingId(null)
     setShowForm(false)
     setError("")
   }
 
-  const handleEdit = (event: Event) => {
+  const handleEdit = (item: NewsItem) => {
     setForm({
-      title: event.title,
-      titleAr: event.title_ar,
-      description: event.description,
-      descriptionAr: event.description_ar,
-      date: event.date.slice(0, 10),
+      title: item.title,
+      titleAr: item.title_ar,
+      content: item.content,
+      contentAr: item.content_ar,
+      link: item.link || "",
     })
-    setImageUrls(event.image_urls || [])
-    setVideoUrls(event.video_urls || [])
-    setEditingId(event.id)
+    setImageUrl(item.image_url || "")
+    setVideoUrls(item.video_urls || [])
+    setEditingId(item.id)
     setShowForm(true)
     setError("")
   }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (!files || files.length === 0) return
+    const file = e.target.files?.[0]
+    if (!file) return
 
     setUploading(true)
     setError("")
 
     try {
-      for (const file of Array.from(files)) {
-        const formData = new FormData()
-        formData.append("file", file)
+      const formData = new FormData()
+      formData.append("file", file)
 
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        })
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
 
-        if (!res.ok) {
-          const data = await res.json()
-          throw new Error(data.error || "Upload fehlgeschlagen")
-        }
-
+      if (!res.ok) {
         const data = await res.json()
-        setImageUrls((prev) => [...prev, data.url])
+        throw new Error(data.error || "Upload fehlgeschlagen")
       }
+
+      const data = await res.json()
+      setImageUrl(data.url)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload fehlgeschlagen")
     } finally {
       setUploading(false)
       e.target.value = ""
     }
-  }
-
-  const removeImage = (index: number) => {
-    setImageUrls((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -217,29 +203,19 @@ export default function AdminEventsPage() {
     setVideoUrls((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const moveImage = (index: number, direction: "left" | "right") => {
-    setImageUrls((prev) => {
-      const newArr = [...prev]
-      const targetIndex = direction === "left" ? index - 1 : index + 1
-      if (targetIndex < 0 || targetIndex >= newArr.length) return prev
-      ;[newArr[index], newArr[targetIndex]] = [newArr[targetIndex], newArr[index]]
-      return newArr
-    })
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
     setError("")
 
     try {
-      const url = editingId ? `/api/events/${editingId}` : "/api/events"
+      const url = editingId ? `/api/news/${editingId}` : "/api/news"
       const method = editingId ? "PUT" : "POST"
 
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, imageUrls, videoUrls }),
+        body: JSON.stringify({ ...form, imageUrl, videoUrls }),
       })
 
       if (!res.ok) {
@@ -248,7 +224,7 @@ export default function AdminEventsPage() {
       }
 
       resetForm()
-      loadEvents()
+      loadNews()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fehler beim Speichern.")
     } finally {
@@ -256,45 +232,11 @@ export default function AdminEventsPage() {
     }
   }
 
-  const handlePasswordReset = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setPasswordMessage("")
-    setPasswordError("")
-
-    if (newPassword !== confirmPassword) {
-      setPasswordError("Neue Passwörter stimmen nicht überein.")
-      return
-    }
-
-    setPasswordLoading(true)
-    try {
-      const res = await fetch("/api/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPassword, newPassword }),
-      })
-      const data = await res.json()
-      if (res.ok) {
-        setPasswordMessage(data.message)
-        setCurrentPassword("")
-        setNewPassword("")
-        setConfirmPassword("")
-        setTimeout(() => setShowPasswordForm(false), 2000)
-      } else {
-        setPasswordError(data.error || "Fehler beim Ändern.")
-      }
-    } catch {
-      setPasswordError("Verbindungsfehler.")
-    } finally {
-      setPasswordLoading(false)
-    }
-  }
-
   const handleDelete = async (id: string) => {
-    if (!confirm("Möchten Sie dieses Event wirklich löschen?")) return
+    if (!confirm("Möchten Sie diese Nachricht wirklich löschen?")) return
     try {
-      const res = await fetch(`/api/events/${id}`, { method: "DELETE" })
-      if (res.ok) loadEvents()
+      const res = await fetch(`/api/news/${id}`, { method: "DELETE" })
+      if (res.ok) loadNews()
     } catch { /* ignore */ }
   }
 
@@ -329,7 +271,7 @@ export default function AdminEventsPage() {
               <LogIn className="h-12 w-12 text-primary mx-auto mb-4" />
               <h1 className="text-3xl font-bold">Admin Login</h1>
               <p className="text-muted-foreground mt-2">
-                Melden Sie sich an, um Events zu verwalten.
+                Melden Sie sich an, um Nachrichten zu verwalten.
               </p>
             </div>
             <form onSubmit={handleLogin} className="flex flex-col gap-4">
@@ -377,53 +319,12 @@ export default function AdminEventsPage() {
         <section className="py-16 px-6 bg-secondary">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Veranstaltungen verwalten
+              Nachrichten verwalten
             </h1>
             <p className="text-xl text-muted-foreground">
-              Erstellen, bearbeiten und löschen Sie Events
+              Erstellen, bearbeiten und löschen Sie Nachrichten
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-4 gap-2"
-              onClick={() => {
-                setShowPasswordForm(!showPasswordForm)
-                setPasswordMessage("")
-                setPasswordError("")
-                setCurrentPassword("")
-                setNewPassword("")
-                setConfirmPassword("")
-              }}
-            >
-              <KeyRound className="h-4 w-4" />
-              Passwort ändern
-            </Button>
           </div>
-
-          {showPasswordForm && (
-            <div className="max-w-md mx-auto mt-6 bg-background p-6 rounded-xl border">
-              <h2 className="text-lg font-bold mb-4">Passwort ändern</h2>
-              <form onSubmit={handlePasswordReset} className="space-y-3">
-                <div>
-                  <Label htmlFor="currentPw">Aktuelles Passwort</Label>
-                  <Input id="currentPw" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
-                </div>
-                <div>
-                  <Label htmlFor="newPw">Neues Passwort</Label>
-                  <Input id="newPw" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={6} />
-                </div>
-                <div>
-                  <Label htmlFor="confirmPw">Neues Passwort bestätigen</Label>
-                  <Input id="confirmPw" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={6} />
-                </div>
-                <Button type="submit" disabled={passwordLoading} className="w-full">
-                  {passwordLoading ? (<><Loader2 className="h-4 w-4 animate-spin mr-2" />Wird geändert...</>) : "Passwort ändern"}
-                </Button>
-                {passwordError && <p className="text-destructive text-sm text-center">{passwordError}</p>}
-                {passwordMessage && <p className="text-green-600 text-sm text-center">{passwordMessage}</p>}
-              </form>
-            </div>
-          )}
         </section>
 
         <section className="py-12 px-6 bg-background">
@@ -439,7 +340,7 @@ export default function AdminEventsPage() {
               <div className="mb-8">
                 <Button onClick={() => setShowForm(true)} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  Neues Event erstellen
+                  Neue Nachricht erstellen
                 </Button>
               </div>
             )}
@@ -448,7 +349,7 @@ export default function AdminEventsPage() {
               <div className="bg-secondary p-8 rounded-2xl mb-8">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold text-foreground">
-                    {editingId ? "Event bearbeiten" : "Neues Event"}
+                    {editingId ? "Nachricht bearbeiten" : "Neue Nachricht"}
                   </h2>
                   <Button variant="ghost" size="icon" onClick={resetForm}>
                     <X className="h-5 w-5" />
@@ -469,76 +370,58 @@ export default function AdminEventsPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="description">Beschreibung (Deutsch) *</Label>
-                      <Textarea id="description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} required />
+                      <Label htmlFor="content">Inhalt (Deutsch) *</Label>
+                      <Textarea id="content" value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} rows={6} required />
                     </div>
                     <div>
-                      <Label htmlFor="descriptionAr">Beschreibung (Arabisch)</Label>
-                      <Textarea id="descriptionAr" value={form.descriptionAr} onChange={(e) => setForm({ ...form, descriptionAr: e.target.value })} rows={4} dir="rtl" />
+                      <Label htmlFor="contentAr">Inhalt (Arabisch)</Label>
+                      <Textarea id="contentAr" value={form.contentAr} onChange={(e) => setForm({ ...form, contentAr: e.target.value })} rows={6} dir="rtl" />
                     </div>
                   </div>
 
+                  {/* Link */}
                   <div>
-                    <Label htmlFor="date">Datum *</Label>
-                    <Input id="date" type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required className="max-w-xs" />
+                    <Label htmlFor="link" className="flex items-center gap-2">
+                      <LinkIcon className="h-4 w-4" />
+                      Link (optional)
+                    </Label>
+                    <Input
+                      id="link"
+                      type="url"
+                      placeholder="https://..."
+                      value={form.link}
+                      onChange={(e) => setForm({ ...form, link: e.target.value })}
+                      className="max-w-lg"
+                    />
                   </div>
 
-                  {/* Bilder Upload */}
+                  {/* Bild Upload */}
                   <div>
-                    <Label>Bilder</Label>
+                    <Label>Bild</Label>
                     <div className="mt-2 border-2 border-dashed border-border rounded-xl p-6">
-                      <div className="flex flex-wrap gap-4 mb-4">
-                        {imageUrls.map((url, index) => (
-                          <div key={index} className="relative group">
-                            <div className="w-32 h-24 rounded-lg overflow-hidden border border-border">
-                              <img src={url} alt={`Bild ${index + 1}`} className="w-full h-full object-cover" />
-                            </div>
-                            <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button
-                                type="button"
-                                onClick={() => removeImage(index)}
-                                className="bg-destructive text-white rounded-full p-1"
-                              >
-                                <X className="h-3 w-3" />
-                              </button>
-                            </div>
-                            <div className="flex justify-center gap-1 mt-1">
-                              <button
-                                type="button"
-                                onClick={() => moveImage(index, "left")}
-                                disabled={index === 0}
-                                className="bg-muted hover:bg-primary/20 rounded p-1 disabled:opacity-30 disabled:cursor-not-allowed"
-                              >
-                                <ArrowLeft className="h-3 w-3" />
-                              </button>
-                              <span className="text-xs text-muted-foreground leading-5">{index + 1}</span>
-                              <button
-                                type="button"
-                                onClick={() => moveImage(index, "right")}
-                                disabled={index === imageUrls.length - 1}
-                                className="bg-muted hover:bg-primary/20 rounded p-1 disabled:opacity-30 disabled:cursor-not-allowed"
-                              >
-                                <ArrowRight className="h-3 w-3" />
-                              </button>
-                            </div>
+                      {imageUrl ? (
+                        <div className="relative group inline-block">
+                          <div className="w-48 h-32 rounded-lg overflow-hidden border border-border">
+                            <img src={imageUrl} alt="Vorschau" className="w-full h-full object-cover" />
                           </div>
-                        ))}
-
-                        {imageUrls.length === 0 && !uploading && (
-                          <div className="flex flex-col items-center justify-center w-full py-4 text-muted-foreground">
-                            <ImageIcon className="h-10 w-10 mb-2" />
-                            <p className="text-sm">Noch keine Bilder hochgeladen</p>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <Label htmlFor="image-upload" className="sr-only">Bilder hochladen</Label>
+                          <button
+                            type="button"
+                            onClick={() => setImageUrl("")}
+                            className="absolute top-1 right-1 bg-destructive text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-4 text-muted-foreground">
+                          <ImageIcon className="h-10 w-10 mb-2" />
+                          <p className="text-sm">Noch kein Bild hochgeladen</p>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-3 mt-4">
                         <Input
-                          id="image-upload"
                           type="file"
                           accept="image/jpeg,image/png,image/webp,image/gif"
-                          multiple
                           onChange={handleImageUpload}
                           disabled={uploading}
                           className="cursor-pointer"
@@ -563,7 +446,7 @@ export default function AdminEventsPage() {
                             <div className="w-48 h-32 rounded-lg overflow-hidden border border-border bg-black">
                               <video src={url} className="w-full h-full object-cover" muted />
                             </div>
-                            <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button
                                 type="button"
                                 onClick={() => removeVideo(index)}
@@ -585,9 +468,7 @@ export default function AdminEventsPage() {
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <Label htmlFor="video-upload" className="sr-only">Videos hochladen</Label>
                         <Input
-                          id="video-upload"
                           type="file"
                           accept="video/mp4,video/webm,video/quicktime"
                           multiple
@@ -622,49 +503,50 @@ export default function AdminEventsPage() {
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
-            ) : events.length === 0 ? (
+            ) : news.length === 0 ? (
               <div className="text-center py-12 bg-muted rounded-2xl">
-                <CalendarDays className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Noch keine Events vorhanden. Erstellen Sie Ihr erstes Event!</p>
+                <Newspaper className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Noch keine Nachrichten vorhanden. Erstellen Sie Ihre erste Nachricht!</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {events.map((event) => (
-                  <div key={event.id} className="bg-muted p-6 rounded-xl flex flex-col sm:flex-row gap-4 items-start">
-                    {event.image_urls && event.image_urls.length > 0 && (
-                      <div className="flex gap-2 flex-shrink-0">
-                        {event.image_urls.slice(0, 3).map((url, i) => (
-                          <img key={i} src={url} alt={event.title} className="w-20 h-16 object-cover rounded-lg" />
-                        ))}
-                        {event.image_urls.length > 3 && (
-                          <div className="w-20 h-16 rounded-lg bg-background flex items-center justify-center text-sm text-muted-foreground font-medium">
-                            +{event.image_urls.length - 3}
-                          </div>
-                        )}
+                {news.map((item) => (
+                  <div key={item.id} className="bg-muted p-6 rounded-xl flex flex-col sm:flex-row gap-4 items-start">
+                    {item.image_url && (
+                      <div className="flex-shrink-0">
+                        <img src={item.image_url} alt={item.title} className="w-20 h-16 object-cover rounded-lg" />
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-primary font-medium mb-1">{formatDate(event.date)}</p>
+                      <p className="text-sm text-primary font-medium mb-1">{formatDate(item.published_at)}</p>
                       <h3 className="text-lg font-bold text-foreground mb-1">
-                        {event.title}
-                        {event.title_ar && (
-                          <span className="text-muted-foreground font-normal ms-2" dir="rtl">({event.title_ar})</span>
+                        {item.title}
+                        {item.title_ar && (
+                          <span className="text-muted-foreground font-normal ms-2" dir="rtl">({item.title_ar})</span>
                         )}
                       </h3>
-                      <p className="text-muted-foreground text-sm line-clamp-2">{event.description}</p>
-                      {event.video_urls && event.video_urls.length > 0 && (
-                        <p className="text-xs text-primary mt-1 flex items-center gap-1">
-                          <Video className="h-3 w-3" />
-                          {event.video_urls.length} Video{event.video_urls.length > 1 ? "s" : ""}
-                        </p>
-                      )}
+                      <p className="text-muted-foreground text-sm line-clamp-2">{item.content}</p>
+                      <div className="flex gap-3 mt-1">
+                        {item.video_urls && item.video_urls.length > 0 && (
+                          <span className="text-xs text-primary flex items-center gap-1">
+                            <Video className="h-3 w-3" />
+                            {item.video_urls.length} Video{item.video_urls.length > 1 ? "s" : ""}
+                          </span>
+                        )}
+                        {item.link && (
+                          <span className="text-xs text-primary flex items-center gap-1">
+                            <LinkIcon className="h-3 w-3" />
+                            Link
+                          </span>
+                        )}
+                      </div>
                     </div>
                     {canEdit && (
                       <div className="flex gap-2 flex-shrink-0">
-                        <Button variant="outline" size="sm" onClick={() => handleEdit(event)}>
+                        <Button variant="outline" size="sm" onClick={() => handleEdit(item)}>
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleDelete(event.id)} className="text-destructive hover:text-destructive">
+                        <Button variant="outline" size="sm" onClick={() => handleDelete(item.id)} className="text-destructive hover:text-destructive">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

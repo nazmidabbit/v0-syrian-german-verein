@@ -29,22 +29,26 @@ export async function POST(request: Request) {
       email,
       password: hashedPassword,
       name,
-      is_verified: true,
+      is_verified: false,
       verification_token: verificationToken,
+      role: 'viewer',
     });
 
     if (error) {
       return NextResponse.json({ error: 'Fehler bei der Registrierung.' }, { status: 500 });
     }
 
-    // E-Mail-Verifizierung nur wenn SMTP konfiguriert
+    // E-Mail-Verifizierung senden
     if (process.env.SMTP_HOST) {
-      const { sendVerificationEmail } = await import('@/lib/mailer');
-      await sendVerificationEmail(email, verificationToken);
-      return NextResponse.json({ message: 'Registrierung erfolgreich. Bitte E-Mail bestätigen.' });
+      try {
+        const { sendVerificationEmail } = await import('@/lib/mailer');
+        await sendVerificationEmail(email, verificationToken);
+      } catch (emailError) {
+        console.error('E-Mail senden fehlgeschlagen:', emailError);
+      }
     }
 
-    return NextResponse.json({ message: 'Registrierung erfolgreich.' });
+    return NextResponse.json({ message: 'Registrierung erfolgreich! Bitte bestätigen Sie Ihre E-Mail-Adresse über den Link in der zugesendeten E-Mail.' });
   } catch {
     return NextResponse.json({ error: 'Serverfehler.' }, { status: 500 });
   }

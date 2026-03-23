@@ -2,8 +2,8 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { useState } from "react"
-import { Menu, X, Globe } from "lucide-react"
+import { useState, useEffect, useCallback } from "react"
+import { Menu, X, Globe, LogOut, LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -16,7 +16,25 @@ import { locales } from "@/lib/i18n"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [authenticated, setAuthenticated] = useState(false)
   const { locale, setLocale, t } = useLanguage()
+
+  const checkAuth = useCallback(async () => {
+    try {
+      const res = await fetch("/api/auth/check")
+      setAuthenticated(res.ok)
+    } catch {
+      setAuthenticated(false)
+    }
+  }, [])
+
+  useEffect(() => { checkAuth() }, [checkAuth])
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" })
+    setAuthenticated(false)
+    window.location.href = "/"
+  }
 
   const navigation = [
     { name: t.nav.home, href: "/" },
@@ -80,6 +98,20 @@ export function Header() {
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {authenticated ? (
+            <Button variant="ghost" size="sm" className="gap-2" onClick={handleLogout}>
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline text-sm">Logout</span>
+            </Button>
+          ) : (
+            <Button variant="ghost" size="sm" className="gap-2" asChild>
+              <Link href="/login">
+                <LogIn className="h-4 w-4" />
+                <span className="hidden sm:inline text-sm">Login</span>
+              </Link>
+            </Button>
+          )}
+
           <Button
             variant="ghost"
             size="icon"
@@ -104,6 +136,22 @@ export function Header() {
                 {item.name}
               </Link>
             ))}
+            {authenticated ? (
+              <button
+                onClick={() => { setMobileMenuOpen(false); handleLogout() }}
+                className="block text-base font-medium text-destructive hover:text-destructive/80 transition-colors"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="block text-base font-medium text-primary hover:text-primary/80 transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Login
+              </Link>
+            )}
           </div>
         </div>
       )}

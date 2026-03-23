@@ -1,9 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getSupabase } from "@/lib/supabase"
+import { getAuthUser, canEdit } from "@/lib/auth"
 import crypto from "crypto"
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getAuthUser()
+    if (!user || !canEdit(user.role)) {
+      return NextResponse.json({ error: "Keine Berechtigung." }, { status: 403 })
+    }
+
     const formData = await request.formData()
     const file = formData.get("file") as File
 

@@ -16,7 +16,7 @@ export async function GET() {
 
     const { data: user } = await supabase
       .from('users')
-      .select('id, name, email, is_verified')
+      .select('id, name, email, is_verified, role')
       .eq('id', decoded.userId)
       .single();
 
@@ -26,7 +26,7 @@ export async function GET() {
 
     return NextResponse.json({
       authenticated: true,
-      user: { name: user.name, email: user.email },
+      user: { name: user.name, email: user.email, role: user.role || 'viewer' },
     });
   } catch {
     return NextResponse.json({ authenticated: false }, { status: 401 });

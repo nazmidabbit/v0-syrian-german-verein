@@ -15,18 +15,18 @@ export async function PUT(
     const supabase = getSupabase();
     const { id } = await params;
     const body = await request.json();
-    const { title, titleAr, description, descriptionAr, date, imageUrls, videoUrls } = body;
+    const { title, titleAr, content, contentAr, imageUrl, videoUrls, link } = body;
 
-    const { data: event, error } = await supabase
-      .from('events')
+    const { data: newsItem, error } = await supabase
+      .from('news')
       .update({
         title,
         title_ar: titleAr || '',
-        description,
-        description_ar: descriptionAr || '',
-        date,
-        image_urls: imageUrls || [],
+        content,
+        content_ar: contentAr || '',
+        image_url: imageUrl || '',
         video_urls: videoUrls || [],
+        link: link || '',
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
@@ -34,17 +34,17 @@ export async function PUT(
       .single();
 
     if (error) {
-      console.error('Event Update Fehler:', error);
+      console.error('News Update Fehler:', error);
       return NextResponse.json({ error: error.message || 'Fehler beim Aktualisieren.' }, { status: 500 });
     }
 
-    if (!event) {
-      return NextResponse.json({ error: 'Event nicht gefunden.' }, { status: 404 });
+    if (!newsItem) {
+      return NextResponse.json({ error: 'Nachricht nicht gefunden.' }, { status: 404 });
     }
 
-    return NextResponse.json({ event });
+    return NextResponse.json({ news: newsItem });
   } catch {
-    return NextResponse.json({ error: 'Fehler beim Aktualisieren des Events.' }, { status: 500 });
+    return NextResponse.json({ error: 'Fehler beim Aktualisieren der Nachricht.' }, { status: 500 });
   }
 }
 
@@ -62,16 +62,16 @@ export async function DELETE(
     const { id } = await params;
 
     const { error } = await supabase
-      .from('events')
+      .from('news')
       .delete()
       .eq('id', id);
 
     if (error) {
-      return NextResponse.json({ error: 'Event nicht gefunden.' }, { status: 404 });
+      return NextResponse.json({ error: 'Nachricht nicht gefunden.' }, { status: 404 });
     }
 
-    return NextResponse.json({ message: 'Event gelöscht.' });
+    return NextResponse.json({ message: 'Nachricht gelöscht.' });
   } catch {
-    return NextResponse.json({ error: 'Fehler beim Löschen des Events.' }, { status: 500 });
+    return NextResponse.json({ error: 'Fehler beim Löschen der Nachricht.' }, { status: 500 });
   }
 }
