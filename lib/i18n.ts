@@ -12,6 +12,7 @@ export const translations = {
       home: "Startseite",
       about: "Über uns",
       events: "Veranstaltungen",
+      news: "Nachrichten",
       gallery: "Galerie",
       contact: "Kontakt",
     },
@@ -63,6 +64,16 @@ export const translations = {
       allEvents: "Alle Veranstaltungen",
       noEvents: "Derzeit sind keine Veranstaltungen geplant.",
       loading: "Veranstaltungen werden geladen...",
+    },
+
+    // News
+    news: {
+      pageTitle: "Nachrichten",
+      pageSubtitle: "Aktuelle Neuigkeiten aus unserer Gemeinschaft",
+      noNews: "Derzeit gibt es keine Nachrichten.",
+      loading: "Nachrichten werden geladen...",
+      readMore: "Weiterlesen",
+      publishedOn: "Veröffentlicht am",
     },
 
     // Gallery
@@ -162,6 +173,7 @@ export const translations = {
       home: "الصفحة الرئيسية",
       about: "من نحن",
       events: "الفعاليات",
+      news: "الأخبار",
       gallery: "معرض الصور",
       contact: "اتصل بنا",
     },
@@ -213,6 +225,16 @@ export const translations = {
       allEvents: "جميع الفعاليات",
       noEvents: "لا توجد فعاليات مخططة حالياً.",
       loading: "جاري تحميل الفعاليات...",
+    },
+
+    // News
+    news: {
+      pageTitle: "الأخبار",
+      pageSubtitle: "آخر الأخبار من مجتمعنا",
+      noNews: "لا توجد أخبار حالياً.",
+      loading: "جاري تحميل الأخبار...",
+      readMore: "اقرأ المزيد",
+      publishedOn: "نُشر في",
     },
 
     // Gallery

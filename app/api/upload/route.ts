@@ -11,18 +11,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Keine Datei angegeben" }, { status: 400 })
     }
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+    const imageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+    const videoTypes = ["video/mp4", "video/webm", "video/quicktime"]
+    const allowedTypes = [...imageTypes, ...videoTypes]
+    const isVideo = videoTypes.includes(file.type)
+
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: "Nur Bilder (JPEG, PNG, WebP, GIF) sind erlaubt" },
+        { error: "Nur Bilder (JPEG, PNG, WebP, GIF) und Videos (MP4, WebM, MOV) sind erlaubt" },
         { status: 400 }
       )
     }
 
-    const maxSize = 10 * 1024 * 1024
+    const maxSize = isVideo ? 100 * 1024 * 1024 : 10 * 1024 * 1024
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: "Datei ist zu groß. Maximale Größe: 10MB" },
+        { error: `Datei ist zu groß. Maximale Größe: ${isVideo ? "100MB" : "10MB"}` },
         { status: 400 }
       )
     }
@@ -32,7 +36,8 @@ export async function POST(request: NextRequest) {
     // Eindeutigen Dateinamen generieren
     const ext = file.name.split(".").pop() || "jpg"
     const uniqueName = `${crypto.randomUUID()}.${ext}`
-    const filePath = `images/${uniqueName}`
+    const folder = isVideo ? "videos" : "images"
+    const filePath = `${folder}/${uniqueName}`
 
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)

@@ -17,7 +17,7 @@ export async function PUT(
     const supabase = getSupabase();
     const { id } = await params;
     const body = await request.json();
-    const { title, titleAr, description, descriptionAr, date, imageUrls } = body;
+    const { title, titleAr, description, descriptionAr, date, imageUrls, videoUrls } = body;
 
     const { data: event, error } = await supabase
       .from('events')
@@ -28,13 +28,19 @@ export async function PUT(
         description_ar: descriptionAr || '',
         date,
         image_urls: imageUrls || [],
+        video_urls: videoUrls || [],
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
       .single();
 
-    if (error || !event) {
+    if (error) {
+      console.error('Event Update Fehler:', error);
+      return NextResponse.json({ error: error.message || 'Fehler beim Aktualisieren.' }, { status: 500 });
+    }
+
+    if (!event) {
       return NextResponse.json({ error: 'Event nicht gefunden.' }, { status: 404 });
     }
 

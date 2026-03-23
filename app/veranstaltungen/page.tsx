@@ -15,6 +15,7 @@ interface Event {
   description_ar: string
   date: string
   image_urls: string[]
+  video_urls: string[]
 }
 
 export default function EventsPage() {
@@ -84,6 +85,24 @@ export default function EventsPage() {
                     {/* Bilder-Galerie */}
                     {event.image_urls && event.image_urls.length > 0 && (
                       <EventImageGallery images={event.image_urls} alt={getTitle(event)} />
+                    )}
+                    {/* Videos */}
+                    {event.video_urls && event.video_urls.length > 0 && (
+                      <div className="px-6 md:px-8 pt-6 space-y-4">
+                        {event.video_urls.map((url, i) => (
+                          <video
+                            key={i}
+                            src={url}
+                            controls
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            className="w-full max-h-[500px] rounded-lg bg-black"
+                            preload="metadata"
+                          />
+                        ))}
+                      </div>
                     )}
                     <div className="p-6 md:p-8">
                       <div className="flex items-center gap-2 text-primary mb-3">

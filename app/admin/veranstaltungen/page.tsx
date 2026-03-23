@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Trash2, Pencil, Plus, X, Loader2, CalendarDays, LogIn, Upload, ImageIcon, ArrowLeft, ArrowRight } from "lucide-react"
+import { Trash2, Pencil, Plus, X, Loader2, CalendarDays, LogIn, Upload, ImageIcon, ArrowLeft, ArrowRight, KeyRound, Video } from "lucide-react"
 
 interface Event {
   id: string
@@ -17,6 +17,7 @@ interface Event {
   description_ar: string
   date: string
   image_urls: string[]
+  video_urls: string[]
 }
 
 export default function AdminEventsPage() {
@@ -42,9 +43,20 @@ export default function AdminEventsPage() {
     date: "",
   })
   const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [videoUrls, setVideoUrls] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
+  const [uploadingVideo, setUploadingVideo] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
+
+  // Password reset
+  const [showPasswordForm, setShowPasswordForm] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [passwordMessage, setPasswordMessage] = useState("")
+  const [passwordError, setPasswordError] = useState("")
 
   const checkAuth = useCallback(async () => {
     try {
@@ -98,6 +110,7 @@ export default function AdminEventsPage() {
   const resetForm = () => {
     setForm({ title: "", titleAr: "", description: "", descriptionAr: "", date: "" })
     setImageUrls([])
+    setVideoUrls([])
     setEditingId(null)
     setShowForm(false)
     setError("")
@@ -112,6 +125,7 @@ export default function AdminEventsPage() {
       date: event.date.slice(0, 10),
     })
     setImageUrls(event.image_urls || [])
+    setVideoUrls(event.video_urls || [])
     setEditingId(event.id)
     setShowForm(true)
     setError("")
@@ -154,6 +168,43 @@ export default function AdminEventsPage() {
     setImageUrls((prev) => prev.filter((_, i) => i !== index))
   }
 
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    setUploadingVideo(true)
+    setError("")
+
+    try {
+      for (const file of Array.from(files)) {
+        const formData = new FormData()
+        formData.append("file", file)
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        })
+
+        if (!res.ok) {
+          const data = await res.json()
+          throw new Error(data.error || "Upload fehlgeschlagen")
+        }
+
+        const data = await res.json()
+        setVideoUrls((prev) => [...prev, data.url])
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Video-Upload fehlgeschlagen")
+    } finally {
+      setUploadingVideo(false)
+      e.target.value = ""
+    }
+  }
+
+  const removeVideo = (index: number) => {
+    setVideoUrls((prev) => prev.filter((_, i) => i !== index))
+  }
+
   const moveImage = (index: number, direction: "left" | "right") => {
     setImageUrls((prev) => {
       const newArr = [...prev]
@@ -176,7 +227,7 @@ export default function AdminEventsPage() {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, imageUrls }),
+        body: JSON.stringify({ ...form, imageUrls, videoUrls }),
       })
 
       if (!res.ok) {
@@ -190,6 +241,40 @@ export default function AdminEventsPage() {
       setError(err instanceof Error ? err.message : "Fehler beim Speichern.")
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordMessage("")
+    setPasswordError("")
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Neue Passwörter stimmen nicht überein.")
+      return
+    }
+
+    setPasswordLoading(true)
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setPasswordMessage(data.message)
+        setCurrentPassword("")
+        setNewPassword("")
+        setConfirmPassword("")
+        setTimeout(() => setShowPasswordForm(false), 2000)
+      } else {
+        setPasswordError(data.error || "Fehler beim Ändern.")
+      }
+    } catch {
+      setPasswordError("Verbindungsfehler.")
+    } finally {
+      setPasswordLoading(false)
     }
   }
 
@@ -269,7 +354,48 @@ export default function AdminEventsPage() {
             <p className="text-xl text-muted-foreground">
               Erstellen, bearbeiten und löschen Sie Events
             </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-4 gap-2"
+              onClick={() => {
+                setShowPasswordForm(!showPasswordForm)
+                setPasswordMessage("")
+                setPasswordError("")
+                setCurrentPassword("")
+                setNewPassword("")
+                setConfirmPassword("")
+              }}
+            >
+              <KeyRound className="h-4 w-4" />
+              Passwort ändern
+            </Button>
           </div>
+
+          {showPasswordForm && (
+            <div className="max-w-md mx-auto mt-6 bg-background p-6 rounded-xl border">
+              <h2 className="text-lg font-bold mb-4">Passwort ändern</h2>
+              <form onSubmit={handlePasswordReset} className="space-y-3">
+                <div>
+                  <Label htmlFor="currentPw">Aktuelles Passwort</Label>
+                  <Input id="currentPw" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
+                </div>
+                <div>
+                  <Label htmlFor="newPw">Neues Passwort</Label>
+                  <Input id="newPw" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={6} />
+                </div>
+                <div>
+                  <Label htmlFor="confirmPw">Neues Passwort bestätigen</Label>
+                  <Input id="confirmPw" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={6} />
+                </div>
+                <Button type="submit" disabled={passwordLoading} className="w-full">
+                  {passwordLoading ? (<><Loader2 className="h-4 w-4 animate-spin mr-2" />Wird geändert...</>) : "Passwort ändern"}
+                </Button>
+                {passwordError && <p className="text-destructive text-sm text-center">{passwordError}</p>}
+                {passwordMessage && <p className="text-green-600 text-sm text-center">{passwordMessage}</p>}
+              </form>
+            </div>
+          )}
         </section>
 
         <section className="py-12 px-6 bg-background">
@@ -392,10 +518,63 @@ export default function AdminEventsPage() {
                     </div>
                   </div>
 
+                  {/* Videos Upload */}
+                  <div>
+                    <Label>Videos</Label>
+                    <div className="mt-2 border-2 border-dashed border-border rounded-xl p-6">
+                      <div className="flex flex-wrap gap-4 mb-4">
+                        {videoUrls.map((url, index) => (
+                          <div key={index} className="relative group">
+                            <div className="w-48 h-32 rounded-lg overflow-hidden border border-border bg-black">
+                              <video src={url} className="w-full h-full object-cover" muted />
+                            </div>
+                            <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                type="button"
+                                onClick={() => removeVideo(index)}
+                                className="bg-destructive text-white rounded-full p-1"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </div>
+                            <p className="text-xs text-muted-foreground text-center mt-1">Video {index + 1}</p>
+                          </div>
+                        ))}
+
+                        {videoUrls.length === 0 && !uploadingVideo && (
+                          <div className="flex flex-col items-center justify-center w-full py-4 text-muted-foreground">
+                            <Video className="h-10 w-10 mb-2" />
+                            <p className="text-sm">Noch keine Videos hochgeladen</p>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <Label htmlFor="video-upload" className="sr-only">Videos hochladen</Label>
+                        <Input
+                          id="video-upload"
+                          type="file"
+                          accept="video/mp4,video/webm,video/quicktime"
+                          multiple
+                          onChange={handleVideoUpload}
+                          disabled={uploadingVideo}
+                          className="cursor-pointer"
+                        />
+                        {uploadingVideo && (
+                          <div className="flex items-center gap-2 text-muted-foreground flex-shrink-0">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <span className="text-sm">Video wird hochgeladen...</span>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">Erlaubt: MP4, WebM, MOV (max. 100MB)</p>
+                    </div>
+                  </div>
+
                   {error && <p className="text-destructive text-sm">{error}</p>}
 
                   <div className="flex gap-3">
-                    <Button type="submit" disabled={saving || uploading}>
+                    <Button type="submit" disabled={saving || uploading || uploadingVideo}>
                       {saving ? (<><Loader2 className="h-4 w-4 animate-spin mr-2" />Wird gespeichert...</>) : editingId ? "Aktualisieren" : "Erstellen"}
                     </Button>
                     <Button type="button" variant="outline" onClick={resetForm}>Abbrechen</Button>
@@ -438,6 +617,12 @@ export default function AdminEventsPage() {
                         )}
                       </h3>
                       <p className="text-muted-foreground text-sm line-clamp-2">{event.description}</p>
+                      {event.video_urls && event.video_urls.length > 0 && (
+                        <p className="text-xs text-primary mt-1 flex items-center gap-1">
+                          <Video className="h-3 w-3" />
+                          {event.video_urls.length} Video{event.video_urls.length > 1 ? "s" : ""}
+                        </p>
+                      )}
                     </div>
                     <div className="flex gap-2 flex-shrink-0">
                       <Button variant="outline" size="sm" onClick={() => handleEdit(event)}>

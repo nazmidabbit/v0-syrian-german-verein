@@ -9,23 +9,23 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '0', 10);
 
     let query = supabase
-      .from('events')
+      .from('news')
       .select('*')
-      .order('date', { ascending: false });
+      .order('published_at', { ascending: false });
 
     if (limit > 0) {
       query = query.limit(limit);
     }
 
-    const { data: events, error } = await query;
+    const { data: news, error } = await query;
 
     if (error) {
-      return NextResponse.json({ error: 'Fehler beim Laden der Events.' }, { status: 500 });
+      return NextResponse.json({ error: 'Fehler beim Laden der Nachrichten.' }, { status: 500 });
     }
 
-    return NextResponse.json({ events: events || [] });
+    return NextResponse.json({ news: news || [] });
   } catch {
-    return NextResponse.json({ error: 'Fehler beim Laden der Events.' }, { status: 500 });
+    return NextResponse.json({ error: 'Fehler beim Laden der Nachrichten.' }, { status: 500 });
   }
 }
 
@@ -40,35 +40,34 @@ export async function POST(request: Request) {
 
     const supabase = getSupabase();
     const body = await request.json();
-    const { title, titleAr, description, descriptionAr, date, imageUrls, videoUrls } = body;
+    const { title, titleAr, content, contentAr, imageUrl } = body;
 
-    if (!title || !description || !date) {
+    if (!title || !content) {
       return NextResponse.json(
-        { error: 'Titel, Beschreibung und Datum sind erforderlich.' },
+        { error: 'Titel und Inhalt sind erforderlich.' },
         { status: 400 }
       );
     }
 
-    const { data: event, error } = await supabase
-      .from('events')
+    const { data: newsItem, error } = await supabase
+      .from('news')
       .insert({
         title,
         title_ar: titleAr || '',
-        description,
-        description_ar: descriptionAr || '',
-        date,
-        image_urls: imageUrls || [],
-        video_urls: videoUrls || [],
+        content,
+        content_ar: contentAr || '',
+        image_url: imageUrl || '',
+        published_at: new Date().toISOString(),
       })
       .select()
       .single();
 
     if (error) {
-      return NextResponse.json({ error: 'Fehler beim Erstellen des Events.' }, { status: 500 });
+      return NextResponse.json({ error: 'Fehler beim Erstellen der Nachricht.' }, { status: 500 });
     }
 
-    return NextResponse.json({ event }, { status: 201 });
+    return NextResponse.json({ news: newsItem }, { status: 201 });
   } catch {
-    return NextResponse.json({ error: 'Fehler beim Erstellen des Events.' }, { status: 500 });
+    return NextResponse.json({ error: 'Fehler beim Erstellen der Nachricht.' }, { status: 500 });
   }
 }

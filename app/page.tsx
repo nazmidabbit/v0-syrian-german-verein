@@ -18,6 +18,7 @@ interface Event {
   description_ar: string
   date: string
   image_urls: string[]
+  video_urls: string[]
 }
 
 function useInView(threshold = 0.15) {
@@ -81,9 +82,9 @@ export default function HomePage() {
           <Image
             src={locale === "ar" ? "/Title_ar.png" : "/Title_de.png"}
             alt={locale === "ar" ? t.hero.titleAr : t.hero.title}
-            width={600}
-            height={200}
-            className="mt-6 sm:mt-12 max-w-full h-auto"
+            width={1920}
+            height={600}
+            className="mt-6 sm:mt-12 w-full h-auto"
             priority
           />
         </section>
@@ -266,8 +267,19 @@ function AnimatedEventCard({
         }`}
       style={{ transitionDelay: `${index * 150}ms` }}
     >
-      {/* Image with zoom on hover */}
-      {event.image_urls && event.image_urls.length > 0 && (
+      {/* Video or Image */}
+      {event.video_urls && event.video_urls.length > 0 ? (
+        <div className="relative bg-black overflow-hidden">
+          <video
+            src={event.video_urls[0]}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full max-h-[250px] object-cover"
+          />
+        </div>
+      ) : event.image_urls && event.image_urls.length > 0 ? (
         <div className="relative bg-muted overflow-hidden">
           <div className="flex justify-center transition-transform duration-500 group-hover:scale-105">
             <Image
@@ -286,7 +298,7 @@ function AnimatedEventCard({
           {/* Gradient overlay */}
           <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background/20 to-transparent" />
         </div>
-      )}
+      ) : null}
 
       <div className="p-6">
         {/* Date badge */}
