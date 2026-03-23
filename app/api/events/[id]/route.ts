@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
-import { getAuthUser, canEdit } from '@/lib/auth';
+import { getAuthUser, hasPermission } from '@/lib/auth';
 
 export async function PUT(
   request: Request,
@@ -8,7 +8,7 @@ export async function PUT(
 ) {
   try {
     const user = await getAuthUser();
-    if (!user || !canEdit(user.role)) {
+    if (!user || !hasPermission(user, 'veranstaltungen')) {
       return NextResponse.json({ error: 'Keine Berechtigung.' }, { status: 403 });
     }
 
@@ -54,7 +54,7 @@ export async function DELETE(
 ) {
   try {
     const user = await getAuthUser();
-    if (!user || !canEdit(user.role)) {
+    if (!user || !hasPermission(user, 'veranstaltungen')) {
       return NextResponse.json({ error: 'Keine Berechtigung.' }, { status: 403 });
     }
 

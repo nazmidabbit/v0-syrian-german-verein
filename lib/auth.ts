@@ -17,7 +17,21 @@ export async function getAuthUser() {
       .single();
 
     if (!user || !user.is_verified) return null;
-    return { ...user, role: user.role || 'viewer' };
+
+    // Permissions separat laden (Spalte existiert evtl. noch nicht)
+    let permissions: string[] = [];
+    try {
+      const { data: permData } = await supabase
+        .from('users')
+        .select('permissions')
+        .eq('id', decoded.userId)
+        .single();
+      permissions = permData?.permissions || [];
+    } catch {
+      // Spalte existiert noch nicht
+    }
+
+    return { ...user, role: user.role || 'viewer', permissions };
   } catch {
     return null;
   }
@@ -25,4 +39,9 @@ export async function getAuthUser() {
 
 export function canEdit(role: string) {
   return role === 'admin' || role === 'editor';
+}
+
+export function hasPermission(user: { role: string; permissions: string[] }, page: string) {
+  if (user.role === 'admin') return true;
+  return user.permissions.includes(page);
 }

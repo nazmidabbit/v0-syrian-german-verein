@@ -25,6 +25,7 @@ export default function AdminEventsPage() {
   const [loading, setLoading] = useState(true)
   const [authenticated, setAuthenticated] = useState(false)
   const [userRole, setUserRole] = useState("")
+  const [userPermissions, setUserPermissions] = useState<string[]>([])
   const [checking, setChecking] = useState(true)
 
   // Login form
@@ -59,7 +60,7 @@ export default function AdminEventsPage() {
   const [passwordMessage, setPasswordMessage] = useState("")
   const [passwordError, setPasswordError] = useState("")
 
-  const canEdit = userRole === "admin" || userRole === "editor"
+  const canEdit = userRole === "admin" || userPermissions.includes("veranstaltungen")
 
   const checkAuth = useCallback(async () => {
     try {
@@ -68,6 +69,7 @@ export default function AdminEventsPage() {
         const data = await res.json()
         setAuthenticated(true)
         setUserRole(data.user?.role || "viewer")
+        setUserPermissions(data.user?.permissions || [])
       }
     } catch {
       // not authenticated

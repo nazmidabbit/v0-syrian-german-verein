@@ -14,7 +14,7 @@ interface AdminLink {
   description: string
   href: string
   icon: React.ElementType
-  requiredRole: "admin" | "editor" | "viewer"
+  page: string
 }
 
 const adminLinks: AdminLink[] = [
@@ -23,35 +23,35 @@ const adminLinks: AdminLink[] = [
     description: "Events erstellen, bearbeiten und löschen",
     href: "/admin/veranstaltungen",
     icon: CalendarDays,
-    requiredRole: "editor",
+    page: "veranstaltungen",
   },
   {
     title: "Nachrichten",
     description: "Nachrichten erstellen, bearbeiten und löschen",
     href: "/admin/nachrichten",
     icon: Newspaper,
-    requiredRole: "editor",
+    page: "nachrichten",
   },
   {
     title: "Bilder",
     description: "Galerie-Bilder verwalten",
     href: "/admin/bilder",
     icon: ImageIcon,
-    requiredRole: "editor",
+    page: "bilder",
   },
   {
     title: "Mailbox",
     description: "Eingegangene E-Mails lesen",
     href: "/admin/mailbox",
     icon: Mail,
-    requiredRole: "editor",
+    page: "mailbox",
   },
   {
     title: "Benutzer",
     description: "Benutzer und Berechtigungen verwalten",
     href: "/admin/benutzer",
     icon: Users,
-    requiredRole: "admin",
+    page: "benutzer",
   },
 ]
 
@@ -65,6 +65,7 @@ export default function AdminDashboardPage() {
   const [loginPassword, setLoginPassword] = useState("")
   const [loginError, setLoginError] = useState("")
   const [loginLoading, setLoginLoading] = useState(false)
+  const [userPermissions, setUserPermissions] = useState<string[]>([])
 
   const checkAuth = useCallback(async () => {
     try {
@@ -73,6 +74,7 @@ export default function AdminDashboardPage() {
         const data = await res.json()
         setAuthenticated(true)
         setUserRole(data.user?.role || "viewer")
+        setUserPermissions(data.user?.permissions || [])
         setUserName(data.user?.name || data.user?.email || "")
       }
     } catch {
@@ -113,10 +115,10 @@ export default function AdminDashboardPage() {
     }
   }
 
-  const canAccess = (requiredRole: string) => {
+  const canAccess = (page: string) => {
     if (userRole === "admin") return true
-    if (userRole === "editor" && requiredRole !== "admin") return true
-    return false
+    if (page === "benutzer") return false
+    return userPermissions.includes(page)
   }
 
   const getRoleLabel = (role: string) => {
@@ -133,6 +135,24 @@ export default function AdminDashboardPage() {
         <Header />
         <main className="flex-1 flex items-center justify-center pt-20">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </main>
+        <Footer />
+      </div>
+    )
+  }
+
+  const hasAnyAccess = userRole === "admin" || userPermissions.length > 0
+
+  if (authenticated && !hasAnyAccess) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center px-6 pt-20">
+          <div className="text-center">
+            <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h1 className="text-2xl font-bold mb-2">Kein Zugriff</h1>
+            <p className="text-muted-foreground">Sie benötigen die Rolle &quot;Editor&quot; oder &quot;Admin&quot;, um den Admin-Bereich zu betreten.</p>
+          </div>
         </main>
         <Footer />
       </div>
@@ -196,7 +216,7 @@ export default function AdminDashboardPage() {
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {adminLinks.map((link) => {
-                const hasAccess = canAccess(link.requiredRole)
+                const hasAccess = canAccess(link.page)
                 return (
                   <div key={link.href} className="relative">
                     {hasAccess ? (
@@ -215,7 +235,7 @@ export default function AdminDashboardPage() {
                         <p className="text-sm text-muted-foreground">{link.description}</p>
                         <div className="flex items-center gap-1 mt-2 text-xs text-orange-500">
                           <Shield className="h-3 w-3" />
-                          Nur {link.requiredRole === "admin" ? "Admin" : "Editor/Admin"}
+                          Keine Berechtigung
                         </div>
                       </div>
                     )}

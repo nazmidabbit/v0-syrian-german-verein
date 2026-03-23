@@ -32,10 +32,10 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { role, is_verified } = body;
+    const { role, is_verified, permissions } = body;
 
     // Admin kann sich nicht selbst die Rolle entziehen
-    if (id === authUser.id && role !== 'admin') {
+    if (id === authUser.id && role !== undefined && role !== 'admin') {
       return NextResponse.json({ error: 'Sie können sich nicht selbst die Admin-Rolle entziehen.' }, { status: 400 });
     }
 
@@ -43,12 +43,13 @@ export async function PUT(
     const updateData: Record<string, unknown> = {};
     if (role !== undefined) updateData.role = role;
     if (is_verified !== undefined) updateData.is_verified = is_verified;
+    if (permissions !== undefined) updateData.permissions = permissions;
 
     const { data: user, error } = await supabase
       .from('users')
       .update(updateData)
       .eq('id', id)
-      .select('id, name, email, role, is_verified, email_verified, created_at')
+      .select('id, name, email, role, is_verified, email_verified, permissions, created_at')
       .single();
 
     if (error) {

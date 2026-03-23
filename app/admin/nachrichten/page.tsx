@@ -26,6 +26,7 @@ export default function AdminNewsPage() {
   const [loading, setLoading] = useState(true)
   const [authenticated, setAuthenticated] = useState(false)
   const [userRole, setUserRole] = useState("")
+  const [userPermissions, setUserPermissions] = useState<string[]>([])
   const [checking, setChecking] = useState(true)
 
   // Login form
@@ -51,7 +52,7 @@ export default function AdminNewsPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
 
-  const canEdit = userRole === "admin" || userRole === "editor"
+  const canEdit = userRole === "admin" || userPermissions.includes("nachrichten")
 
   const checkAuth = useCallback(async () => {
     try {
@@ -60,6 +61,7 @@ export default function AdminNewsPage() {
         const data = await res.json()
         setAuthenticated(true)
         setUserRole(data.user?.role || "viewer")
+        setUserPermissions(data.user?.permissions || [])
       }
     } catch {
       // not authenticated

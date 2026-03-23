@@ -24,9 +24,22 @@ export async function GET() {
       return NextResponse.json({ authenticated: false }, { status: 401 });
     }
 
+    // Permissions separat laden (Spalte existiert evtl. noch nicht)
+    let permissions: string[] = [];
+    try {
+      const { data: permData } = await supabase
+        .from('users')
+        .select('permissions')
+        .eq('id', decoded.userId)
+        .single();
+      permissions = permData?.permissions || [];
+    } catch {
+      // Spalte existiert noch nicht
+    }
+
     return NextResponse.json({
       authenticated: true,
-      user: { name: user.name, email: user.email, role: user.role || 'viewer' },
+      user: { name: user.name, email: user.email, role: user.role || 'viewer', permissions },
     });
   } catch {
     return NextResponse.json({ authenticated: false }, { status: 401 });

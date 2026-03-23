@@ -30,7 +30,7 @@ export async function GET() {
     const supabase = getSupabase();
     const { data: users, error } = await supabase
       .from('users')
-      .select('id, name, email, role, is_verified, email_verified, created_at')
+      .select('id, name, email, role, is_verified, email_verified, permissions, created_at')
       .order('created_at', { ascending: false });
 
     if (error) {
