@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono, Noto_Sans_Arabic } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { LanguageProvider } from "@/components/language-provider"
+import { CookieConsent } from "@/components/cookie-consent"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -24,7 +25,10 @@ export default function RootLayout({
   return (
     <html lang="de" dir="ltr" suppressHydrationWarning>
       <body className="font-sans antialiased">
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>
+          {children}
+          <CookieConsent />
+        </LanguageProvider>
         <Analytics />
       </body>
     </html>

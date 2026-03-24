@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { getSupabase } from '@/lib/supabase';
+import { verifyToken } from '@/lib/jwt';
 
 export async function getAuthUser() {
   const cookieStore = await cookies();
@@ -8,7 +9,8 @@ export async function getAuthUser() {
 
   try {
     const supabase = getSupabase();
-    const decoded = JSON.parse(Buffer.from(token, 'base64').toString());
+    const decoded = verifyToken(token);
+    if (!decoded) return null;
 
     const { data: user } = await supabase
       .from('users')

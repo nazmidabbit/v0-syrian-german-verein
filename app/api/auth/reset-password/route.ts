@@ -1,24 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import bcrypt from 'bcryptjs';
 import { getSupabase } from '@/lib/supabase';
+import { getAuthUser } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('auth-token')?.value;
-
-    if (!token) {
+    const authUser = await getAuthUser();
+    if (!authUser) {
       return NextResponse.json({ error: 'Nicht authentifiziert.' }, { status: 401 });
     }
 
-    const decoded = JSON.parse(Buffer.from(token, 'base64').toString());
     const supabase = getSupabase();
 
     const { data: user } = await supabase
       .from('users')
       .select('id, password, is_verified')
-      .eq('id', decoded.userId)
+      .eq('id', authUser.id)
       .single();
 
     if (!user || !user.is_verified) {

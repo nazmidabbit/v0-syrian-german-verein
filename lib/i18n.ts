@@ -124,7 +124,7 @@ export const translations = {
       phone: "Telefon",
       phoneValue: "Auf Anfrage",
       location: "Standort",
-      locationValue: "Saarland, Deutschland",
+      locationValue: "Breite Straße 28, 66115 Saarbrücken",
       followUs: "Folgen Sie uns",
       writeUs: "Schreiben Sie uns",
       firstName: "Vorname",
@@ -146,14 +146,71 @@ export const translations = {
       title: "Syrische Gemeinschaft im Saarland",
       description: "Eine Gemeinschaft, die syrische Familien und Einzelpersonen im Saarland zusammenbringt.",
       navigation: "Navigation",
+      legal: "Rechtliches",
+      impressum: "Impressum",
+      datenschutz: "Datenschutzerklärung",
       followUs: "Folgen Sie uns",
       rights: "Alle Rechte vorbehalten.",
+    },
+
+    // Cookie Consent
+    cookieConsent: {
+      text: "Wir verwenden technisch notwendige Cookies, um den Betrieb unserer Website zu gewährleisten. Weitere Informationen finden Sie in unserer",
+      link: "Datenschutzerklärung",
+      accept: "Akzeptieren",
+      decline: "Ablehnen",
     },
 
     // Admin
     admin: {
       title: "Bildverwaltung",
       subtitle: "Verwalten Sie die Bilder Ihrer Webseite",
+    },
+
+    // Impressum
+    impressum: {
+      pageTitle: "Impressum",
+      inGruendung: "Verein in Gründung (i. Gr.)",
+      angaben: "Angaben gemäß § 5 TMG",
+      name: "Syrische Gemeinschaft im Saarland e.V. (i. Gr.)",
+      alwadi: "Alwadi",
+      address: "Breite Straße 28, 66115 Saarbrücken",
+      contact: "Kontakt",
+      email: "E-Mail: info@sygs.de",
+      responsible: "Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV",
+      responsibleNote: "Die verantwortliche Person wird nach Abschluss der Vereinsgründung hier benannt.",
+      disclaimer: "Haftungsausschluss",
+      disclaimerContent: "Haftung für Inhalte",
+      disclaimerText: "Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.",
+      linksTitle: "Haftung für Links",
+      linksText: "Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.",
+      copyrightTitle: "Urheberrecht",
+      copyrightText: "Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.",
+      gruendungshinweis: "Hinweis: Die Syrische Gemeinschaft im Saarland befindet sich derzeit in der Gründungsphase. Die Angaben auf dieser Seite werden nach Abschluss der Vereinsregistrierung aktualisiert.",
+    },
+
+    // Datenschutz
+    datenschutz: {
+      pageTitle: "Datenschutzerklärung",
+      intro: "Wir nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend der gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.",
+      responsibleTitle: "1. Verantwortliche Stelle",
+      responsibleText: "Verantwortlich für die Datenverarbeitung auf dieser Website ist:",
+      responsibleName: "Syrische Gemeinschaft im Saarland e.V. (i. Gr.)",
+      responsibleEmail: "E-Mail: info@sygs.de",
+      dataCollectionTitle: "2. Erhebung und Speicherung personenbezogener Daten",
+      dataCollectionText: "Beim Besuch unserer Website werden automatisch Informationen allgemeiner Natur erfasst (Server-Logfiles). Diese Informationen beinhalten u.a. die Art des Webbrowsers, das verwendete Betriebssystem, den Domainnamen Ihres Internet-Service-Providers und Ähnliches. Hierbei handelt es sich ausschließlich um Informationen, welche keine Rückschlüsse auf Ihre Person zulassen.",
+      contactFormTitle: "3. Kontaktformular",
+      contactFormText: "Wenn Sie uns per Kontaktformular Anfragen zukommen lassen, werden Ihre Angaben aus dem Anfrageformular inklusive der von Ihnen dort angegebenen Kontaktdaten zwecks Bearbeitung der Anfrage und für den Fall von Anschlussfragen bei uns gespeichert. Diese Daten geben wir nicht ohne Ihre Einwilligung weiter.",
+      cookiesTitle: "4. Cookies",
+      cookiesText: "Unsere Website verwendet Cookies. Dabei handelt es sich um kleine Textdateien, die auf Ihrem Endgerät gespeichert werden. Wir verwenden ausschließlich technisch notwendige Cookies, die für den Betrieb der Website erforderlich sind (z.B. Authentifizierungs-Cookies für den Login-Bereich).",
+      rightsTitle: "5. Ihre Rechte",
+      rightsText: "Sie haben jederzeit das Recht auf unentgeltliche Auskunft über Ihre gespeicherten personenbezogenen Daten, deren Herkunft und Empfänger und den Zweck der Datenverarbeitung sowie ein Recht auf Berichtigung, Sperrung oder Löschung dieser Daten. Hierzu sowie zu weiteren Fragen zum Thema personenbezogene Daten können Sie sich jederzeit an uns wenden.",
+      hostingTitle: "6. Hosting",
+      hostingText: "Diese Website wird bei Vercel Inc. gehostet. Die Server befinden sich in verschiedenen Rechenzentren weltweit. Weitere Informationen finden Sie in der Datenschutzerklärung von Vercel.",
+      supabaseTitle: "7. Datenbank",
+      supabaseText: "Wir nutzen Supabase als Datenbankdienst zur Speicherung von Inhalten und Benutzerdaten. Die Daten werden auf Servern in der EU gespeichert.",
+      changesTitle: "8. Änderungen",
+      changesText: "Wir behalten uns vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen rechtlichen Anforderungen entspricht oder um Änderungen unserer Leistungen umzusetzen.",
     },
 
     // Gallery image titles
@@ -285,7 +342,7 @@ export const translations = {
       phone: "الهاتف",
       phoneValue: "عند الطلب",
       location: "الموقع",
-      locationValue: "زارلاند، ألمانيا",
+      locationValue: "Breite Straße 28, 66115 Saarbrücken",
       followUs: "تابعنا",
       writeUs: "اكتب لنا",
       firstName: "الاسم الأول",
@@ -307,14 +364,71 @@ export const translations = {
       title: "تجمع السوريين في زارلاند",
       description: "مجتمع يجمع العائلات والأفراد السوريين في ولاية زارلاند.",
       navigation: "التنقل",
+      legal: "قانوني",
+      impressum: "البيانات القانونية",
+      datenschutz: "سياسة الخصوصية",
       followUs: "تابعنا",
       rights: "جميع الحقوق محفوظة.",
+    },
+
+    // Cookie Consent
+    cookieConsent: {
+      text: "نستخدم ملفات تعريف الارتباط الضرورية تقنياً لضمان تشغيل موقعنا. لمزيد من المعلومات، يرجى الاطلاع على",
+      link: "سياسة الخصوصية",
+      accept: "قبول",
+      decline: "رفض",
     },
 
     // Admin
     admin: {
       title: "إدارة الصور",
       subtitle: "إدارة صور موقعك الإلكتروني",
+    },
+
+    // Impressum
+    impressum: {
+      pageTitle: "البيانات القانونية",
+      inGruendung: "جمعية قيد التأسيس",
+      angaben: "المعلومات وفقاً للمادة 5 من قانون الاتصالات",
+      name: "تجمع السوريين في زارلاند (قيد التأسيس)",
+      alwadi: "الوادي",
+      address: "Breite Straße 28, 66115 Saarbrücken",
+      contact: "التواصل",
+      email: "البريد الإلكتروني: info@sygs.de",
+      responsible: "المسؤول عن المحتوى",
+      responsibleNote: "سيتم تسمية الشخص المسؤول بعد الانتهاء من تأسيس الجمعية.",
+      disclaimer: "إخلاء المسؤولية",
+      disclaimerContent: "المسؤولية عن المحتوى",
+      disclaimerText: "تم إنشاء محتويات صفحاتنا بأقصى قدر من العناية. ومع ذلك، لا يمكننا ضمان صحة واكتمال وحداثة المحتوى.",
+      linksTitle: "المسؤولية عن الروابط",
+      linksText: "يحتوي عرضنا على روابط لمواقع خارجية لأطراف ثالثة لا نملك أي تأثير على محتواها. لذلك لا يمكننا تحمل أي مسؤولية عن هذا المحتوى الخارجي.",
+      copyrightTitle: "حقوق النشر",
+      copyrightText: "المحتويات والأعمال المنشأة من قبل مشغلي الموقع تخضع لقانون حقوق النشر الألماني.",
+      gruendungshinweis: "ملاحظة: تجمع السوريين في زارلاند في مرحلة التأسيس حالياً. سيتم تحديث المعلومات بعد الانتهاء من تسجيل الجمعية.",
+    },
+
+    // Datenschutz
+    datenschutz: {
+      pageTitle: "سياسة الخصوصية",
+      intro: "نأخذ حماية بياناتك الشخصية على محمل الجد. نتعامل مع بياناتك الشخصية بسرية ووفقاً للوائح حماية البيانات القانونية وسياسة الخصوصية هذه.",
+      responsibleTitle: "1. الجهة المسؤولة",
+      responsibleText: "المسؤول عن معالجة البيانات على هذا الموقع هو:",
+      responsibleName: "تجمع السوريين في زارلاند (قيد التأسيس)",
+      responsibleEmail: "البريد الإلكتروني: info@sygs.de",
+      dataCollectionTitle: "2. جمع وتخزين البيانات الشخصية",
+      dataCollectionText: "عند زيارة موقعنا، يتم تسجيل معلومات عامة تلقائياً. هذه المعلومات لا تسمح بالتعرف على شخصيتك.",
+      contactFormTitle: "3. نموذج الاتصال",
+      contactFormText: "عند إرسال استفسارات عبر نموذج الاتصال، يتم تخزين بياناتك لمعالجة الطلب. لن نشارك هذه البيانات دون موافقتك.",
+      cookiesTitle: "4. ملفات تعريف الارتباط",
+      cookiesText: "يستخدم موقعنا ملفات تعريف الارتباط الضرورية تقنياً فقط والمطلوبة لتشغيل الموقع.",
+      rightsTitle: "5. حقوقك",
+      rightsText: "لديك الحق في الحصول على معلومات مجانية حول بياناتك الشخصية المخزنة وحق التصحيح أو الحذف في أي وقت.",
+      hostingTitle: "6. الاستضافة",
+      hostingText: "يتم استضافة هذا الموقع لدى شركة Vercel Inc.",
+      supabaseTitle: "7. قاعدة البيانات",
+      supabaseText: "نستخدم Supabase كخدمة قاعدة بيانات. يتم تخزين البيانات على خوادم في الاتحاد الأوروبي.",
+      changesTitle: "8. التغييرات",
+      changesText: "نحتفظ بالحق في تعديل سياسة الخصوصية هذه لتتوافق دائماً مع المتطلبات القانونية الحالية.",
     },
 
     // Gallery image titles

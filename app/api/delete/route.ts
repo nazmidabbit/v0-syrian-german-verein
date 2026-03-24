@@ -1,8 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getSupabase } from "@/lib/supabase"
+import { getAuthUser, canEdit } from "@/lib/auth"
 
 export async function DELETE(request: NextRequest) {
   try {
+    const user = await getAuthUser()
+    if (!user || !canEdit(user.role)) {
+      return NextResponse.json({ error: "Keine Berechtigung." }, { status: 403 })
+    }
+
     const { url } = await request.json()
 
     if (!url) {

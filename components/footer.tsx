@@ -17,7 +17,7 @@ export function Footer() {
   return (
     <footer className="bg-foreground text-background">
       <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="text-lg font-semibold mb-4">{t.footer.title}</h3>
             <p className="text-background/70 text-sm leading-relaxed">
@@ -35,6 +35,22 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold mb-4">{t.footer.legal}</h3>
+            <ul className="flex flex-col gap-2 text-sm">
+              <li>
+                <Link href="/impressum" className="text-background/70 hover:text-background transition-colors">
+                  {t.footer.impressum}
+                </Link>
+              </li>
+              <li>
+                <Link href="/datenschutz" className="text-background/70 hover:text-background transition-colors">
+                  {t.footer.datenschutz}
+                </Link>
+              </li>
             </ul>
           </div>
 

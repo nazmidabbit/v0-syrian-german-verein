@@ -1,9 +1,22 @@
 import { NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
+import { signToken } from '@/lib/jwt';
+import { rateLimit } from '@/lib/rate-limit';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request: Request) {
   try {
+    const forwarded = request.headers.get('x-forwarded-for');
+    const ip = forwarded?.split(',')[0]?.trim() || 'unknown';
+    const { allowed, retryAfterMs } = rateLimit(`login:${ip}`, 10, 15 * 60 * 1000);
+
+    if (!allowed) {
+      return NextResponse.json(
+        { error: `Zu viele Anmeldeversuche. Bitte warten Sie ${Math.ceil(retryAfterMs / 60000)} Minuten.` },
+        { status: 429 }
+      );
+    }
+
     const supabase = getSupabase();
     const { email, password } = await request.json();
 
@@ -49,9 +62,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const token = Buffer.from(
-      JSON.stringify({ userId: user.id, email: user.email, ts: Date.now() })
-    ).toString('base64');
+    const token = signToken({ userId: user.id, email: user.email });
 
     const response = NextResponse.json({
       message: 'Login erfolgreich.',
@@ -61,7 +72,7 @@ export async function POST(request: Request) {
     response.cookies.set('auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'strict',
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
     });

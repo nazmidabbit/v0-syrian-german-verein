@@ -16,7 +16,9 @@
       "Bash(node:*)",
       "Bash(find /c/Users/nazmi.dabbit/v0-syrian-german-verein -type f \\\\\\(-name *header* -o -name *nav* -o -name *menu* \\\\\\))",
       "Bash(xargs grep:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(npx next:*)"
     ]
   }
 }

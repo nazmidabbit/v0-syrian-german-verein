@@ -55,14 +55,8 @@ export default function AdminUsersPage() {
         const data = await res.json()
         setAuthenticated(true)
         setIsAdmin(data.user?.role === "admin")
-        const cookies = document.cookie.split(";")
-        const authCookie = cookies.find((c) => c.trim().startsWith("auth-token="))
-        if (authCookie) {
-          try {
-            const token = authCookie.split("=")[1]
-            const decoded = JSON.parse(atob(token))
-            setCurrentUserId(decoded.userId)
-          } catch { /* ignore */ }
+        if (data.user?.id) {
+          setCurrentUserId(data.user.id)
         }
       }
     } catch {

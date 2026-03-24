@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server"
 import { getSupabase } from "@/lib/supabase"
+import { getAuthUser, canEdit } from "@/lib/auth"
 
 export async function GET() {
   try {
+    const user = await getAuthUser()
+    if (!user || !canEdit(user.role)) {
+      return NextResponse.json({ error: "Keine Berechtigung." }, { status: 403 })
+    }
+
     const supabase = getSupabase()
 
     const { data, error } = await supabase.storage

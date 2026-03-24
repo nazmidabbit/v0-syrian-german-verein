@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getSupabase } from '@/lib/supabase';
+import { verifyToken } from '@/lib/jwt';
 
 export async function GET() {
   try {
@@ -12,7 +13,10 @@ export async function GET() {
     }
 
     const supabase = getSupabase();
-    const decoded = JSON.parse(Buffer.from(token, 'base64').toString());
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      return NextResponse.json({ authenticated: false }, { status: 401 });
+    }
 
     const { data: user } = await supabase
       .from('users')
@@ -39,7 +43,7 @@ export async function GET() {
 
     return NextResponse.json({
       authenticated: true,
-      user: { name: user.name, email: user.email, role: user.role || 'viewer', permissions },
+      user: { id: user.id, name: user.name, email: user.email, role: user.role || 'viewer', permissions },
     });
   } catch {
     return NextResponse.json({ authenticated: false }, { status: 401 });
