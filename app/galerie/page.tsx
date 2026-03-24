@@ -29,6 +29,9 @@ export default function GaleriePage() {
         <section className="py-20 px-6 bg-background">
           <div className="max-w-6xl mx-auto">
             <ImageGallery />
+            <p className="text-sm text-muted-foreground text-center mt-4 italic">
+              {t.gallery.aiNotice}
+            </p>
           </div>
         </section>
 

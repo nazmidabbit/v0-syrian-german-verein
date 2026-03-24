@@ -86,6 +86,7 @@ export const translations = {
       saarlandTitle: "Das Saarland - Unsere Heimat",
       saarlandText: "Das Saarland bietet eine einzigartige Mischung aus Natur, Kultur und Geschichte. Von der berühmten Saarschleife über die UNESCO-Weltkulturerbe Völklinger Hütte bis hin zur barocken Ludwigskirche - hier gibt es viel zu entdecken.",
       close: "Schließen",
+      aiNotice: "Die hier gezeigten Bilder vom Saarland wurden mit Hilfe von Künstlicher Intelligenz (KI) erstellt und sind keine echten Fotografien.",
     },
 
     // CTA
@@ -304,6 +305,7 @@ export const translations = {
       saarlandTitle: "زارلاند - وطننا",
       saarlandText: "تقدم زارلاند مزيجاً فريداً من الطبيعة والثقافة والتاريخ. من منحنى نهر السار الشهير إلى مصنع فولكلينغن للحديد المدرج في قائمة التراث العالمي لليونسكو وصولاً إلى كنيسة لودفيغ الباروكية - هناك الكثير لاكتشافه.",
       close: "إغلاق",
+      aiNotice: "الصور المعروضة هنا لزارلاند تم إنشاؤها بمساعدة الذكاء الاصطناعي وليست صوراً حقيقية.",
     },
 
     // CTA
