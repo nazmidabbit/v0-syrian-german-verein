@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Upload, Trash2, Copy, Check, ImageIcon as ImageIconIcon, Loader2 } from "lucide-react"
 import useSWR from "swr"
+import { uploadFile } from "@/lib/upload-client"
 
 interface BlobFile {
   url: string
@@ -37,18 +38,7 @@ export default function AdminBilderPage() {
 
     try {
       for (const file of Array.from(files)) {
-        const formData = new FormData()
-        formData.append("file", file)
-
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        })
-
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.error || "Upload fehlgeschlagen")
-        }
+        await uploadFile(file)
       }
 
       mutate()

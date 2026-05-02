@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Trash2, Pencil, Plus, X, Loader2, CalendarDays, LogIn, Upload, ImageIcon, ArrowLeft, ArrowRight, KeyRound, Video, Shield } from "lucide-react"
+import { uploadFile } from "@/lib/upload-client"
 
 interface Event {
   id: string
@@ -154,20 +155,7 @@ export default function AdminEventsPage() {
 
     try {
       for (const file of Array.from(files)) {
-        const formData = new FormData()
-        formData.append("file", file)
-
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        })
-
-        if (!res.ok) {
-          const data = await res.json()
-          throw new Error(data.error || "Upload fehlgeschlagen")
-        }
-
-        const data = await res.json()
+        const data = await uploadFile(file)
         setImageUrls((prev) => [...prev, data.url])
       }
     } catch (err) {
@@ -191,20 +179,7 @@ export default function AdminEventsPage() {
 
     try {
       for (const file of Array.from(files)) {
-        const formData = new FormData()
-        formData.append("file", file)
-
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        })
-
-        if (!res.ok) {
-          const data = await res.json()
-          throw new Error(data.error || "Upload fehlgeschlagen")
-        }
-
-        const data = await res.json()
+        const data = await uploadFile(file)
         setVideoUrls((prev) => [...prev, data.url])
       }
     } catch (err) {
