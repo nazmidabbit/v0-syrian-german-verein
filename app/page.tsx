@@ -18,6 +18,7 @@ interface Event {
   description_ar: string
   date: string
   image_urls: string[]
+  video_urls: string[]
 }
 
 function useInView(threshold = 0.15) {
@@ -78,11 +79,17 @@ export default function HomePage() {
       <main className="flex-1 pt-20">
         {/* Hero Section */}
         <section className="relative flex flex-col items-center justify-center min-h-[40vh] py-6 sm:py-10 px-6 bg-gradient-to-b from-white to-primary/5">
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-primary mb-3 sm:mb-4 drop-shadow-lg mt-6 sm:mt-12" dir={locale === "ar" ? "rtl" : undefined}>
+          <h1 className="sr-only" dir={locale === "ar" ? "rtl" : undefined}>
             {locale === "ar" ? t.hero.titleAr : t.hero.title}
           </h1>
-          {/* Untertitel entfernt */}
-          {/* Buttons entfernt */}
+          <Image
+            src={locale === "ar" ? "/Title_ar.png" : "/Title_de.png"}
+            alt={locale === "ar" ? t.hero.titleAr : t.hero.title}
+            width={900}
+            height={600}
+            priority
+            className="w-full max-w-md sm:max-w-lg md:max-w-xl h-auto drop-shadow-lg mt-6 sm:mt-12"
+          />
         </section>
 
         {/* Latest Events Section */}
@@ -266,8 +273,21 @@ function AnimatedEventCard({
         }`}
       style={{ transitionDelay: `${index * 150}ms` }}
     >
-      {/* Image with zoom on hover */}
-      {event.image_urls && event.image_urls.length > 0 && (
+      {/* Video (Autoplay, dauerhaft) — wenn vorhanden, sonst Bild */}
+      {event.video_urls && event.video_urls.length > 0 ? (
+        <div className="relative bg-black overflow-hidden">
+          <video
+            src={event.video_urls[0]}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="w-full max-h-[250px] object-contain bg-black"
+          />
+          <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background/20 to-transparent pointer-events-none" />
+        </div>
+      ) : event.image_urls && event.image_urls.length > 0 ? (
         <div className="relative bg-muted overflow-hidden">
           <div className="flex justify-center transition-transform duration-500 group-hover:scale-105">
             <Image
@@ -286,7 +306,7 @@ function AnimatedEventCard({
           {/* Gradient overlay */}
           <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background/20 to-transparent" />
         </div>
-      )}
+      ) : null}
 
       <div className="p-6">
         {/* Date badge */}
