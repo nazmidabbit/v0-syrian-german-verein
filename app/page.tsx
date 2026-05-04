@@ -7,7 +7,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ImageGallery } from "@/components/image-gallery"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Users, Heart, MapPin, CalendarDays } from "lucide-react"
+import { ArrowRight, Users, Heart, MapPin, CalendarDays, Vote } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 
 interface Event {
@@ -19,6 +19,13 @@ interface Event {
   date: string
   image_urls: string[]
   video_urls: string[]
+}
+
+interface ActiveElection {
+  id: string
+  title: string
+  title_ar: string
+  ends_at: string
 }
 
 function useInView(threshold = 0.15) {
@@ -49,12 +56,18 @@ function useInView(threshold = 0.15) {
 export default function HomePage() {
   const { t, locale } = useLanguage()
   const [events, setEvents] = useState<Event[]>([])
+  const [activeElection, setActiveElection] = useState<ActiveElection | null>(null)
 
   useEffect(() => {
     fetch("/api/events?limit=5")
       .then((res) => res.json())
       .then((data) => setEvents(data.events || []))
       .catch(() => setEvents([]))
+
+    fetch("/api/elections?active=1")
+      .then((res) => res.json())
+      .then((data) => setActiveElection((data.elections && data.elections[0]) || null))
+      .catch(() => setActiveElection(null))
   }, [])
 
   const formatDate = (dateStr: string) => {
@@ -91,6 +104,33 @@ export default function HomePage() {
             className="w-full max-w-md sm:max-w-lg md:max-w-xl h-auto drop-shadow-lg mt-6 sm:mt-12"
           />
         </section>
+
+        {/* Active Election Banner */}
+        {activeElection && (
+          <section className="px-6 py-8 bg-primary/5 border-y border-primary/20">
+            <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+              <div className="flex-shrink-0 w-14 h-14 rounded-full bg-primary/15 flex items-center justify-center">
+                <Vote className="h-7 w-7 text-primary" />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <p className="text-xs uppercase tracking-wide font-semibold text-primary/80">
+                  {t.election.homeBannerTitle}
+                </p>
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground mt-1">
+                  {locale === "ar" && activeElection.title_ar
+                    ? activeElection.title_ar
+                    : activeElection.title}
+                </h2>
+              </div>
+              <Button asChild size="lg" className="gap-2 shrink-0">
+                <Link href={`/wahlen/${activeElection.id}`}>
+                  {t.election.homeBannerCta}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </section>
+        )}
 
         {/* Latest Events Section */}
         {events.length > 0 && <LatestEvents events={events} t={t} locale={locale} formatDate={formatDate} getTitle={getTitle} getDescription={getDescription} />}

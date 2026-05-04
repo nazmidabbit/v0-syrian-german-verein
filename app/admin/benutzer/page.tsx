@@ -6,7 +6,7 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Trash2, Loader2, Users, LogIn, Shield, ShieldCheck, Eye, CheckCircle, XCircle, CalendarDays, Newspaper, ImageIcon, Mail } from "lucide-react"
+import { Trash2, Loader2, Users, LogIn, Shield, ShieldCheck, Eye, CheckCircle, XCircle, CalendarDays, Newspaper, ImageIcon, Mail, Vote } from "lucide-react"
 
 interface User {
   id: string
@@ -28,6 +28,7 @@ const ROLES = [
 const PAGES = [
   { value: "veranstaltungen", label: "Veranstaltungen", icon: CalendarDays },
   { value: "nachrichten", label: "Nachrichten", icon: Newspaper },
+  { value: "wahlen", label: "Wahlen", icon: Vote },
   { value: "bilder", label: "Bilder", icon: ImageIcon },
   { value: "mailbox", label: "Mailbox", icon: Mail },
 ]

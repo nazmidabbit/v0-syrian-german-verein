@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CalendarDays, Newspaper, Users, ImageIcon, Mail, LogIn, Loader2, Shield } from "lucide-react"
+import { CalendarDays, Newspaper, Users, ImageIcon, Mail, LogIn, Loader2, Shield, Vote } from "lucide-react"
 
 interface AdminLink {
   title: string
@@ -31,6 +31,13 @@ const adminLinks: AdminLink[] = [
     href: "/admin/nachrichten",
     icon: Newspaper,
     page: "nachrichten",
+  },
+  {
+    title: "Wahlen",
+    description: "Wahlen anlegen, Kandidaten verwalten, Stimmen auswerten",
+    href: "/admin/wahlen",
+    icon: Vote,
+    page: "wahlen",
   },
   {
     title: "Bilder",

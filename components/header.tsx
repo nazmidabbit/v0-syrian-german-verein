@@ -41,6 +41,7 @@ export function Header() {
     { name: t.nav.about, href: "/ueber-uns" },
     { name: t.nav.events, href: "/veranstaltungen" },
     { name: t.nav.news, href: "/nachrichten" },
+    { name: t.nav.election, href: "/wahlen" },
     { name: t.nav.gallery, href: "/galerie" },
     { name: t.nav.contact, href: "/kontakt" },
   ]

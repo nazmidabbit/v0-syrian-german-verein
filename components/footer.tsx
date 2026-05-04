@@ -10,6 +10,7 @@ export function Footer() {
   const navItems = [
     { name: t.nav.home, href: "/" },
     { name: t.nav.about, href: "/ueber-uns" },
+    { name: t.nav.election, href: "/wahlen" },
     { name: t.nav.gallery, href: "/galerie" },
     { name: t.nav.contact, href: "/kontakt" },
   ]
