@@ -43,7 +43,7 @@ export async function GET() {
 
     return NextResponse.json({
       authenticated: true,
-      user: { id: user.id, name: user.name, email: user.email, role: user.role || 'viewer', permissions },
+      user: { id: user.id, name: user.name, email: user.email, role: user.role || 'viewer', is_verified: user.is_verified, permissions },
     });
   } catch {
     return NextResponse.json({ authenticated: false }, { status: 401 });

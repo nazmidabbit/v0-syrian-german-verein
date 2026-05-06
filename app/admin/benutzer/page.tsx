@@ -1,12 +1,13 @@
 "use client"
 
 import React, { useEffect, useState, useCallback } from "react"
+import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Trash2, Loader2, Users, LogIn, Shield, ShieldCheck, Eye, CheckCircle, XCircle, CalendarDays, Newspaper, ImageIcon, Mail, Vote } from "lucide-react"
+import { Trash2, Loader2, Users, LogIn, Shield, ShieldCheck, Eye, CheckCircle, XCircle, CalendarDays, Newspaper, ImageIcon, Mail, Vote, UserCircle } from "lucide-react"
 
 interface User {
   id: string
@@ -344,6 +345,12 @@ export default function AdminUsersPage() {
                         </div>
 
                         <div className="flex items-center gap-2 flex-shrink-0">
+                          <Button asChild variant="outline" size="sm" title="Profil ansehen">
+                            <Link href={`/admin/benutzer/${user.id}`}>
+                              <UserCircle className="h-4 w-4" />
+                            </Link>
+                          </Button>
+
                           <select
                             value={user.role || "viewer"}
                             onChange={(e) => handleRoleChange(user.id, e.target.value)}
