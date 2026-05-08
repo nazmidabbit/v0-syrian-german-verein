@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect, useCallback } from "react"
-import { Menu, X, Globe, LogOut, LogIn } from "lucide-react"
+import { Menu, X, Globe, LogOut, LogIn, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -46,6 +46,15 @@ export function Header() {
     { name: t.nav.contact, href: "/kontakt" },
   ]
 
+  const vereinMenu = [
+    { name: t.nav.membership, href: "/mitgliedschaft" },
+    { name: t.nav.donate, href: "/spenden" },
+    { name: t.nav.projects, href: "/projekte" },
+    { name: t.nav.board, href: "/vorstand" },
+    { name: t.nav.statutes, href: "/satzung" },
+    { name: t.nav.faq, href: "/faq" },
+  ]
+
   const currentLocale = locales.find((l) => l.code === locale)
 
   return (
@@ -66,7 +75,7 @@ export function Header() {
         </Link>
 
         <div className="flex items-center gap-4">
-          <div className="hidden md:flex md:gap-x-8">
+          <div className="hidden lg:flex lg:gap-x-6 xl:gap-x-8">
             {navigation.map((item) => (
               <Link
                 key={item.href}
@@ -76,6 +85,22 @@ export function Header() {
                 {item.name}
               </Link>
             ))}
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  {t.nav.verein}
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {vereinMenu.map((item) => (
+                  <DropdownMenuItem key={item.href} asChild>
+                    <Link href={item.href}>{item.name}</Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Language Dropdown */}
@@ -116,7 +141,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="lg:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -125,7 +150,7 @@ export function Header() {
       </nav>
 
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background">
+        <div className="lg:hidden border-t border-border bg-background max-h-[calc(100vh-5rem)] overflow-y-auto">
           <div className="px-6 py-4 flex flex-col gap-3">
             {navigation.map((item) => (
               <Link
@@ -137,6 +162,23 @@ export function Header() {
                 {item.name}
               </Link>
             ))}
+
+            <div className="pt-2 mt-1 border-t border-border">
+              <p className="text-xs uppercase tracking-wide font-semibold text-muted-foreground mb-2">
+                {t.nav.verein}
+              </p>
+              {vereinMenu.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="block py-1.5 text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+
             {authenticated ? (
               <button
                 onClick={() => { setMobileMenuOpen(false); handleLogout() }}
