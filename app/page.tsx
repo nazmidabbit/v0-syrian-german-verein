@@ -59,7 +59,7 @@ export default function HomePage() {
   const [activeElection, setActiveElection] = useState<ActiveElection | null>(null)
 
   useEffect(() => {
-    fetch("/api/events?limit=5")
+    fetch("/api/events?limit=6")
       .then((res) => res.json())
       .then((data) => setEvents(data.events || []))
       .catch(() => setEvents([]))
@@ -91,18 +91,74 @@ export default function HomePage() {
 
       <main className="flex-1 pt-20">
         {/* Hero Section */}
-        <section className="relative flex flex-col items-center justify-center min-h-[40vh] py-6 sm:py-10 px-6 bg-gradient-to-b from-white to-primary/5">
+        <section className="relative flex flex-col items-center justify-center min-h-[45vh] py-10 sm:py-16 px-6 bg-white overflow-hidden">
+          {/* Animierte Deko-Blobs im Hintergrund */}
+          <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute -top-16 -left-12 h-64 w-64 rounded-full bg-primary/20 blur-3xl animate-blob" />
+            <div className="absolute -bottom-24 -right-12 h-72 w-72 rounded-full bg-accent/20 blur-3xl animate-blob animation-delay-4000" />
+            <div className="absolute top-1/3 right-1/4 h-40 w-40 rounded-full bg-primary/10 blur-3xl animate-blob animation-delay-2000" />
+          </div>
+
           <h1 className="sr-only" dir={locale === "ar" ? "rtl" : undefined}>
             {locale === "ar" ? t.hero.titleAr : t.hero.title}
           </h1>
-          <Image
-            src={locale === "ar" ? "/Title_ar.png" : "/Title_de.png"}
-            alt={locale === "ar" ? t.hero.titleAr : t.hero.title}
-            width={900}
-            height={600}
-            priority
-            className="w-full max-w-md sm:max-w-lg md:max-w-xl h-auto drop-shadow-lg mt-6 sm:mt-12"
-          />
+
+          {/* Logo mit Rahmen + Animationen */}
+          <div className="relative animate-logo-in">
+            {/* Farbiger Glow hinter der Karte */}
+            <div
+              aria-hidden
+              className="absolute -inset-5 rounded-[2rem] bg-gradient-to-tr from-primary/40 via-transparent to-accent/40 blur-2xl animate-glow-pulse"
+            />
+            <div className="relative animate-float">
+              <div className="group relative overflow-hidden rounded-3xl bg-white p-3 shadow-xl ring-1 ring-black/5 transition-transform duration-500 hover:scale-[1.03]">
+                <Image
+                  src="/images/logo.jpg"
+                  alt={locale === "ar" ? t.hero.titleAr : t.hero.title}
+                  width={900}
+                  height={600}
+                  priority
+                  className="w-full max-w-md sm:max-w-lg md:max-w-xl h-auto rounded-2xl"
+                />
+                {/* Glanz-Sweep über das Logo */}
+                <div aria-hidden className="pointer-events-none absolute inset-0">
+                  <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shine" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Untertitel + Call-to-Action */}
+          <p
+            className="mt-8 max-w-xl text-center text-base sm:text-lg text-muted-foreground animate-logo-in"
+            style={{ animationDelay: "0.25s" }}
+            dir={locale === "ar" ? "rtl" : undefined}
+          >
+            {t.hero.subtitle}
+          </p>
+          <div
+            className="mt-7 flex flex-col sm:flex-row items-center gap-3 animate-logo-in"
+            style={{ animationDelay: "0.45s" }}
+          >
+            <Button asChild size="lg" className="group gap-2">
+              <Link href="/mitgliedschaft">
+                <Users className="h-5 w-5" />
+                {t.nav.membership}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="gap-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground"
+            >
+              <Link href="/spenden">
+                <Heart className="h-5 w-5" />
+                {t.nav.donate}
+              </Link>
+            </Button>
+          </div>
         </section>
 
         {/* Active Election Banner */}
@@ -261,7 +317,7 @@ function LatestEvents({
 
         {/* Animated Event Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {events.slice(0, 5).map((event, index) => (
+          {events.slice(0, 6).map((event, index) => (
             <AnimatedEventCard
               key={event.id}
               event={event}

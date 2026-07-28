@@ -66,7 +66,7 @@ export function Header() {
             alt="Logo der Syrischen Gemeinschaft"
             width={50}
             height={50}
-            className="rounded-lg"
+            className="rounded-lg animate-float-sm transition-transform duration-300 hover:scale-110"
           />
           <div className="hidden sm:block">
             <p className="font-semibold text-foreground text-sm">{t.header.title}</p>

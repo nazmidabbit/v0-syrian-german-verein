@@ -124,3 +124,108 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* --- Hero / logo animations --- */
+@keyframes logo-in {
+  0% {
+    opacity: 0;
+    transform: translateY(28px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes float-sm {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes blob {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(24px, -32px) scale(1.12);
+  }
+  66% {
+    transform: translate(-22px, 22px) scale(0.92);
+  }
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  60%,
+  100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+@layer utilities {
+  .animate-logo-in {
+    animation: logo-in 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .animate-float-sm {
+    animation: float-sm 4s ease-in-out infinite;
+  }
+  .animate-blob {
+    animation: blob 16s ease-in-out infinite;
+  }
+  .animate-glow-pulse {
+    animation: glow-pulse 5s ease-in-out infinite;
+  }
+  .animate-shine {
+    animation: shine 5.5s ease-in-out infinite;
+  }
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-logo-in,
+  .animate-float,
+  .animate-float-sm,
+  .animate-blob,
+  .animate-glow-pulse,
+  .animate-shine {
+    animation: none;
+  }
+}
