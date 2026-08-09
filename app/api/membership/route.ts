@@ -70,6 +70,7 @@ export async function POST(request: Request) {
 
     // Honeypot gefuellt → Bot. Fake-Erfolg zurueckgeben, nichts speichern.
     if (data.company !== '') {
+      console.warn('Mitgliedsantrag verworfen: Honeypot gefuellt');
       return NextResponse.json(SUCCESS);
     }
 

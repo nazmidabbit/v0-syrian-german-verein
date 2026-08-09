@@ -142,12 +142,15 @@ export default function MembershipApplicationPage() {
         <section className="py-16 px-6 bg-background">
           <div className="max-w-2xl mx-auto">
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-10">
-              {/* Honeypot: fuer Menschen unsichtbar, Bots fuellen es aus */}
+              {/* Honeypot: fuer Menschen unsichtbar, Bots fuellen es aus.
+                  Name/Label duerfen keinem Autofill-Feld aehneln — Browser
+                  fuellen sonst per Adress-Autofill mit (autocomplete="off"
+                  wird ignoriert) und echte Antraege werden als Bot verworfen. */}
               <div className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
-                <label htmlFor="company">Company</label>
+                <label htmlFor="form_check_field">Bitte nicht ausfüllen</label>
                 <input
-                  id="company"
-                  name="company"
+                  id="form_check_field"
+                  name="form_check_field"
                   type="text"
                   tabIndex={-1}
                   autoComplete="off"
