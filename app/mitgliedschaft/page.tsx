@@ -133,7 +133,7 @@ export default function MitgliedschaftPage() {
             <h2 className="text-3xl md:text-4xl font-bold mb-4">{t.membership.ctaTitle}</h2>
             <p className="text-lg opacity-90 mb-8">{t.membership.ctaText}</p>
             <Button asChild size="lg" variant="secondary" className="gap-2">
-              <Link href="/kontakt">
+              <Link href="/mitgliedschaft/antrag">
                 {t.membership.ctaButton}
                 <ArrowRight className="h-4 w-4" />
               </Link>
