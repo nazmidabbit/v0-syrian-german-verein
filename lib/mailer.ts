@@ -59,8 +59,11 @@ export interface MembershipMailData {
   firstName: string;
   lastName: string;
   birthDate: string;
+  birthPlace: string;
   email: string;
   phone: string;
+  profession: string;
+  certificate: string;
   street: string;
   postalCode: string;
   city: string;
@@ -84,8 +87,11 @@ export async function sendMembershipAdminNotification(data: MembershipMailData) 
     ``,
     `Name: ${data.firstName} ${data.lastName}`,
     `Geburtsdatum: ${data.birthDate}`,
+    `Geburtsort: ${data.birthPlace || '-'}`,
     `E-Mail: ${data.email}`,
     `Telefon: ${data.phone || '-'}`,
+    `Beruf: ${data.profession || '-'}`,
+    `Abschluss/Qualifikation: ${data.certificate || '-'}`,
     `Adresse: ${data.street}, ${data.postalCode} ${data.city}`,
     `Beitragsart: ${typeLabels[data.membershipType] || data.membershipType}`,
     ``,

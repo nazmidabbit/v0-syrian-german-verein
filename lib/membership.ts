@@ -49,6 +49,27 @@ export const membershipFormSchema = z
       .regex(/^$|^[+0-9 ()/-]{5,25}$/, 'invalidPhone')
       .optional()
       .default(''),
+    birthPlace: z
+      .string()
+      .trim()
+      .max(100, 'tooLong')
+      .regex(NO_CONTROL_CHARS, 'invalid')
+      .optional()
+      .default(''),
+    profession: z
+      .string()
+      .trim()
+      .max(100, 'tooLong')
+      .regex(NO_CONTROL_CHARS, 'invalid')
+      .optional()
+      .default(''),
+    certificate: z
+      .string()
+      .trim()
+      .max(150, 'tooLong')
+      .regex(NO_CONTROL_CHARS, 'invalid')
+      .optional()
+      .default(''),
     street: singleLine(3, 150),
     postalCode: z
       .string({ required_error: 'required' })

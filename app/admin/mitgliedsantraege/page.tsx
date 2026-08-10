@@ -18,6 +18,8 @@ import {
   Phone,
   MapPin,
   CalendarDays,
+  Briefcase,
+  GraduationCap,
 } from "lucide-react"
 
 interface Application {
@@ -25,8 +27,11 @@ interface Application {
   first_name: string
   last_name: string
   birth_date: string
+  birth_place: string
   email: string
   phone: string
+  profession: string
+  certificate: string
   street: string
   postal_code: string
   city: string
@@ -264,6 +269,15 @@ export default function AdminMembershipPage() {
                         <p className="flex items-center gap-2">
                           <CalendarDays className="h-4 w-4 text-primary flex-shrink-0" />
                           {formatDate(app.birth_date)}
+                          {app.birth_place ? ` · ${app.birth_place}` : ""}
+                        </p>
+                        <p className="flex items-center gap-2">
+                          <Briefcase className="h-4 w-4 text-primary flex-shrink-0" />
+                          {app.profession || "—"}
+                        </p>
+                        <p className="flex items-center gap-2">
+                          <GraduationCap className="h-4 w-4 text-primary flex-shrink-0" />
+                          {app.certificate || "—"}
                         </p>
                       </div>
 

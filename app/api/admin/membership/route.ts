@@ -13,7 +13,7 @@ export async function GET() {
     const { data: applications, error } = await supabase
       .from('membership_applications')
       .select(
-        'id, first_name, last_name, birth_date, email, phone, street, postal_code, city, membership_type, message, status, admin_note, processed_at, created_at',
+        'id, first_name, last_name, birth_date, birth_place, email, phone, profession, certificate, street, postal_code, city, membership_type, message, status, admin_note, processed_at, created_at',
       )
       .order('created_at', { ascending: false });
 

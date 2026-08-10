@@ -34,8 +34,11 @@ export default function MembershipApplicationPage() {
       firstName: "",
       lastName: "",
       birthDate: "",
+      birthPlace: "",
       email: "",
       phone: "",
+      profession: "",
+      certificate: "",
       street: "",
       postalCode: "",
       city: "",
@@ -179,14 +182,29 @@ export default function MembershipApplicationPage() {
                     {errors.birthDate && <p className="text-destructive text-sm mt-1">{errorText(errors.birthDate.message)}</p>}
                   </div>
                   <div>
+                    <Label htmlFor="birthPlace">{tf.birthPlace}</Label>
+                    <Input id="birthPlace" maxLength={100} {...register("birthPlace")} />
+                    {errors.birthPlace && <p className="text-destructive text-sm mt-1">{errorText(errors.birthPlace.message)}</p>}
+                  </div>
+                  <div>
                     <Label htmlFor="email">{tf.email} *</Label>
                     <Input id="email" type="email" autoComplete="email" maxLength={254} {...register("email")} />
                     {errors.email && <p className="text-destructive text-sm mt-1">{errorText(errors.email.message)}</p>}
                   </div>
-                  <div className="sm:col-span-2">
+                  <div>
                     <Label htmlFor="phone">{tf.phone}</Label>
                     <Input id="phone" type="tel" autoComplete="tel" maxLength={25} {...register("phone")} />
                     {errors.phone && <p className="text-destructive text-sm mt-1">{errorText(errors.phone.message)}</p>}
+                  </div>
+                  <div>
+                    <Label htmlFor="profession">{tf.profession}</Label>
+                    <Input id="profession" autoComplete="organization-title" maxLength={100} {...register("profession")} />
+                    {errors.profession && <p className="text-destructive text-sm mt-1">{errorText(errors.profession.message)}</p>}
+                  </div>
+                  <div>
+                    <Label htmlFor="certificate">{tf.certificate}</Label>
+                    <Input id="certificate" maxLength={150} {...register("certificate")} />
+                    {errors.certificate && <p className="text-destructive text-sm mt-1">{errorText(errors.certificate.message)}</p>}
                   </div>
                 </div>
               </fieldset>
