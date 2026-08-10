@@ -3,7 +3,8 @@ import { z } from 'zod';
 // Gemeinsames Schema fuer Client (react-hook-form) und Server (API-Route).
 // Fehlermeldungen sind i18n-Schluessel, die der Client uebersetzt.
 
-export const MEMBERSHIP_TYPES = ['regular', 'family', 'student'] as const;
+// Beitragsart: 5 € monatlich oder 60 € jaehrlich
+export const MEMBERSHIP_TYPES = ['monthly', 'yearly'] as const;
 export type MembershipType = (typeof MEMBERSHIP_TYPES)[number];
 
 // Steuerzeichen (inkl. CR/LF) sind in einzeiligen Feldern nie legitim —

@@ -45,9 +45,8 @@ const STATUS_LABELS: Record<Application["status"], { label: string; className: s
 }
 
 const TYPE_LABELS: Record<string, string> = {
-  regular: "Erwachsene",
-  family: "Familie",
-  student: "Studierende & Schüler",
+  monthly: "Monatlich (5 €)",
+  yearly: "Jährlich (60 €)",
 }
 
 type Filter = "all" | Application["status"]

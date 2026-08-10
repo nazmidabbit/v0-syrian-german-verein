@@ -74,6 +74,11 @@ export async function sendMembershipAdminNotification(data: MembershipMailData) 
   const to = process.env.MAIL_TO || 'info@sygs.de';
   const from = process.env.MAIL_FROM || process.env.SMTP_USER;
 
+  const typeLabels: Record<string, string> = {
+    monthly: 'Monatlich (5 €)',
+    yearly: 'Jährlich (60 €)',
+  };
+
   const lines = [
     `Neuer Mitgliedsantrag über das Online-Formular:`,
     ``,
@@ -82,7 +87,7 @@ export async function sendMembershipAdminNotification(data: MembershipMailData) 
     `E-Mail: ${data.email}`,
     `Telefon: ${data.phone || '-'}`,
     `Adresse: ${data.street}, ${data.postalCode} ${data.city}`,
-    `Beitragsart: ${data.membershipType}`,
+    `Beitragsart: ${typeLabels[data.membershipType] || data.membershipType}`,
     ``,
     `Nachricht:`,
     data.message || '-',

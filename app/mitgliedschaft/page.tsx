@@ -70,11 +70,10 @@ export default function MitgliedschaftPage() {
               {t.membership.feesText}
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 max-w-xl mx-auto">
               {[
-                { label: t.membership.feeRegular, value: t.membership.feeRegularValue },
-                { label: t.membership.feeFamily, value: t.membership.feeFamilyValue },
-                { label: t.membership.feeStudent, value: t.membership.feeStudentValue },
+                { label: t.membership.feeMonthly, value: t.membership.feeMonthlyValue },
+                { label: t.membership.feeYearly, value: t.membership.feeYearlyValue },
               ].map((fee) => (
                 <div key={fee.label} className="bg-secondary p-6 rounded-xl text-center">
                   <p className="text-sm uppercase tracking-wide text-muted-foreground mb-2">

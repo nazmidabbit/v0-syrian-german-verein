@@ -1,5 +1,18 @@
 -- Mitgliedsantraege (Membership applications)
 -- Im Supabase Dashboard (SQL Editor) ausfuehren.
+--
+-- Falls die Tabelle bereits mit den alten Beitragsarten ('regular','family','student')
+-- angelegt wurde, stattdessen nur dies ausfuehren (Reihenfolge wichtig —
+-- Bestandszeilen mit alten Werten muessen vor dem neuen Constraint
+-- umgemappt werden, sonst schlaegt ADD CONSTRAINT fehl):
+--   ALTER TABLE public.membership_applications
+--     DROP CONSTRAINT membership_applications_membership_type_check;
+--   UPDATE public.membership_applications
+--     SET membership_type = 'monthly'
+--     WHERE membership_type NOT IN ('monthly','yearly');
+--   ALTER TABLE public.membership_applications
+--     ADD CONSTRAINT membership_applications_membership_type_check
+--     CHECK (membership_type IN ('monthly','yearly'));
 
 CREATE TABLE IF NOT EXISTS public.membership_applications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -11,7 +24,7 @@ CREATE TABLE IF NOT EXISTS public.membership_applications (
   street TEXT NOT NULL,
   postal_code TEXT NOT NULL,
   city TEXT NOT NULL,
-  membership_type TEXT NOT NULL CHECK (membership_type IN ('regular','family','student')),
+  membership_type TEXT NOT NULL CHECK (membership_type IN ('monthly','yearly')),
   message TEXT DEFAULT '',
   -- DSGVO: Einwilligungen mit Zeitstempel dokumentieren
   privacy_consent_at TIMESTAMPTZ NOT NULL,

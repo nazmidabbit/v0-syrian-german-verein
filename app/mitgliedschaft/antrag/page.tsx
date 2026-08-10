@@ -39,7 +39,7 @@ export default function MembershipApplicationPage() {
       street: "",
       postalCode: "",
       city: "",
-      membershipType: "regular",
+      membershipType: "monthly",
       message: "",
       privacyConsent: false,
       statutesConsent: false,
@@ -216,12 +216,11 @@ export default function MembershipApplicationPage() {
               {/* Beitragsart */}
               <fieldset className="flex flex-col gap-4">
                 <legend className="text-2xl font-bold text-foreground mb-4">{tf.typeTitle}</legend>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {MEMBERSHIP_TYPES.map((type) => {
                     const labels = {
-                      regular: { title: tf.typeRegular, fee: t.membership.feeRegularValue },
-                      family: { title: tf.typeFamily, fee: t.membership.feeFamilyValue },
-                      student: { title: tf.typeStudent, fee: t.membership.feeStudentValue },
+                      monthly: { title: tf.typeMonthly, fee: t.membership.feeMonthlyValue },
+                      yearly: { title: tf.typeYearly, fee: t.membership.feeYearlyValue },
                     }[type]
                     return (
                       <label
