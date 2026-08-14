@@ -62,19 +62,30 @@ export async function PATCH(
       return NextResponse.json({ error: 'Antrag nicht gefunden.' }, { status: 404 });
     }
 
+    // Bei Annahme: Mitgliedsnummer atomar vergeben (bestehende Nummer bleibt erhalten)
+    let memberNumber: number | null = null;
+    if (parsed.data.status === 'approved') {
+      const { data: num, error: numError } = await supabase.rpc('assign_member_number', { app_id: id });
+      if (numError) {
+        console.error('Mitgliedsnummer-Vergabe fehlgeschlagen:', numError.message);
+      } else {
+        memberNumber = num;
+      }
+    }
+
     // Bestaetigungs-Mail an Antragsteller — Fehler dabei duerfen die Annahme nicht scheitern lassen
     let emailSent = false;
     if (parsed.data.status === 'approved' && before.status !== 'approved' && process.env.SMTP_HOST) {
       try {
         const { sendMembershipApprovedEmail } = await import('@/lib/mailer');
-        await sendMembershipApprovedEmail(before.email, before.first_name);
+        await sendMembershipApprovedEmail(before.email, before.first_name, memberNumber);
         emailSent = true;
       } catch (mailError) {
         console.error('Annahme-Mail fehlgeschlagen:', mailError);
       }
     }
 
-    return NextResponse.json({ application, emailSent });
+    return NextResponse.json({ application, emailSent, memberNumber });
   } catch {
     return NextResponse.json({ error: 'Serverfehler.' }, { status: 500 });
   }

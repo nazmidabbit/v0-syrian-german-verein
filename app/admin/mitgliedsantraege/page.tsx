@@ -39,9 +39,12 @@ interface Application {
   message: string
   status: "pending" | "approved" | "rejected"
   admin_note: string
+  member_number: number | null
   processed_at: string | null
   created_at: string
 }
+
+const formatMemberNumber = (num: number) => `SYGS-${String(num).padStart(4, "0")}`
 
 const STATUS_LABELS: Record<Application["status"], { label: string; className: string }> = {
   pending: { label: "Offen", className: "bg-amber-100 text-amber-800" },
@@ -121,15 +124,24 @@ export default function AdminMembershipPage() {
         setApplications((prev) =>
           prev.map((a) =>
             a.id === id
-              ? { ...a, status, admin_note: notes[id] || "", processed_at: data.application?.processed_at || a.processed_at }
+              ? {
+                  ...a,
+                  status,
+                  admin_note: notes[id] || "",
+                  member_number: data.memberNumber ?? a.member_number,
+                  processed_at: data.application?.processed_at || a.processed_at,
+                }
               : a,
           ),
         )
         if (status === "approved") {
+          const numText = data.memberNumber
+            ? ` Mitgliedsnummer: ${formatMemberNumber(data.memberNumber)}.`
+            : " Mitgliedsnummer konnte NICHT vergeben werden (Migration membership-member-number.sql ausgeführt?)."
           setActionInfo(
-            data.emailSent
+            (data.emailSent
               ? "Antrag angenommen — Bestätigungs-E-Mail wurde versendet."
-              : "Antrag angenommen — Bestätigungs-E-Mail konnte NICHT versendet werden (Mail-Konfiguration prüfen).",
+              : "Antrag angenommen — Bestätigungs-E-Mail konnte NICHT versendet werden (Mail-Konfiguration prüfen).") + numText,
           )
         }
       } else {
@@ -288,9 +300,16 @@ export default function AdminMembershipPage() {
                             Eingegangen am {formatDate(app.created_at)} · {TYPE_LABELS[app.membership_type] || app.membership_type}
                           </p>
                         </div>
-                        <span className={`text-xs font-semibold px-3 py-1 rounded-full ${status.className}`}>
-                          {status.label}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {app.member_number != null && (
+                            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-primary/10 text-primary">
+                              {formatMemberNumber(app.member_number)}
+                            </span>
+                          )}
+                          <span className={`text-xs font-semibold px-3 py-1 rounded-full ${status.className}`}>
+                            {status.label}
+                          </span>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-foreground mb-4">
