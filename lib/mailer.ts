@@ -110,6 +110,36 @@ export async function sendMembershipAdminNotification(data: MembershipMailData) 
   });
 }
 
+// Annahme-Bestaetigung an die Antragstellerin / den Antragsteller.
+// Zweisprachig (DE + AR), da die Sprache des Antragstellers nicht gespeichert wird.
+export async function sendMembershipApprovedEmail(email: string, firstName: string) {
+  const from = process.env.MAIL_FROM || process.env.SMTP_USER;
+  const name = escapeHtml(firstName);
+
+  await getTransporter().sendMail({
+    from: `"Syrisch-Deutscher Verein" <${from}>`,
+    to: email,
+    subject: 'Ihr Mitgliedsantrag wurde angenommen - SYGS',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div dir="ltr">
+          <h2 style="color: #333;">Hallo ${name},</h2>
+          <p style="line-height: 1.6;">gute Nachrichten: Der Vorstand hat Ihren Mitgliedsantrag angenommen — herzlich willkommen in der Syrischen Gemeinschaft im Saarland!</p>
+          <p style="line-height: 1.6;">Wir melden uns in Kürze mit allen weiteren Informationen zu Mitgliedsbeitrag und kommenden Veranstaltungen.</p>
+        </div>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <div dir="rtl">
+          <h2 style="color: #333;">مرحباً ${name}،</h2>
+          <p style="line-height: 1.6;">خبر سار: وافق مجلس الإدارة على طلب انتسابك — أهلاً وسهلاً بك في تجمع السوريين في زارلاند!</p>
+          <p style="line-height: 1.6;">سنتواصل معك قريباً بكل المعلومات حول رسوم العضوية والفعاليات القادمة.</p>
+        </div>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="color: #999; font-size: 12px;">Syrisch-Deutscher Verein - sygs.de</p>
+      </div>
+    `,
+  });
+}
+
 // Eingangsbestaetigung an die Antragstellerin / den Antragsteller
 export async function sendMembershipConfirmation(email: string, firstName: string, locale: 'de' | 'ar') {
   const from = process.env.MAIL_FROM || process.env.SMTP_USER;

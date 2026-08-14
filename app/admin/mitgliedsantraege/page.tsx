@@ -65,6 +65,8 @@ export default function AdminMembershipPage() {
   const [filter, setFilter] = useState<Filter>("pending")
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [notes, setNotes] = useState<Record<string, string>>({})
+  const [actionError, setActionError] = useState("")
+  const [actionInfo, setActionInfo] = useState("")
 
   const checkAuth = useCallback(async () => {
     try {
@@ -99,7 +101,15 @@ export default function AdminMembershipPage() {
   useEffect(() => { if (authenticated) loadApplications() }, [authenticated, loadApplications])
 
   const updateStatus = async (id: string, status: Application["status"]) => {
+    if (
+      status === "approved" &&
+      !window.confirm("Antrag annehmen? Der/die Antragsteller:in erhält automatisch eine Bestätigungs-E-Mail.")
+    ) {
+      return
+    }
     setUpdatingId(id)
+    setActionError("")
+    setActionInfo("")
     try {
       const res = await fetch(`/api/admin/membership/${id}`, {
         method: "PATCH",
@@ -115,7 +125,19 @@ export default function AdminMembershipPage() {
               : a,
           ),
         )
+        if (status === "approved") {
+          setActionInfo(
+            data.emailSent
+              ? "Antrag angenommen — Bestätigungs-E-Mail wurde versendet."
+              : "Antrag angenommen — Bestätigungs-E-Mail konnte NICHT versendet werden (Mail-Konfiguration prüfen).",
+          )
+        }
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setActionError(`Aktion fehlgeschlagen (${res.status}): ${data.error || "Unbekannter Fehler"}`)
       }
+    } catch {
+      setActionError("Verbindungsfehler — Aktion fehlgeschlagen.")
     } finally {
       setUpdatingId(null)
     }
@@ -124,11 +146,18 @@ export default function AdminMembershipPage() {
   const deleteApplication = async (id: string) => {
     if (!window.confirm("Diesen Antrag endgültig löschen? Dies kann nicht rückgängig gemacht werden.")) return
     setUpdatingId(id)
+    setActionError("")
+    setActionInfo("")
     try {
       const res = await fetch(`/api/admin/membership/${id}`, { method: "DELETE" })
       if (res.ok) {
         setApplications((prev) => prev.filter((a) => a.id !== id))
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setActionError(`Löschen fehlgeschlagen (${res.status}): ${data.error || "Unbekannter Fehler"}`)
       }
+    } catch {
+      setActionError("Verbindungsfehler — Löschen fehlgeschlagen.")
     } finally {
       setUpdatingId(null)
     }
@@ -226,6 +255,17 @@ export default function AdminMembershipPage() {
                 </Button>
               ))}
             </div>
+
+            {actionError && (
+              <p className="text-destructive text-sm bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-3 mb-6">
+                {actionError}
+              </p>
+            )}
+            {actionInfo && (
+              <p className="text-sm bg-primary/10 border border-primary/20 text-foreground rounded-lg px-4 py-3 mb-6">
+                {actionInfo}
+              </p>
+            )}
 
             {loading ? (
               <div className="flex justify-center py-20">

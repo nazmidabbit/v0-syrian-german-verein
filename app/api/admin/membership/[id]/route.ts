@@ -33,6 +33,18 @@ export async function PATCH(
     }
 
     const supabase = getSupabase();
+
+    // Vorherigen Status holen — Annahme-Mail nur beim echten Wechsel auf 'approved'
+    const { data: before } = await supabase
+      .from('membership_applications')
+      .select('status, email, first_name')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (!before) {
+      return NextResponse.json({ error: 'Antrag nicht gefunden.' }, { status: 404 });
+    }
+
     const { data: application, error } = await supabase
       .from('membership_applications')
       .update({
@@ -50,7 +62,19 @@ export async function PATCH(
       return NextResponse.json({ error: 'Antrag nicht gefunden.' }, { status: 404 });
     }
 
-    return NextResponse.json({ application });
+    // Bestaetigungs-Mail an Antragsteller — Fehler dabei duerfen die Annahme nicht scheitern lassen
+    let emailSent = false;
+    if (parsed.data.status === 'approved' && before.status !== 'approved' && process.env.SMTP_HOST) {
+      try {
+        const { sendMembershipApprovedEmail } = await import('@/lib/mailer');
+        await sendMembershipApprovedEmail(before.email, before.first_name);
+        emailSent = true;
+      } catch (mailError) {
+        console.error('Annahme-Mail fehlgeschlagen:', mailError);
+      }
+    }
+
+    return NextResponse.json({ application, emailSent });
   } catch {
     return NextResponse.json({ error: 'Serverfehler.' }, { status: 500 });
   }
