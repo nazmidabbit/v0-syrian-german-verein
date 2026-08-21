@@ -160,6 +160,42 @@ export async function sendMembershipApprovedEmail(email: string, firstName: stri
   });
 }
 
+// Eingangsbestaetigung fuer dynamische Formulare (Formular-Baukasten).
+// Wird nur versendet, wenn das Formular ein E-Mail-Feld enthaelt.
+export async function sendFormConfirmation(
+  email: string,
+  firstName: string,
+  formTitle: string,
+  locale: 'de' | 'ar',
+) {
+  const from = process.env.MAIL_FROM || process.env.SMTP_USER;
+  const name = escapeHtml(firstName);
+  const title = escapeHtml(formTitle);
+
+  const isAr = locale === 'ar';
+  const subject = isAr
+    ? `استلمنا بياناتك: ${formTitle} - SYGS`
+    : `Wir haben Ihre Angaben erhalten: ${formTitle} - SYGS`;
+  const heading = isAr ? (name ? `مرحباً ${name}،` : 'مرحباً،') : name ? `Hallo ${name},` : 'Guten Tag,';
+  const body = isAr
+    ? `شكراً لك — لقد استلمنا بياناتك عبر استمارة «${title}» بنجاح. سنتواصل معك إذا لزم الأمر.`
+    : `vielen Dank — wir haben Ihre Angaben über das Formular „${title}" erhalten. Falls nötig, melden wir uns bei Ihnen.`;
+
+  await getTransporter().sendMail({
+    from: `"Syrisch-Deutscher Verein" <${from}>`,
+    to: email,
+    subject,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;" dir="${isAr ? 'rtl' : 'ltr'}">
+        <h2 style="color: #333;">${heading}</h2>
+        <p style="line-height: 1.6;">${body}</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="color: #999; font-size: 12px;">Syrisch-Deutscher Verein - sygs.de</p>
+      </div>
+    `,
+  });
+}
+
 // Eingangsbestaetigung an die Antragstellerin / den Antragsteller
 export async function sendMembershipConfirmation(email: string, firstName: string, locale: 'de' | 'ar') {
   const from = process.env.MAIL_FROM || process.env.SMTP_USER;

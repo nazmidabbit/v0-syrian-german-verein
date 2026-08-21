@@ -19,6 +19,9 @@ const submitSchema = z
     formToken: z.string().min(1).max(200),
     // Honeypot — muss leer sein
     company: z.string().max(200).optional().default(''),
+    locale: z.enum(['de', 'ar']).optional().default('de'),
+    // DSGVO: Einwilligung in die Datenschutzerklaerung ist bei jedem Formular Pflicht
+    privacyConsent: z.boolean(),
     data: z.record(z.union([z.string().max(4000), z.boolean()])),
   })
   .strict();
@@ -115,7 +118,7 @@ export async function POST(
     }
 
     const parsed = submitSchema.safeParse(body);
-    if (!parsed.success) {
+    if (!parsed.success || parsed.data.privacyConsent !== true) {
       return NextResponse.json({ error: 'validation' }, { status: 400 });
     }
 
@@ -142,12 +145,32 @@ export async function POST(
     const { error: insertError } = await getSupabase().from('form_submissions').insert({
       form_id: loaded.form.id,
       data: result.cleaned,
+      privacy_consent_at: new Date().toISOString(),
       ip_hash: ip,
     });
 
     if (insertError) {
       console.error('Formular-Einsendung Insert fehlgeschlagen:', insertError.code);
       return NextResponse.json(GENERIC_ERROR, { status: 500 });
+    }
+
+    // Eingangsbestaetigung an die ausfuellende Person, wenn das Formular ein
+    // E-Mail-Feld hat — Fehler dabei duerfen die Einsendung nicht scheitern lassen
+    if (process.env.SMTP_HOST) {
+      const emailField = loaded.fields.find((f) => f.field_type === 'email');
+      const submitterEmail = emailField ? String(result.cleaned[emailField.field_key] || '') : '';
+      if (submitterEmail) {
+        const isAr = parsed.data.locale === 'ar';
+        const formTitle = isAr && loaded.form.title_ar ? loaded.form.title_ar : loaded.form.title;
+        const firstName =
+          typeof result.cleaned['first_name'] === 'string' ? result.cleaned['first_name'] : '';
+        try {
+          const { sendFormConfirmation } = await import('@/lib/mailer');
+          await sendFormConfirmation(submitterEmail, firstName, formTitle, parsed.data.locale);
+        } catch (mailError) {
+          console.error('Formular-Bestaetigungsmail fehlgeschlagen:', mailError);
+        }
+      }
     }
 
     return NextResponse.json(SUCCESS);

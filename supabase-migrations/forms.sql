@@ -39,10 +39,16 @@ CREATE TABLE IF NOT EXISTS public.form_submissions (
   form_id UUID NOT NULL REFERENCES public.forms(id) ON DELETE CASCADE,
   -- Werte als JSON-Objekt {field_key: wert}, serverseitig validiert
   data JSONB NOT NULL DEFAULT '{}',
+  -- DSGVO: Einwilligung in die Datenschutzerklaerung mit Zeitstempel
+  privacy_consent_at TIMESTAMPTZ,
   -- Missbrauchs-Analyse ohne Klartext-IP (nur gesalzener Hash)
   ip_hash TEXT DEFAULT '',
   created_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Nachruestung fuer Installationen, die forms.sql bereits ausgefuehrt haben
+ALTER TABLE public.form_submissions
+  ADD COLUMN IF NOT EXISTS privacy_consent_at TIMESTAMPTZ;
 
 CREATE INDEX IF NOT EXISTS idx_form_fields_form
   ON public.form_fields (form_id, sort_order);

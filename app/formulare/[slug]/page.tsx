@@ -39,6 +39,9 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
   const [fieldErrors, setFieldErrors] = useState<Record<string, boolean>>({})
   // Honeypot ausserhalb der eigentlichen Formulardaten
   const [honeypot, setHoneypot] = useState("")
+  // DSGVO: Einwilligung ist bei jedem Formular fest eingebaut
+  const [privacyConsent, setPrivacyConsent] = useState(false)
+  const [consentError, setConsentError] = useState(false)
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle")
   const [serverError, setServerError] = useState("")
 
@@ -88,7 +91,9 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
         errors[field.field_key] = true
       }
     }
-    if (Object.keys(errors).length > 0) {
+    const missingConsent = !privacyConsent
+    setConsentError(missingConsent)
+    if (Object.keys(errors).length > 0 || missingConsent) {
       setFieldErrors(errors)
       return
     }
@@ -98,7 +103,7 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
       const res = await fetch(`/api/forms/${slug}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ formToken, company: honeypot, data: values }),
+        body: JSON.stringify({ formToken, company: honeypot, locale, privacyConsent, data: values }),
       })
 
       if (res.ok) {
@@ -286,6 +291,29 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
                   )}
                 </div>
               ))}
+
+              {/* Datenschutz-Einwilligung: fest eingebaut, bei jedem Formular Pflicht */}
+              <div>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="mt-1 h-4 w-4 accent-primary"
+                    checked={privacyConsent}
+                    onChange={(e) => {
+                      setPrivacyConsent(e.target.checked)
+                      setConsentError(false)
+                    }}
+                  />
+                  <span className="text-sm text-foreground leading-relaxed">
+                    {td.privacyConsentPre}{" "}
+                    <Link href="/datenschutz" target="_blank" className="text-primary underline">
+                      {td.privacyLink}
+                    </Link>{" "}
+                    {td.privacyConsentPost} *
+                  </span>
+                </label>
+                {consentError && <p className="text-destructive text-sm mt-1">{td.errorConsent}</p>}
+              </div>
 
               <div className="flex flex-col gap-3">
                 <p className="text-sm text-muted-foreground">{td.requiredHint}</p>
