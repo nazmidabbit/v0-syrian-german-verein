@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Building2, CalendarDays, Newspaper, Users, ImageIcon, Mail, LogIn, Loader2, Shield, Vote, UserPlus } from "lucide-react"
+import { Building2, CalendarDays, ClipboardList, Newspaper, Users, ImageIcon, Mail, LogIn, Loader2, Shield, Vote, UserPlus } from "lucide-react"
 
 interface AdminLink {
   title: string
@@ -52,6 +52,13 @@ const adminLinks: AdminLink[] = [
     href: "/admin/bueros",
     icon: Building2,
     page: "bueros",
+  },
+  {
+    title: "Formulare",
+    description: "Eigene Formulare erstellen und Einsendungen ansehen",
+    href: "/admin/formulare",
+    icon: ClipboardList,
+    page: "formulare",
   },
   {
     title: "Bilder",

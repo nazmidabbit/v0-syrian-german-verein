@@ -348,6 +348,23 @@ export const translations = {
       },
     },
 
+    // Dynamische Formulare (Formular-Baukasten)
+    dynamicForm: {
+      notFound: "Dieses Formular existiert nicht oder ist nicht mehr aktiv.",
+      requiredHint: "* Pflichtfeld",
+      selectPlaceholder: "Bitte auswählen",
+      submit: "Absenden",
+      submitting: "Wird gesendet...",
+      successTitle: "Vielen Dank!",
+      successText: "Ihre Angaben wurden erfolgreich übermittelt.",
+      backHome: "Zur Startseite",
+      errorGeneric: "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut.",
+      errorRateLimited: "Zu viele Anfragen. Bitte versuchen Sie es später erneut.",
+      errorToken: "Das Formular ist abgelaufen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
+      errorValidation: "Bitte prüfen Sie Ihre Eingaben.",
+      errorRequired: "Pflichtfeld",
+    },
+
     // Donations
     donate: {
       pageTitle: "Spenden",
@@ -814,6 +831,23 @@ export const translations = {
         invalidPhoto: "ملف صورة غير صالح أو حجمه كبير جداً (بحد أقصى 10 ميغابايت)",
         consentRequired: "الموافقة مطلوبة",
       },
+    },
+
+    // Dynamische Formulare (Formular-Baukasten)
+    dynamicForm: {
+      notFound: "هذه الاستمارة غير موجودة أو لم تعد متاحة.",
+      requiredHint: "* حقل إلزامي",
+      selectPlaceholder: "يرجى الاختيار",
+      submit: "إرسال",
+      submitting: "جارٍ الإرسال...",
+      successTitle: "شكراً جزيلاً!",
+      successText: "تم إرسال بياناتك بنجاح.",
+      backHome: "إلى الصفحة الرئيسية",
+      errorGeneric: "حدث خطأ ما. يرجى المحاولة مرة أخرى لاحقاً.",
+      errorRateLimited: "عدد كبير من المحاولات. يرجى المحاولة لاحقاً.",
+      errorToken: "انتهت صلاحية الاستمارة. يرجى إعادة تحميل الصفحة والمحاولة مجدداً.",
+      errorValidation: "يرجى التحقق من المدخلات.",
+      errorRequired: "حقل إلزامي",
     },
 
     // Donations
