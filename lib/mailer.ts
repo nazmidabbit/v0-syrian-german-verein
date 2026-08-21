@@ -67,7 +67,8 @@ export interface MembershipMailData {
   street: string;
   postalCode: string;
   city: string;
-  membershipType: string;
+  office: string;
+  photoUrl: string;
   message: string;
 }
 
@@ -76,11 +77,6 @@ export interface MembershipMailData {
 export async function sendMembershipAdminNotification(data: MembershipMailData) {
   const to = process.env.MAIL_TO || 'info@sygs.de';
   const from = process.env.MAIL_FROM || process.env.SMTP_USER;
-
-  const typeLabels: Record<string, string> = {
-    monthly: 'Monatlich (5 €)',
-    yearly: 'Jährlich (60 €)',
-  };
 
   const lines = [
     `Neuer Mitgliedsantrag über das Online-Formular:`,
@@ -93,7 +89,8 @@ export async function sendMembershipAdminNotification(data: MembershipMailData) 
     `Beruf: ${data.profession || '-'}`,
     `Abschluss/Qualifikation: ${data.certificate || '-'}`,
     `Adresse: ${data.street}, ${data.postalCode} ${data.city}`,
-    `Beitragsart: ${typeLabels[data.membershipType] || data.membershipType}`,
+    `Wunsch-Büro: ${data.office || '-'}`,
+    `Foto: ${data.photoUrl || '-'}`,
     ``,
     `Nachricht:`,
     data.message || '-',

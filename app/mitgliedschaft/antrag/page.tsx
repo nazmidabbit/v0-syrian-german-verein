@@ -12,7 +12,43 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { CheckCircle2, Loader2, Send } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
-import { membershipFormSchema, type MembershipFormValues, MEMBERSHIP_TYPES } from "@/lib/membership"
+import { membershipFormSchema, type MembershipFormValues } from "@/lib/membership"
+
+interface OfficeOption {
+  id: string
+  name: string
+  name_ar: string
+}
+
+// Fotos werden vor dem Absenden client-seitig verkleinert (max. Kantenlaenge),
+// damit die Data-URL klein bleibt und das Server-Body-Limit nicht reisst.
+const MAX_PHOTO_EDGE = 1024
+const MAX_PHOTO_FILE_BYTES = 10 * 1024 * 1024
+
+const readAndCompressImage = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      const scale = Math.min(1, MAX_PHOTO_EDGE / Math.max(img.width, img.height))
+      const canvas = document.createElement("canvas")
+      canvas.width = Math.max(1, Math.round(img.width * scale))
+      canvas.height = Math.max(1, Math.round(img.height * scale))
+      const ctx = canvas.getContext("2d")
+      if (!ctx) {
+        reject(new Error("canvas"))
+        return
+      }
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      resolve(canvas.toDataURL("image/jpeg", 0.85))
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error("image"))
+    }
+    img.src = url
+  })
 
 export default function MembershipApplicationPage() {
   const { t, locale } = useLanguage()
@@ -23,6 +59,11 @@ export default function MembershipApplicationPage() {
   const [honeypot, setHoneypot] = useState("")
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle")
   const [serverError, setServerError] = useState("")
+  const [offices, setOffices] = useState<OfficeOption[]>([])
+  // Foto ebenfalls ausserhalb von react-hook-form (Data-URL, optional)
+  const [photo, setPhoto] = useState("")
+  const [photoName, setPhotoName] = useState("")
+  const [photoError, setPhotoError] = useState(false)
 
   const {
     register,
@@ -42,7 +83,7 @@ export default function MembershipApplicationPage() {
       street: "",
       postalCode: "",
       city: "",
-      membershipType: "monthly",
+      officeId: "",
       message: "",
       privacyConsent: false,
       statutesConsent: false,
@@ -69,6 +110,39 @@ export default function MembershipApplicationPage() {
     fetchToken()
   }, [fetchToken])
 
+  useEffect(() => {
+    let cancelled = false
+    fetch("/api/offices")
+      .then((res) => (res.ok ? res.json() : { offices: [] }))
+      .then((data) => {
+        if (!cancelled) setOffices(data.offices || [])
+      })
+      .catch(() => {
+        // Buero-Auswahl ist optional — ohne Liste bleibt das Feld einfach leer
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const onPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ""
+    setPhotoError(false)
+    if (!file) return
+    if (!file.type.startsWith("image/") || file.size > MAX_PHOTO_FILE_BYTES) {
+      setPhotoError(true)
+      return
+    }
+    try {
+      const dataUrl = await readAndCompressImage(file)
+      setPhoto(dataUrl)
+      setPhotoName(file.name)
+    } catch {
+      setPhotoError(true)
+    }
+  }
+
   const errorText = (key?: string) => {
     if (!key) return ""
     const map = tf.errors as Record<string, string>
@@ -83,7 +157,7 @@ export default function MembershipApplicationPage() {
       const res = await fetch("/api/membership", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...values, formToken: token, company: honeypot, locale }),
+        body: JSON.stringify({ ...values, formToken: token, company: honeypot, locale, photo }),
       })
 
       if (res.ok) {
@@ -206,6 +280,35 @@ export default function MembershipApplicationPage() {
                     <Input id="certificate" maxLength={150} {...register("certificate")} />
                     {errors.certificate && <p className="text-destructive text-sm mt-1">{errorText(errors.certificate.message)}</p>}
                   </div>
+                  <div className="sm:col-span-2">
+                    <Label htmlFor="photo">{tf.photoLabel}</Label>
+                    {photo ? (
+                      <div className="flex items-center gap-4 mt-1">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={photo} alt="" className="h-20 w-20 rounded-full object-cover border border-border" />
+                        <div className="flex flex-col items-start gap-1">
+                          {photoName && <span className="text-sm text-muted-foreground break-all">{photoName}</span>}
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setPhoto("")
+                              setPhotoName("")
+                            }}
+                          >
+                            {tf.photoRemove}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <Input id="photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={onPhotoChange} />
+                        <p className="text-xs text-muted-foreground mt-1">{tf.photoHint}</p>
+                      </>
+                    )}
+                    {photoError && <p className="text-destructive text-sm mt-1">{tf.errors.invalidPhoto}</p>}
+                  </div>
                 </div>
               </fieldset>
 
@@ -231,28 +334,23 @@ export default function MembershipApplicationPage() {
                 </div>
               </fieldset>
 
-              {/* Beitragsart */}
-              <fieldset className="flex flex-col gap-4">
-                <legend className="text-2xl font-bold text-foreground mb-4">{tf.typeTitle}</legend>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {MEMBERSHIP_TYPES.map((type) => {
-                    const labels = {
-                      monthly: { title: tf.typeMonthly, fee: t.membership.feeMonthlyValue },
-                      yearly: { title: tf.typeYearly, fee: t.membership.feeYearlyValue },
-                    }[type]
-                    return (
-                      <label
-                        key={type}
-                        className="flex flex-col items-center gap-1 bg-secondary rounded-xl p-4 cursor-pointer border-2 border-transparent has-[:checked]:border-primary transition-colors text-center"
-                      >
-                        <input type="radio" value={type} className="sr-only" {...register("membershipType")} />
-                        <span className="font-semibold text-foreground">{labels.title}</span>
-                        <span className="text-sm text-muted-foreground">{labels.fee}</span>
-                      </label>
-                    )
-                  })}
-                </div>
-                {errors.membershipType && <p className="text-destructive text-sm">{errorText(errors.membershipType.message)}</p>}
+              {/* Wunsch-Buero */}
+              <fieldset className="flex flex-col gap-2">
+                <legend className="text-2xl font-bold text-foreground mb-4">{tf.officeTitle}</legend>
+                <Label htmlFor="officeId">{tf.officeLabel}</Label>
+                <select
+                  id="officeId"
+                  className="border-input dark:bg-input/30 h-9 w-full rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] md:text-sm"
+                  {...register("officeId")}
+                >
+                  <option value="">{tf.officePlaceholder}</option>
+                  {offices.map((office) => (
+                    <option key={office.id} value={office.id}>
+                      {locale === "ar" && office.name_ar ? office.name_ar : office.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.officeId && <p className="text-destructive text-sm">{errorText(errors.officeId.message)}</p>}
               </fieldset>
 
               {/* Nachricht */}

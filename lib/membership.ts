@@ -3,7 +3,9 @@ import { z } from 'zod';
 // Gemeinsames Schema fuer Client (react-hook-form) und Server (API-Route).
 // Fehlermeldungen sind i18n-Schluessel, die der Client uebersetzt.
 
-// Beitragsart: 5 € monatlich oder 60 € jaehrlich
+// Beitragsart: 5 € monatlich oder 60 € jaehrlich.
+// Wird derzeit NICHT im Formular abgefragt — kommt zurueck, sobald das
+// Vereinskonto (IBAN) existiert. Enum bleibt fuer Bestandsdaten/Admin erhalten.
 export const MEMBERSHIP_TYPES = ['monthly', 'yearly'] as const;
 export type MembershipType = (typeof MEMBERSHIP_TYPES)[number];
 
@@ -76,9 +78,13 @@ export const membershipFormSchema = z
       .trim()
       .regex(/^[0-9]{4,5}$/, 'invalidPostalCode'),
     city: singleLine(2, 100),
-    membershipType: z.enum(MEMBERSHIP_TYPES, {
-      errorMap: () => ({ message: 'required' }),
-    }),
+    // Wunsch-Buero (optional) — UUID aus der Stammdaten-Tabelle offices
+    officeId: z
+      .string()
+      .trim()
+      .regex(/^$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, 'invalid')
+      .optional()
+      .default(''),
     message: z
       .string()
       .trim()
@@ -93,12 +99,20 @@ export const membershipFormSchema = z
 
 export type MembershipFormValues = z.infer<typeof membershipFormSchema>;
 
-// Was der Server zusaetzlich erwartet: Anti-Bot-Token + Honeypot.
+// Was der Server zusaetzlich erwartet: Anti-Bot-Token + Honeypot + Foto.
 export const membershipSubmitSchema = membershipFormSchema.extend({
   formToken: z.string().min(1).max(200),
   // Honeypot — muss leer sein; wird serverseitig gesondert behandelt
   company: z.string().max(200).optional().default(''),
   locale: z.enum(['de', 'ar']).optional().default('de'),
+  // Foto als Data-URL (client-seitig verkleinert); leer = kein Foto.
+  // ~2,8 Mio Base64-Zeichen entsprechen ca. 2 MB Bilddaten.
+  photo: z
+    .string()
+    .max(2_800_000, 'tooLong')
+    .regex(/^$|^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/, 'invalid')
+    .optional()
+    .default(''),
 });
 
 export type MembershipSubmitValues = z.infer<typeof membershipSubmitSchema>;

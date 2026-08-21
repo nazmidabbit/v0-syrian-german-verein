@@ -108,6 +108,20 @@ export async function DELETE(
     }
 
     const supabase = getSupabase();
+
+    // Foto-URL vor dem Loeschen merken (Spalte kann fehlen, wenn Migration nicht lief)
+    let photoUrl = '';
+    try {
+      const { data: app } = await supabase
+        .from('membership_applications')
+        .select('photo_url')
+        .eq('id', id)
+        .maybeSingle();
+      photoUrl = app?.photo_url || '';
+    } catch {
+      // photo_url existiert noch nicht — nichts zu entfernen
+    }
+
     const { error } = await supabase
       .from('membership_applications')
       .delete()
@@ -115,6 +129,19 @@ export async function DELETE(
 
     if (error) {
       return NextResponse.json({ error: 'Fehler beim Löschen.' }, { status: 500 });
+    }
+
+    // DSGVO: Foto aus dem Storage entfernen — best effort
+    if (photoUrl) {
+      const marker = '/uploads/';
+      const idx = photoUrl.indexOf(marker);
+      if (idx !== -1) {
+        const path = photoUrl.slice(idx + marker.length);
+        const { error: removeError } = await supabase.storage.from('uploads').remove([path]);
+        if (removeError) {
+          console.error('Antrags-Foto konnte nicht geloescht werden:', removeError.message);
+        }
+      }
     }
 
     return NextResponse.json({ message: 'Antrag gelöscht.' });

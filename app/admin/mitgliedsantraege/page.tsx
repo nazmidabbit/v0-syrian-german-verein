@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import {
+  Building2,
   CheckCircle,
   XCircle,
   Trash2,
@@ -35,11 +36,13 @@ interface Application {
   street: string
   postal_code: string
   city: string
-  membership_type: string
+  membership_type: string | null
   message: string
   status: "pending" | "approved" | "rejected"
   admin_note: string
   member_number: number | null
+  photo_url?: string | null
+  office?: { id: string; name: string } | null
   processed_at: string | null
   created_at: string
 }
@@ -292,13 +295,24 @@ export default function AdminMembershipPage() {
                   return (
                     <div key={app.id} className="bg-muted rounded-xl p-6">
                       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-                        <div>
-                          <h2 className="text-xl font-bold text-foreground">
-                            {app.first_name} {app.last_name}
-                          </h2>
-                          <p className="text-sm text-muted-foreground">
-                            Eingegangen am {formatDate(app.created_at)} · {TYPE_LABELS[app.membership_type] || app.membership_type}
-                          </p>
+                        <div className="flex items-center gap-4">
+                          {app.photo_url && (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                              src={app.photo_url}
+                              alt={`Foto von ${app.first_name} ${app.last_name}`}
+                              className="h-14 w-14 rounded-full object-cover border border-border flex-shrink-0"
+                            />
+                          )}
+                          <div>
+                            <h2 className="text-xl font-bold text-foreground">
+                              {app.first_name} {app.last_name}
+                            </h2>
+                            <p className="text-sm text-muted-foreground">
+                              Eingegangen am {formatDate(app.created_at)}
+                              {app.membership_type ? ` · ${TYPE_LABELS[app.membership_type] || app.membership_type}` : ""}
+                            </p>
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
                           {app.member_number != null && (
@@ -337,6 +351,10 @@ export default function AdminMembershipPage() {
                         <p className="flex items-center gap-2">
                           <GraduationCap className="h-4 w-4 text-primary flex-shrink-0" />
                           {app.certificate || "—"}
+                        </p>
+                        <p className="flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-primary flex-shrink-0" />
+                          {app.office?.name || "—"}
                         </p>
                       </div>
 

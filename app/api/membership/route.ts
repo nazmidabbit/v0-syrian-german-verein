@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { getSupabase } from '@/lib/supabase';
 import { rateLimit } from '@/lib/rate-limit';
 import { membershipSubmitSchema } from '@/lib/membership';
@@ -7,7 +8,9 @@ import { issueFormToken, verifyFormToken, hashIp, getClientIp } from '@/lib/form
 // Token-Ausgabe darf nie gecacht werden
 export const dynamic = 'force-dynamic';
 
-const MAX_BODY_BYTES = 20_000;
+// Body-Limit hoch genug fuer das optionale Foto (Base64-Data-URL, client-seitig verkleinert)
+const MAX_BODY_BYTES = 3_000_000;
+const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 
 // Neutrale Antworten: keine internen Details, keine E-Mail-Enumeration
 const GENERIC_ERROR = { error: 'serverError' } as const;
@@ -96,6 +99,44 @@ export async function POST(request: Request) {
       return NextResponse.json(SUCCESS);
     }
 
+    // Wunsch-Buero pruefen: muss existieren und aktiv sein
+    let officeId: string | null = null;
+    let officeName = '';
+    if (data.officeId) {
+      const { data: office } = await supabase
+        .from('offices')
+        .select('id, name')
+        .eq('id', data.officeId)
+        .eq('is_active', true)
+        .maybeSingle();
+      if (!office) {
+        return NextResponse.json({ error: 'validation' }, { status: 400 });
+      }
+      officeId = office.id;
+      officeName = office.name;
+    }
+
+    // Foto in den Storage laden — best effort, ein Fehler darf den Antrag nicht scheitern lassen
+    let photoUrl = '';
+    if (data.photo) {
+      const match = data.photo.match(/^data:image\/(jpeg|png|webp);base64,(.+)$/);
+      if (match) {
+        const buffer = Buffer.from(match[2], 'base64');
+        if (buffer.length > 0 && buffer.length <= MAX_PHOTO_BYTES) {
+          const ext = match[1] === 'jpeg' ? 'jpg' : match[1];
+          const path = `members/${crypto.randomUUID()}.${ext}`;
+          const { error: uploadError } = await supabase.storage
+            .from('uploads')
+            .upload(path, buffer, { contentType: `image/${match[1]}` });
+          if (uploadError) {
+            console.error('Mitgliedsantrag-Foto-Upload fehlgeschlagen:', uploadError.message);
+          } else {
+            photoUrl = supabase.storage.from('uploads').getPublicUrl(path).data.publicUrl;
+          }
+        }
+      }
+    }
+
     const now = new Date().toISOString();
     const { error: insertError } = await supabase.from('membership_applications').insert({
       first_name: data.firstName,
@@ -109,7 +150,10 @@ export async function POST(request: Request) {
       street: data.street,
       postal_code: data.postalCode,
       city: data.city,
-      membership_type: data.membershipType,
+      // Beitragsart wird derzeit nicht abgefragt (kommt mit IBAN zurueck)
+      membership_type: null,
+      office_id: officeId,
+      photo_url: photoUrl,
       message: data.message,
       privacy_consent_at: now,
       statutes_consent_at: now,
@@ -142,7 +186,8 @@ export async function POST(request: Request) {
           street: data.street,
           postalCode: data.postalCode,
           city: data.city,
-          membershipType: data.membershipType,
+          office: officeName,
+          photoUrl,
           message: data.message,
         });
         await sendMembershipConfirmation(data.email, data.firstName, data.locale);

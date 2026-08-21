@@ -15,8 +15,16 @@ export async function GET() {
 
     let result = await supabase
       .from('membership_applications')
-      .select(`${baseColumns}, member_number`)
+      .select(`${baseColumns}, member_number, photo_url, office_id, office:offices(id, name)`)
       .order('created_at', { ascending: false });
+
+    // Fallback: Buero/Foto-Migration (offices-and-membership-extensions.sql) nicht ausgefuehrt
+    if (result.error) {
+      result = (await supabase
+        .from('membership_applications')
+        .select(`${baseColumns}, member_number`)
+        .order('created_at', { ascending: false })) as typeof result;
+    }
 
     // Fallback: Spalte member_number existiert noch nicht (Migration nicht ausgefuehrt)
     if (result.error) {
