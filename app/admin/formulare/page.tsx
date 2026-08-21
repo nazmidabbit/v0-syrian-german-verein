@@ -15,6 +15,7 @@ import {
   ListChecks,
   Loader2,
   LogIn,
+  Pencil,
   Plus,
   Shield,
   Table2,
@@ -46,6 +47,7 @@ export default function AdminFormsPage() {
   const [savingId, setSavingId] = useState<string | null>(null)
 
   const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [title, setTitle] = useState("")
   const [titleAr, setTitleAr] = useState("")
   const [description, setDescription] = useState("")
@@ -81,17 +83,42 @@ export default function AdminFormsPage() {
   useEffect(() => { checkAuth() }, [checkAuth])
   useEffect(() => { if (authenticated) loadForms() }, [authenticated, loadForms])
 
-  const createForm = async (e: React.FormEvent) => {
+  const resetForm = () => {
+    setShowForm(false)
+    setEditingId(null)
+    setTitle("")
+    setTitleAr("")
+    setDescription("")
+    setDescriptionAr("")
+  }
+
+  const startCreate = () => {
+    resetForm()
+    setShowForm(true)
+    setActionError("")
+  }
+
+  const startEdit = (form: FormItem) => {
+    setEditingId(form.id)
+    setTitle(form.title)
+    setTitleAr(form.title_ar || "")
+    setDescription(form.description || "")
+    setDescriptionAr(form.description_ar || "")
+    setShowForm(true)
+    setActionError("")
+  }
+
+  const saveForm = async (e: React.FormEvent) => {
     e.preventDefault()
     setActionError("")
     if (title.trim().length < 2) {
       setActionError("Bitte einen Titel (mind. 2 Zeichen) angeben.")
       return
     }
-    setSavingId("new")
+    setSavingId(editingId || "new")
     try {
-      const res = await fetch("/api/admin/forms", {
-        method: "POST",
+      const res = await fetch(editingId ? `/api/admin/forms/${editingId}` : "/api/admin/forms", {
+        method: editingId ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.trim(),
@@ -101,18 +128,14 @@ export default function AdminFormsPage() {
         }),
       })
       if (res.ok) {
-        setShowForm(false)
-        setTitle("")
-        setTitleAr("")
-        setDescription("")
-        setDescriptionAr("")
+        resetForm()
         await loadForms()
       } else {
         const data = await res.json().catch(() => ({}))
-        setActionError(`Erstellen fehlgeschlagen (${res.status}): ${data.error || "Unbekannter Fehler"}`)
+        setActionError(`Speichern fehlgeschlagen (${res.status}): ${data.error || "Unbekannter Fehler"}`)
       }
     } catch {
-      setActionError("Verbindungsfehler — Erstellen fehlgeschlagen.")
+      setActionError("Verbindungsfehler — Speichern fehlgeschlagen.")
     } finally {
       setSavingId(null)
     }
@@ -241,7 +264,7 @@ export default function AdminFormsPage() {
                 {forms.length} Formulare · Nur aktive Formulare sind öffentlich erreichbar
               </p>
               {!showForm && (
-                <Button size="sm" onClick={() => { setShowForm(true); setActionError("") }} className="gap-1">
+                <Button size="sm" onClick={startCreate} className="gap-1">
                   <Plus className="h-4 w-4" /> Formular erstellen
                 </Button>
               )}
@@ -254,8 +277,10 @@ export default function AdminFormsPage() {
             )}
 
             {showForm && (
-              <form onSubmit={createForm} className="bg-muted rounded-xl p-6 mb-8 flex flex-col gap-4">
-                <h2 className="text-lg font-bold text-foreground">Neues Formular</h2>
+              <form onSubmit={saveForm} className="bg-muted rounded-xl p-6 mb-8 flex flex-col gap-4">
+                <h2 className="text-lg font-bold text-foreground">
+                  {editingId ? "Formular bearbeiten" : "Neues Formular"}
+                </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="form-title">Titel (Deutsch) *</Label>
@@ -275,14 +300,16 @@ export default function AdminFormsPage() {
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Das Formular wird als Entwurf angelegt. Definieren Sie danach die Felder und aktivieren Sie es.
+                  {editingId
+                    ? "Der öffentliche Link (/formulare/…) bleibt beim Umbenennen unverändert."
+                    : "Das Formular wird als Entwurf angelegt. Definieren Sie danach die Felder und aktivieren Sie es."}
                 </p>
                 <div className="flex gap-2">
                   <Button type="submit" size="sm" disabled={savingId !== null} className="gap-1">
                     {savingId !== null ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
-                    Erstellen
+                    {editingId ? "Speichern" : "Erstellen"}
                   </Button>
-                  <Button type="button" size="sm" variant="outline" onClick={() => setShowForm(false)} className="gap-1">
+                  <Button type="button" size="sm" variant="outline" onClick={resetForm} className="gap-1">
                     <X className="h-4 w-4" /> Abbrechen
                   </Button>
                 </div>
@@ -337,6 +364,15 @@ export default function AdminFormsPage() {
                     )}
 
                     <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => startEdit(form)}
+                        disabled={savingId === form.id}
+                        className="gap-1"
+                      >
+                        <Pencil className="h-4 w-4" /> Bearbeiten
+                      </Button>
                       <Button size="sm" variant="outline" asChild className="gap-1">
                         <Link href={`/admin/formulare/${form.id}`}>
                           <ListChecks className="h-4 w-4" /> Felder definieren
