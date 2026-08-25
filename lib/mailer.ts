@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-function getTransporter() {
+export function getTransporter() {
   const port = Number(process.env.SMTP_PORT);
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,

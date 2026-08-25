@@ -69,7 +69,7 @@ const adminLinks: AdminLink[] = [
   },
   {
     title: "Mailbox",
-    description: "Eingegangene E-Mails lesen",
+    description: "E-Mails lesen, beantworten und weiterleiten",
     href: "/admin/mailbox",
     icon: Mail,
     page: "mailbox",
