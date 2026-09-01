@@ -44,6 +44,8 @@ export function Header() {
     { name: t.nav.election, href: "/wahlen" },
     { name: t.nav.gallery, href: "/galerie" },
     { name: t.nav.contact, href: "/kontakt" },
+    // Aufgaben sind persoenlich - nur fuer angemeldete Personen sichtbar
+    ...(authenticated ? [{ name: t.nav.tasks, href: "/aufgaben" }] : []),
   ]
 
   const vereinMenu = [

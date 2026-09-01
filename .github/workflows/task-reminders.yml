@@ -1,0 +1,22 @@
+# Stuendlicher Erinnerungs-Job fuer die Aufgaben-Seite.
+# Voraussetzung: die Repository-Secrets APP_URL (z. B. https://sygs.de)
+# und CRON_SECRET (identisch mit der Variable auf dem Server).
+# Alternativ laesst sich der Job auch per Vercel Cron oder System-Cron aufrufen:
+#   curl -H "Authorization: Bearer $CRON_SECRET" https://sygs.de/api/cron/task-reminders
+name: Aufgaben-Erinnerungen
+
+on:
+  schedule:
+    # jede volle Stunde (UTC)
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Erinnerungs-Job aufrufen
+        run: |
+          curl --fail --silent --show-error \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/cron/task-reminders"

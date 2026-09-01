@@ -228,3 +228,128 @@ export async function sendMembershipConfirmation(email: string, firstName: strin
     `,
   });
 }
+
+export interface TaskMailData {
+  title: string;
+  description: string;
+  dueAt: string;
+  assigneeName: string;
+}
+
+// Frist in beiden Sprachen einheitlich als deutsche Schreibweise (Europe/Berlin),
+// damit Datum und Uhrzeit in der Mail nicht auseinanderlaufen.
+function formatTaskDue(dueAt: string): string {
+  return new Date(dueAt).toLocaleString('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Europe/Berlin',
+  });
+}
+
+// Aufgaben-Mails sind zweisprachig (DE + AR), da die Sprache der
+// Empfaengerin / des Empfaengers nicht gespeichert wird.
+function taskMailHtml(data: TaskMailData, headingDe: string, headingAr: string, introDe: string, introAr: string) {
+  const title = escapeHtml(data.title);
+  const name = escapeHtml(data.assigneeName);
+  const due = escapeHtml(formatTaskDue(data.dueAt));
+  const description = data.description ? escapeHtml(data.description).replace(/\n/g, '<br/>') : '';
+  const tasksUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://sygs.de'}/aufgaben`;
+
+  const descriptionBlock = description
+    ? `<p style="line-height: 1.6; color: #555;">${description}</p>`
+    : '';
+
+  return `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div dir="ltr">
+          <h2 style="color: #333;">${headingDe} ${name},</h2>
+          <p style="line-height: 1.6;">${introDe}</p>
+          <p style="background: #f0f7ff; border: 1px solid #cde3ff; border-radius: 8px; padding: 12px 16px; font-size: 16px;">
+            <strong>${title}</strong><br/>
+            <span style="color: #666; font-size: 14px;">Frist: ${due} Uhr</span>
+          </p>
+          ${descriptionBlock}
+          <p style="margin: 24px 0;">
+            <a href="${tasksUrl}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+              Aufgabe öffnen
+            </a>
+          </p>
+        </div>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <div dir="rtl">
+          <h2 style="color: #333;">${headingAr} ${name}،</h2>
+          <p style="line-height: 1.6;">${introAr}</p>
+          <p style="background: #f0f7ff; border: 1px solid #cde3ff; border-radius: 8px; padding: 12px 16px; font-size: 16px;">
+            <strong>${title}</strong><br/>
+            <span style="color: #666; font-size: 14px;">الموعد النهائي: <span dir="ltr">${due}</span></span>
+          </p>
+          <p style="margin: 24px 0;" dir="ltr">
+            <a href="${tasksUrl}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+              فتح المهمة
+            </a>
+          </p>
+        </div>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="color: #999; font-size: 12px;">Syrisch-Deutscher Verein - sygs.de</p>
+      </div>
+  `;
+}
+
+// Benachrichtigung, wenn jemand anderes eine Aufgabe zuweist
+export async function sendTaskAssignedEmail(email: string, data: TaskMailData) {
+  const from = process.env.MAIL_FROM || process.env.SMTP_USER;
+
+  await getTransporter().sendMail({
+    from: `"Syrisch-Deutscher Verein" <${from}>`,
+    to: email,
+    subject: `Neue Aufgabe: ${data.title} - SYGS`,
+    html: taskMailHtml(
+      data,
+      'Hallo',
+      'مرحباً',
+      'Ihnen wurde eine neue Aufgabe zugewiesen:',
+      'تم إسناد مهمة جديدة إليك:',
+    ),
+  });
+}
+
+// Vorab-Erinnerung vor Ablauf der Frist
+export async function sendTaskDueSoonEmail(email: string, data: TaskMailData) {
+  const from = process.env.MAIL_FROM || process.env.SMTP_USER;
+
+  await getTransporter().sendMail({
+    from: `"Syrisch-Deutscher Verein" <${from}>`,
+    to: email,
+    subject: `Erinnerung: ${data.title} - Frist läuft ab`,
+    html: taskMailHtml(
+      data,
+      'Hallo',
+      'مرحباً',
+      'eine kleine Erinnerung: Die Frist für diese Aufgabe läuft bald ab.',
+      'تذكير: الموعد النهائي لهذه المهمة يقترب.',
+    ),
+  });
+}
+
+// Erinnerung an eine bereits ueberfaellige Aufgabe.
+// cc geht optional an die erstellende Person (Eskalation).
+export async function sendTaskOverdueEmail(email: string, data: TaskMailData, cc?: string) {
+  const from = process.env.MAIL_FROM || process.env.SMTP_USER;
+
+  await getTransporter().sendMail({
+    from: `"Syrisch-Deutscher Verein" <${from}>`,
+    to: email,
+    cc: cc || undefined,
+    subject: `Überfällig: ${data.title} - SYGS`,
+    html: taskMailHtml(
+      data,
+      'Hallo',
+      'مرحباً',
+      'diese Aufgabe ist noch offen und die Frist ist bereits verstrichen. Bitte erledigen Sie sie oder passen Sie die Frist an.',
+      'هذه المهمة ما زالت مفتوحة وقد تجاوزت الموعد النهائي. يرجى إنجازها أو تعديل الموعد.',
+    ),
+  });
+}
