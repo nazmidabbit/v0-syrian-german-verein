@@ -22,6 +22,7 @@ import {
   RotateCcw,
   StickyNote,
   Trash2,
+  UserPlus,
   X,
 } from "lucide-react"
 import {
@@ -73,6 +74,7 @@ export default function MyTasksPage() {
 
   const [tasks, setTasks] = useState<Task[]>([])
   const [userId, setUserId] = useState("")
+  const [canAssign, setCanAssign] = useState(false)
   const [authenticated, setAuthenticated] = useState(false)
   const [checking, setChecking] = useState(true)
   const [loading, setLoading] = useState(true)
@@ -98,6 +100,9 @@ export default function MyTasksPage() {
         const data = await res.json()
         setAuthenticated(true)
         setUserId(data.user?.id || "")
+        // Wer Aufgaben zuweisen darf, bekommt den Link in den Admin-Bereich
+        const permissions: string[] = data.user?.permissions || []
+        setCanAssign(data.user?.role === "admin" || permissions.includes("aufgaben"))
       }
     } catch {
       // nicht angemeldet
@@ -498,10 +503,21 @@ export default function MyTasksPage() {
         <section className="py-12 px-6 bg-background">
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <Button onClick={showForm ? resetForm : startCreate} variant={showForm ? "outline" : "default"}>
-                {showForm ? <X className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
-                {showForm ? t.tasks.cancel : t.tasks.newTask}
-              </Button>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button onClick={showForm ? resetForm : startCreate} variant={showForm ? "outline" : "default"}>
+                  {showForm ? <X className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+                  {showForm ? t.tasks.cancel : t.tasks.newTask}
+                </Button>
+
+                {canAssign && (
+                  <Button asChild variant="outline">
+                    <Link href="/admin/aufgaben">
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      {t.tasks.assignTasks}
+                    </Link>
+                  </Button>
+                )}
+              </div>
               {done.length > 0 && (
                 <Button variant="ghost" size="sm" onClick={() => setShowDone((prev) => !prev)}>
                   {showDone ? t.tasks.hideDone : t.tasks.showDone}
