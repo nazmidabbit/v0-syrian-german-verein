@@ -24,7 +24,7 @@ export async function GET(
 
     const { data: form, error } = await supabase
       .from('forms')
-      .select('id, title, title_ar, slug, is_active')
+      .select('id, title, title_ar, slug, is_active, max_participants, closes_at, waitlist_enabled, unique_by_email')
       .eq('id', id)
       .maybeSingle();
 
@@ -40,12 +40,22 @@ export async function GET(
 
     const { data: submissions } = await supabase
       .from('form_submissions')
-      .select('id, data, created_at')
+      .select('id, data, created_at, status, checked_in_at, email')
       .eq('form_id', id)
       .order('created_at', { ascending: false })
       .limit(1000);
 
-    return NextResponse.json({ form, fields: fields || [], submissions: submissions || [] });
+    const rows = submissions || [];
+    // Teilnehmerzahlen fuer die Kopfzeile der Ergebnisseite
+    const counts = {
+      total: rows.length,
+      confirmed: rows.filter((s) => s.status === 'confirmed').length,
+      waitlist: rows.filter((s) => s.status === 'waitlist').length,
+      cancelled: rows.filter((s) => s.status === 'cancelled').length,
+      checkedIn: rows.filter((s) => Boolean(s.checked_in_at)).length,
+    };
+
+    return NextResponse.json({ form, fields: fields || [], submissions: rows, counts });
   } catch {
     return NextResponse.json({ error: 'Serverfehler.' }, { status: 500 });
   }

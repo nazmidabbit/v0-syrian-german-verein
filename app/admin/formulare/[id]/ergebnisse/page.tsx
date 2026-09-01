@@ -5,13 +5,34 @@ import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Loader2, LogIn, Shield, Table2, Trash2 } from "lucide-react"
+import { ArrowLeft, Download, Loader2, LogIn, Shield, Table2, Trash2, UserCheck } from "lucide-react"
+import { SUBMISSION_STATUS_LABELS, SUBMISSION_STATUSES, type SubmissionStatus } from "@/lib/forms"
 
 interface FormMeta {
   id: string
   title: string
   slug: string
+  max_participants: number | null
+  closes_at: string | null
 }
+
+interface Counts {
+  total: number
+  confirmed: number
+  waitlist: number
+  cancelled: number
+  checkedIn: number
+}
+
+const STATUS_CLASSES: Record<SubmissionStatus, string> = {
+  confirmed: "bg-green-100 text-green-700",
+  waitlist: "bg-orange-100 text-orange-700",
+  cancelled: "bg-muted text-muted-foreground",
+}
+
+// Excel im deutschen Gebietsschema erwartet Semikolon als Trennzeichen
+const CSV_SEPARATOR = ";"
+const csvCell = (value: string) => '"' + value.replace(/"/g, '""') + '"'
 
 interface FieldColumn {
   field_key: string
@@ -23,6 +44,9 @@ interface Submission {
   id: string
   data: Record<string, string | boolean>
   created_at: string
+  status: SubmissionStatus
+  checked_in_at: string | null
+  email: string
 }
 
 export default function AdminFormSubmissionsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -37,6 +61,9 @@ export default function AdminFormSubmissionsPage({ params }: { params: Promise<{
   const [accessError, setAccessError] = useState("")
   const [actionError, setActionError] = useState("")
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [savingId, setSavingId] = useState<string | null>(null)
+  const [counts, setCounts] = useState<Counts | null>(null)
+  const [statusFilter, setStatusFilter] = useState("")
 
   const checkAuth = useCallback(async () => {
     try {
@@ -57,6 +84,7 @@ export default function AdminFormSubmissionsPage({ params }: { params: Promise<{
         setForm(data.form)
         setFields(data.fields || [])
         setSubmissions(data.submissions || [])
+        setCounts(data.counts || null)
       } else if (res.status === 404) {
         setAccessError("Formular nicht gefunden.")
       } else {
@@ -91,6 +119,29 @@ export default function AdminFormSubmissionsPage({ params }: { params: Promise<{
     }
   }
 
+  // Status setzen oder Check-in umschalten
+  const updateSubmission = async (sid: string, payload: Record<string, unknown>) => {
+    setActionError("")
+    setSavingId(sid)
+    try {
+      const res = await fetch(`/api/admin/forms/${id}/submissions/${sid}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      if (res.ok) {
+        await loadSubmissions()
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setActionError(`Speichern fehlgeschlagen (${res.status}): ${data.error || "Unbekannter Fehler"}`)
+      }
+    } catch {
+      setActionError("Verbindungsfehler — Speichern fehlgeschlagen.")
+    } finally {
+      setSavingId(null)
+    }
+  }
+
   const formatValue = (field: FieldColumn, value: string | boolean | undefined) => {
     if (field.field_type === "checkbox") return value === true ? "Ja" : "Nein"
     return typeof value === "string" && value ? value : "—"
@@ -104,6 +155,33 @@ export default function AdminFormSubmissionsPage({ params }: { params: Promise<{
       hour: "2-digit",
       minute: "2-digit",
     })
+
+  const visibleSubmissions = statusFilter
+    ? submissions.filter((s) => s.status === statusFilter)
+    : submissions
+
+  // Teilnehmerliste als CSV — mit BOM, damit Excel die Umlaute richtig liest
+  const exportCsv = () => {
+    const header = ["Eingegangen", "Status", "Check-in", ...fields.map((f) => f.label)]
+    const rows = visibleSubmissions.map((submission) => [
+      formatDateTime(submission.created_at),
+      SUBMISSION_STATUS_LABELS[submission.status],
+      submission.checked_in_at ? formatDateTime(submission.checked_in_at) : "",
+      ...fields.map((field) => {
+        const value = formatValue(field, submission.data?.[field.field_key])
+        return value === "—" ? "" : value
+      }),
+    ])
+
+    const csv = [header, ...rows].map((row) => row.map(csvCell).join(CSV_SEPARATOR)).join("\r\n")
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `${form?.slug || "einsendungen"}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
 
   if (checking) {
     return (
@@ -173,8 +251,53 @@ export default function AdminFormSubmissionsPage({ params }: { params: Promise<{
                   <ArrowLeft className="h-4 w-4" /> Zurück zu den Formularen
                 </Link>
               </Button>
-              <p className="text-sm text-muted-foreground">{submissions.length} Einsendungen</p>
+              <div className="flex flex-wrap items-center gap-3">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="">Alle Status</option>
+                  {SUBMISSION_STATUSES.map((value) => (
+                    <option key={value} value={value}>{SUBMISSION_STATUS_LABELS[value]}</option>
+                  ))}
+                </select>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={exportCsv}
+                  disabled={visibleSubmissions.length === 0}
+                  className="gap-1"
+                >
+                  <Download className="h-4 w-4" /> CSV exportieren
+                </Button>
+              </div>
             </div>
+
+            {/* Teilnehmerzahlen auf einen Blick */}
+            {counts && counts.total > 0 && (
+              <div className="flex flex-wrap gap-3 mb-6 text-sm">
+                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">
+                  {counts.confirmed} angemeldet
+                  {form?.max_participants ? ` von ${form.max_participants}` : ""}
+                </span>
+                {counts.waitlist > 0 && (
+                  <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-medium">
+                    {counts.waitlist} auf Warteliste
+                  </span>
+                )}
+                {counts.cancelled > 0 && (
+                  <span className="bg-muted text-muted-foreground px-3 py-1 rounded-full font-medium">
+                    {counts.cancelled} storniert
+                  </span>
+                )}
+                {counts.checkedIn > 0 && (
+                  <span className="bg-primary/10 text-primary px-3 py-1 rounded-full font-medium">
+                    {counts.checkedIn} eingecheckt
+                  </span>
+                )}
+              </div>
+            )}
 
             {actionError && (
               <p className="text-destructive text-sm bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-3 mb-6">
@@ -194,6 +317,8 @@ export default function AdminFormSubmissionsPage({ params }: { params: Promise<{
                   <thead className="bg-muted">
                     <tr>
                       <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">Eingegangen</th>
+                      <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">Status</th>
+                      <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">Check-in</th>
                       {fields.map((field) => (
                         <th key={field.field_key} className="text-left font-semibold px-4 py-3 whitespace-nowrap">
                           {field.label}
@@ -203,18 +328,59 @@ export default function AdminFormSubmissionsPage({ params }: { params: Promise<{
                     </tr>
                   </thead>
                   <tbody>
-                    {submissions.map((submission) => (
+                    {visibleSubmissions.map((submission) => (
                       <tr key={submission.id} className="border-t border-border align-top">
                         <td className="px-4 py-3 whitespace-nowrap text-muted-foreground">
                           {formatDateTime(submission.created_at)}
                         </td>
-                        {fields.map((field) => (
-                          <td key={field.field_key} className="px-4 py-3 max-w-[300px]">
-                            <span className="whitespace-pre-wrap break-words">
-                              {formatValue(field, submission.data?.[field.field_key])}
-                            </span>
-                          </td>
-                        ))}
+                        <td className="px-4 py-3">
+                          <select
+                            value={submission.status}
+                            onChange={(e) => updateSubmission(submission.id, { status: e.target.value })}
+                            disabled={savingId === submission.id}
+                            className={`h-8 rounded-md border-0 px-2 text-xs font-medium ${STATUS_CLASSES[submission.status]}`}
+                          >
+                            {SUBMISSION_STATUSES.map((value) => (
+                              <option key={value} value={value}>{SUBMISSION_STATUS_LABELS[value]}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <Button
+                            size="sm"
+                            variant={submission.checked_in_at ? "default" : "outline"}
+                            onClick={() =>
+                              updateSubmission(submission.id, { checkedIn: !submission.checked_in_at })
+                            }
+                            disabled={savingId === submission.id}
+                            className="gap-1"
+                            title={submission.checked_in_at ? "Check-in zurücknehmen" : "Jetzt einchecken"}
+                          >
+                            <UserCheck className="h-4 w-4" />
+                            {submission.checked_in_at ? formatDateTime(submission.checked_in_at) : "Einchecken"}
+                          </Button>
+                        </td>
+                        {fields.map((field) => {
+                          const value = submission.data?.[field.field_key]
+                          return (
+                            <td key={field.field_key} className="px-4 py-3 max-w-[300px]">
+                              {field.field_type === "photo" && typeof value === "string" && value ? (
+                                <a href={value} target="_blank" rel="noopener noreferrer">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img
+                                    src={value}
+                                    alt=""
+                                    className="h-14 w-14 rounded-lg object-cover border border-border"
+                                  />
+                                </a>
+                              ) : (
+                                <span className="whitespace-pre-wrap break-words">
+                                  {formatValue(field, value)}
+                                </span>
+                              )}
+                            </td>
+                          )
+                        })}
                         <td className="px-4 py-3 text-right">
                           <Button
                             size="sm"

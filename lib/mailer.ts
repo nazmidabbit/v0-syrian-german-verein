@@ -167,19 +167,30 @@ export async function sendFormConfirmation(
   firstName: string,
   formTitle: string,
   locale: 'de' | 'ar',
+  waitlisted = false,
 ) {
   const from = process.env.MAIL_FROM || process.env.SMTP_USER;
   const name = escapeHtml(firstName);
   const title = escapeHtml(formTitle);
 
   const isAr = locale === 'ar';
-  const subject = isAr
-    ? `استلمنا بياناتك: ${formTitle} - SYGS`
-    : `Wir haben Ihre Angaben erhalten: ${formTitle} - SYGS`;
+  const subject = waitlisted
+    ? isAr
+      ? `قائمة الانتظار: ${formTitle} - SYGS`
+      : `Warteliste: ${formTitle} - SYGS`
+    : isAr
+      ? `استلمنا بياناتك: ${formTitle} - SYGS`
+      : `Wir haben Ihre Angaben erhalten: ${formTitle} - SYGS`;
   const heading = isAr ? (name ? `مرحباً ${name}،` : 'مرحباً،') : name ? `Hallo ${name},` : 'Guten Tag,';
-  const body = isAr
-    ? `شكراً لك — لقد استلمنا بياناتك عبر استمارة «${title}» بنجاح. سنتواصل معك إذا لزم الأمر.`
-    : `vielen Dank — wir haben Ihre Angaben über das Formular „${title}" erhalten. Falls nötig, melden wir uns bei Ihnen.`;
+  // Bei ausgebuchter Veranstaltung landet die Anmeldung auf der Warteliste —
+  // das muss in der Bestaetigung unmissverstaendlich stehen.
+  const body = waitlisted
+    ? isAr
+      ? `شكراً لك — لقد استلمنا تسجيلك في «${title}». العدد مكتمل حالياً، لذلك تم وضعك على قائمة الانتظار. سنتواصل معك فور توفر مكان.`
+      : `vielen Dank — wir haben Ihre Anmeldung zu „${title}" erhalten. Die Veranstaltung ist derzeit ausgebucht, deshalb stehen Sie auf der Warteliste. Sobald ein Platz frei wird, melden wir uns bei Ihnen.`
+    : isAr
+      ? `شكراً لك — لقد استلمنا بياناتك عبر استمارة «${title}» بنجاح. سنتواصل معك إذا لزم الأمر.`
+      : `vielen Dank — wir haben Ihre Angaben über das Formular „${title}" erhalten. Falls nötig, melden wir uns bei Ihnen.`;
 
   await getTransporter().sendMail({
     from: `"Syrisch-Deutscher Verein" <${from}>`,

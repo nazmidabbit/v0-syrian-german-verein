@@ -5,7 +5,9 @@ import Image from "next/image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { useLanguage } from "@/components/language-provider"
-import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { CalendarDays, ChevronLeft, ChevronRight, ClipboardList } from "lucide-react"
 
 interface Event {
   id: string
@@ -16,6 +18,8 @@ interface Event {
   date: string
   image_urls: string[]
   video_urls: string[]
+  // Aus dem Formular-Baukasten verknuepfte Anmeldung (0 oder 1 aktives)
+  registration_forms?: { slug: string; is_active: boolean; closes_at: string | null }[]
 }
 
 export default function EventsPage() {
@@ -117,6 +121,32 @@ export default function EventsPage() {
                       <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
                         {getDescription(event)}
                       </p>
+
+                      {/* Anmeldung, sofern ein aktives Formular verknuepft ist */}
+                      {(() => {
+                        const registration = (event.registration_forms || []).find((f) => f.is_active)
+                        if (!registration) return null
+                        const closed = registration.closes_at
+                          ? new Date(registration.closes_at).getTime() < Date.now()
+                          : false
+                        return (
+                          <div className="mt-6">
+                            {closed ? (
+                              <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                                <ClipboardList className="h-4 w-4" />
+                                {t.events.registrationClosed}
+                              </span>
+                            ) : (
+                              <Button asChild className="gap-2">
+                                <Link href={`/formulare/${registration.slug}`}>
+                                  <ClipboardList className="h-4 w-4" />
+                                  {t.events.register}
+                                </Link>
+                              </Button>
+                            )}
+                          </div>
+                        )
+                      })()}
                     </div>
                   </article>
                 ))}

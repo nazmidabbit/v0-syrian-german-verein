@@ -12,6 +12,7 @@ import {
   ArrowDown,
   ArrowLeft,
   ArrowUp,
+  CalendarDays,
   CheckCircle,
   ListChecks,
   Loader2,
@@ -27,6 +28,24 @@ interface FormMeta {
   title: string
   slug: string
   is_active: boolean
+  event_id: string | null
+  max_participants: number | null
+  closes_at: string | null
+  waitlist_enabled: boolean
+  unique_by_email: boolean
+}
+
+interface EventOption {
+  id: string
+  title: string
+  date: string
+}
+
+// Frist als <input type="datetime-local"> darstellen (lokale Zeit des Browsers)
+const toLocalInput = (iso: string) => {
+  const d = new Date(iso)
+  const pad = (n: number) => String(n).padStart(2, "0")
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
 interface EditableField {
@@ -62,6 +81,15 @@ export default function AdminFormFieldsPage({ params }: { params: Promise<{ id: 
   const [saving, setSaving] = useState(false)
   const [baseFieldKey, setBaseFieldKey] = useState("")
 
+  // Anmelde-Einstellungen (Veranstaltung, Teilnehmerzahl, Anmeldeschluss)
+  const [events, setEvents] = useState<EventOption[]>([])
+  const [eventId, setEventId] = useState("")
+  const [maxParticipants, setMaxParticipants] = useState("")
+  const [closesAt, setClosesAt] = useState("")
+  const [waitlistEnabled, setWaitlistEnabled] = useState(false)
+  const [uniqueByEmail, setUniqueByEmail] = useState(false)
+  const [savingSettings, setSavingSettings] = useState(false)
+
   const checkAuth = useCallback(async () => {
     try {
       const res = await fetch("/api/auth/check")
@@ -79,6 +107,11 @@ export default function AdminFormFieldsPage({ params }: { params: Promise<{ id: 
       if (res.ok) {
         const data = await res.json()
         setForm(data.form)
+        setEventId(data.form?.event_id || "")
+        setMaxParticipants(data.form?.max_participants ? String(data.form.max_participants) : "")
+        setClosesAt(data.form?.closes_at ? toLocalInput(data.form.closes_at) : "")
+        setWaitlistEnabled(Boolean(data.form?.waitlist_enabled))
+        setUniqueByEmail(Boolean(data.form?.unique_by_email))
         setFields(
           (data.fields || []).map((f: Record<string, unknown>) => ({
             fieldKey: f.field_key as string,
@@ -102,8 +135,59 @@ export default function AdminFormFieldsPage({ params }: { params: Promise<{ id: 
     }
   }, [id])
 
+  const loadEvents = useCallback(async () => {
+    try {
+      const res = await fetch("/api/events")
+      if (res.ok) {
+        const data = await res.json()
+        setEvents(data.events || [])
+      }
+    } catch {
+      setEvents([])
+    }
+  }, [])
+
   useEffect(() => { checkAuth() }, [checkAuth])
-  useEffect(() => { if (authenticated) loadForm() }, [authenticated, loadForm])
+  useEffect(() => {
+    if (authenticated) {
+      loadForm()
+      loadEvents()
+    }
+  }, [authenticated, loadForm, loadEvents])
+
+  const saveSettings = async () => {
+    setActionError("")
+    setSaveInfo("")
+    const max = maxParticipants.trim()
+    if (max && (!/^[0-9]+$/.test(max) || Number(max) < 1)) {
+      setActionError("Teilnehmerzahl muss eine Zahl ab 1 sein.")
+      return
+    }
+    setSavingSettings(true)
+    try {
+      const res = await fetch(`/api/admin/forms/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventId: eventId || null,
+          maxParticipants: max ? Number(max) : null,
+          closesAt: closesAt ? new Date(closesAt).toISOString() : null,
+          waitlistEnabled,
+          uniqueByEmail,
+        }),
+      })
+      if (res.ok) {
+        setSaveInfo("Anmelde-Einstellungen gespeichert.")
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setActionError(`Speichern fehlgeschlagen (${res.status}): ${data.error || "Unbekannter Fehler"}`)
+      }
+    } catch {
+      setActionError("Verbindungsfehler — Speichern fehlgeschlagen.")
+    } finally {
+      setSavingSettings(false)
+    }
+  }
 
   const usedKeys = new Set(fields.map((f) => f.fieldKey).filter(Boolean))
   const availableBaseFields = BASE_FIELDS.filter((bf) => !usedKeys.has(bf.field_key))
@@ -301,6 +385,87 @@ export default function AdminFormFieldsPage({ params }: { params: Promise<{ id: 
               </div>
             ) : (
               <>
+                {/* Anmeldung: Veranstaltung, Teilnehmerzahl, Anmeldeschluss */}
+                <div className="bg-muted rounded-xl p-4 mb-8">
+                  <h2 className="font-bold mb-1 flex items-center gap-2">
+                    <CalendarDays className="h-4 w-4 text-primary" />
+                    Anmeldung (optional)
+                  </h2>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Nur ausfüllen, wenn dieses Formular eine Anmeldung zu einer Veranstaltung ist.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="event">Veranstaltung</Label>
+                      <select
+                        id="event"
+                        className={SELECT_CLASSES}
+                        value={eventId}
+                        onChange={(e) => setEventId(e.target.value)}
+                      >
+                        <option value="">Keine Verknüpfung</option>
+                        {events.map((event) => (
+                          <option key={event.id} value={event.id}>{event.title}</option>
+                        ))}
+                      </select>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Verknüpft: Anmelde-Knopf erscheint bei der Veranstaltung.
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="max">Maximale Teilnehmerzahl</Label>
+                      <Input
+                        id="max"
+                        inputMode="numeric"
+                        placeholder="leer = unbegrenzt"
+                        value={maxParticipants}
+                        onChange={(e) => setMaxParticipants(e.target.value)}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="closes">Anmeldeschluss</Label>
+                      <Input
+                        id="closes"
+                        type="datetime-local"
+                        value={closesAt}
+                        onChange={(e) => setClosesAt(e.target.value)}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">leer = kein Anmeldeschluss</p>
+                    </div>
+
+                    <div className="flex flex-col justify-center gap-2">
+                      <label className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 accent-primary"
+                          checked={waitlistEnabled}
+                          onChange={(e) => setWaitlistEnabled(e.target.checked)}
+                        />
+                        Warteliste, wenn ausgebucht
+                      </label>
+                      <label className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 accent-primary"
+                          checked={uniqueByEmail}
+                          onChange={(e) => setUniqueByEmail(e.target.checked)}
+                        />
+                        Pro E-Mail nur eine Anmeldung
+                      </label>
+                    </div>
+                  </div>
+
+                  <Button size="sm" className="mt-4" onClick={saveSettings} disabled={savingSettings}>
+                    {savingSettings ? (<><Loader2 className="h-4 w-4 animate-spin mr-2" />Wird gespeichert...</>) : "Anmelde-Einstellungen speichern"}
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Doppelanmeldungen werden nur erkannt, wenn das Formular ein E-Mail-Feld enthält.
+                  </p>
+                </div>
+
                 {/* Basisfeld oder eigenes Feld hinzufuegen */}
                 <div className="bg-muted rounded-xl p-4 mb-8 flex flex-wrap items-end gap-3">
                   <div className="flex-1 min-w-[220px]">

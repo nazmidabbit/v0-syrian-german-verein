@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { CheckCircle2, FileQuestion, Loader2, Send } from "lucide-react"
+import { AlarmClock, CheckCircle2, FileQuestion, ImagePlus, Loader2, Send, Users, X } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
 import type { FormFieldDef } from "@/lib/forms"
 
@@ -21,6 +21,46 @@ interface PublicForm {
   description_ar: string
   slug: string
 }
+
+interface RegistrationInfo {
+  closesAt: string | null
+  maxParticipants: number | null
+  waitlistEnabled: boolean
+  closed: boolean
+  isFull: boolean
+  remaining: number | null
+}
+
+// Fotos werden vor dem Absenden im Browser verkleinert, damit die Data-URL
+// klein bleibt und das Body-Limit der API nicht reisst (wie im Mitgliedsantrag).
+const MAX_PHOTO_EDGE = 1024
+const MAX_PHOTO_FILE_BYTES = 10 * 1024 * 1024
+
+const readAndCompressImage = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    // window.Image, weil "Image" hier die Komponente aus next/image ist
+    const img = new window.Image()
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      const scale = Math.min(1, MAX_PHOTO_EDGE / Math.max(img.width, img.height))
+      const canvas = document.createElement("canvas")
+      canvas.width = Math.max(1, Math.round(img.width * scale))
+      canvas.height = Math.max(1, Math.round(img.height * scale))
+      const ctx = canvas.getContext("2d")
+      if (!ctx) {
+        reject(new Error("canvas"))
+        return
+      }
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      resolve(canvas.toDataURL("image/jpeg", 0.85))
+    }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      reject(new Error("image"))
+    }
+    img.src = url
+  })
 
 const SELECT_CLASSES =
   "border-input dark:bg-input/30 h-9 w-full rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] md:text-sm"
@@ -44,6 +84,10 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
   const [consentError, setConsentError] = useState(false)
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle")
   const [serverError, setServerError] = useState("")
+  const [registration, setRegistration] = useState<RegistrationInfo | null>(null)
+  // Ergebnis der Anmeldung: bestaetigt oder Warteliste
+  const [resultStatus, setResultStatus] = useState<"confirmed" | "waitlist">("confirmed")
+  const [photoError, setPhotoError] = useState<Record<string, boolean>>({})
 
   const loadForm = useCallback(async () => {
     try {
@@ -53,6 +97,7 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
         setForm(data.form)
         setFields(data.fields || [])
         setFormToken(data.token || "")
+        setRegistration(data.registration || null)
         const initial: Record<string, string | boolean> = {}
         for (const field of data.fields || []) {
           initial[field.field_key] = field.field_type === "checkbox" ? false : ""
@@ -77,6 +122,22 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
   const setValue = (key: string, value: string | boolean) => {
     setValues((prev) => ({ ...prev, [key]: value }))
     setFieldErrors((prev) => ({ ...prev, [key]: false }))
+  }
+
+  const onPhotoChange = async (key: string, input: HTMLInputElement) => {
+    const file = input.files?.[0]
+    input.value = ""
+    setPhotoError((prev) => ({ ...prev, [key]: false }))
+    if (!file) return
+    if (!file.type.startsWith("image/") || file.size > MAX_PHOTO_FILE_BYTES) {
+      setPhotoError((prev) => ({ ...prev, [key]: true }))
+      return
+    }
+    try {
+      setValue(key, await readAndCompressImage(file))
+    } catch {
+      setPhotoError((prev) => ({ ...prev, [key]: true }))
+    }
   }
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -107,6 +168,8 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
       })
 
       if (res.ok) {
+        const okData = await res.json().catch(() => ({}))
+        setResultStatus(okData.status === "waitlist" ? "waitlist" : "confirmed")
         setStatus("sent")
         return
       }
@@ -114,6 +177,14 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
       const data = await res.json().catch(() => ({}))
       if (res.status === 429) {
         setServerError(td.errorRateLimited)
+      } else if (data.error === "closed") {
+        setServerError(td.errorClosed)
+        await loadForm()
+      } else if (data.error === "full") {
+        setServerError(td.errorFull)
+        await loadForm()
+      } else if (data.error === "duplicate") {
+        setServerError(td.errorDuplicate)
       } else if (data.error === "invalidToken") {
         await loadForm()
         setServerError(td.errorToken)
@@ -147,6 +218,42 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
             {field.required ? " *" : ""}
           </span>
         </label>
+      )
+    }
+
+    if (field.field_type === "photo") {
+      const dataUrl = String(value ?? "")
+      return (
+        <div>
+          <Label htmlFor={`field-${key}`}>
+            {label(field)}
+            {field.required ? " *" : ""}
+          </Label>
+          {dataUrl ? (
+            <div className="flex items-center gap-3 mt-1">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={dataUrl} alt="" className="h-20 w-20 rounded-lg object-cover border border-border" />
+              <Button type="button" variant="outline" size="sm" onClick={() => setValue(key, "")} className="gap-1">
+                <X className="h-4 w-4" />
+                {td.photoRemove}
+              </Button>
+            </div>
+          ) : (
+            <>
+              <Input
+                id={`field-${key}`}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => onPhotoChange(key, e.target)}
+              />
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <ImagePlus className="h-3.5 w-3.5" />
+                {td.photoHint}
+              </p>
+            </>
+          )}
+          {photoError[key] && <p className="text-destructive text-sm mt-1">{td.errorPhoto}</p>}
+        </div>
       )
     }
 
@@ -231,8 +338,12 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="h-9 w-9 text-primary" />
             </div>
-            <h1 className="text-3xl font-bold text-foreground mb-4">{td.successTitle}</h1>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-8">{td.successText}</p>
+            <h1 className="text-3xl font-bold text-foreground mb-4">
+              {resultStatus === "waitlist" ? td.successWaitlistTitle : td.successTitle}
+            </h1>
+            <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+              {resultStatus === "waitlist" ? td.successWaitlistText : td.successText}
+            </p>
             <Button asChild size="lg">
               <Link href="/">{td.backHome}</Link>
             </Button>
@@ -245,6 +356,22 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
 
   const title = locale === "ar" && form.title_ar ? form.title_ar : form.title
   const description = locale === "ar" && form.description_ar ? form.description_ar : form.description
+
+  // Anmeldeschluss vorbei oder ausgebucht ohne Warteliste: kein Formular anzeigen
+  const registrationBlocked =
+    registration?.closed === true || (registration?.isFull === true && !registration.waitlistEnabled)
+  const closesAtText = registration?.closesAt
+    ? td.closesAt.replace(
+        "{date}",
+        new Date(registration.closesAt).toLocaleString(locale === "ar" ? "ar-SA" : "de-DE", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      )
+    : ""
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -268,6 +395,51 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
 
         <section className="py-16 px-6 bg-background">
           <div className="max-w-2xl mx-auto">
+            {/* Anmeldestand: Restplaetze, Anmeldeschluss, Warteliste */}
+            {registration && (registration.remaining !== null || closesAtText || registration.isFull) && (
+              <div
+                className={`rounded-xl px-4 py-3 mb-6 text-sm flex flex-col gap-1 ${
+                  registrationBlocked
+                    ? "bg-destructive/10 text-destructive"
+                    : registration.isFull
+                      ? "bg-orange-100 text-orange-800"
+                      : "bg-primary/10 text-foreground"
+                }`}
+              >
+                {registration.closed ? (
+                  <span className="flex items-center gap-2 font-medium">
+                    <AlarmClock className="h-4 w-4" />
+                    {td.registrationClosed}
+                  </span>
+                ) : registration.isFull ? (
+                  <span className="flex items-center gap-2 font-medium">
+                    <Users className="h-4 w-4" />
+                    {registration.waitlistEnabled ? td.fullWaitlist : td.fullClosed}
+                  </span>
+                ) : registration.remaining !== null ? (
+                  <span className="flex items-center gap-2 font-medium">
+                    <Users className="h-4 w-4" />
+                    {registration.remaining === 1
+                      ? td.lastSpot
+                      : td.spotsLeft.replace("{n}", String(registration.remaining))}
+                  </span>
+                ) : null}
+                {closesAtText && !registration.closed && (
+                  <span className="flex items-center gap-2 text-muted-foreground">
+                    <AlarmClock className="h-4 w-4" />
+                    {closesAtText}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {registrationBlocked ? (
+              <div className="text-center py-12">
+                <Button asChild variant="outline">
+                  <Link href="/veranstaltungen">{td.backHome}</Link>
+                </Button>
+              </div>
+            ) : (
             <form onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
               {/* Honeypot: fuer Menschen unsichtbar, Bots fuellen es aus */}
               <div className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
@@ -333,6 +505,7 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
                 {serverError && <p className="text-destructive text-sm text-center">{serverError}</p>}
               </div>
             </form>
+            )}
           </div>
         </section>
       </main>

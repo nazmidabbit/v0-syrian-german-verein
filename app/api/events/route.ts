@@ -8,16 +8,22 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '0', 10);
 
-    let query = supabase
-      .from('events')
-      .select('*')
-      .order('date', { ascending: false });
+    // Verknuepftes Anmeldeformular mitladen (forms.event_id -> events.id).
+    // Solange event-registration.sql nicht eingespielt ist, gibt es die
+    // Verknuepfung nicht — dann ohne sie laden statt die Seite zu brechen.
+    const buildQuery = (columns: string) => {
+      const query = supabase.from('events').select(columns).order('date', { ascending: false });
+      return limit > 0 ? query.limit(limit) : query;
+    };
 
-    if (limit > 0) {
-      query = query.limit(limit);
+    let { data: events, error } = await buildQuery(
+      '*, registration_forms:forms!forms_event_id_fkey(slug, is_active, closes_at)',
+    );
+
+    if (error) {
+      console.warn('Events ohne Anmelde-Verknuepfung geladen:', error.message);
+      ({ data: events, error } = await buildQuery('*'));
     }
-
-    const { data: events, error } = await query;
 
     if (error) {
       return NextResponse.json({ error: 'Fehler beim Laden der Events.' }, { status: 500 });

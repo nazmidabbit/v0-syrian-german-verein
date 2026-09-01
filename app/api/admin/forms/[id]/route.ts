@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { getSupabase } from '@/lib/supabase';
 import { getAuthUser, hasPermission } from '@/lib/auth';
 
-const FORM_COLUMNS = 'id, title, title_ar, description, description_ar, slug, is_active, created_at';
+const FORM_COLUMNS =
+  'id, title, title_ar, description, description_ar, slug, is_active, created_at, event_id, max_participants, closes_at, waitlist_enabled, unique_by_email';
 const FIELD_COLUMNS = 'id, field_key, label, label_ar, field_type, options, options_ar, required, sort_order';
 
 const idSchema = z.string().uuid();
@@ -15,6 +16,12 @@ const patchSchema = z
     description: z.string().trim().max(2000).optional(),
     descriptionAr: z.string().trim().max(2000).optional(),
     isActive: z.boolean().optional(),
+    // Anmelde-Einstellungen; null loescht den jeweiligen Wert
+    eventId: z.string().uuid().nullable().optional(),
+    maxParticipants: z.number().int().min(1).max(100_000).nullable().optional(),
+    closesAt: z.string().datetime().nullable().optional(),
+    waitlistEnabled: z.boolean().optional(),
+    uniqueByEmail: z.boolean().optional(),
   })
   .strict();
 
@@ -82,6 +89,11 @@ export async function PATCH(
     if (parsed.data.description !== undefined) update.description = parsed.data.description;
     if (parsed.data.descriptionAr !== undefined) update.description_ar = parsed.data.descriptionAr;
     if (parsed.data.isActive !== undefined) update.is_active = parsed.data.isActive;
+    if (parsed.data.eventId !== undefined) update.event_id = parsed.data.eventId;
+    if (parsed.data.maxParticipants !== undefined) update.max_participants = parsed.data.maxParticipants;
+    if (parsed.data.closesAt !== undefined) update.closes_at = parsed.data.closesAt;
+    if (parsed.data.waitlistEnabled !== undefined) update.waitlist_enabled = parsed.data.waitlistEnabled;
+    if (parsed.data.uniqueByEmail !== undefined) update.unique_by_email = parsed.data.uniqueByEmail;
 
     const { data, error } = await getSupabase()
       .from('forms')

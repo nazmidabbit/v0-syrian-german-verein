@@ -11,6 +11,7 @@ export const FIELD_TYPES = [
   'number',
   'select',
   'checkbox',
+  'photo',
 ] as const;
 
 export type FieldType = (typeof FIELD_TYPES)[number];
@@ -24,6 +25,23 @@ export const FIELD_TYPE_LABELS: Record<FieldType, string> = {
   number: 'Zahl',
   select: 'Auswahl (Dropdown)',
   checkbox: 'Ankreuzfeld',
+  photo: 'Foto (Bild-Upload)',
+};
+
+// Fotos kommen als Data-URL an (im Browser bereits verkleinert) und werden
+// serverseitig in den Storage geschoben. SVG ist bewusst nicht erlaubt,
+// weil darin Skripte stecken koennen.
+export const PHOTO_DATA_URL_PATTERN = new RegExp('^data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$');
+export const MAX_PHOTO_DATA_URL_LENGTH = 3_500_000;
+
+// Anmelde-Status einer Einsendung
+export const SUBMISSION_STATUSES = ['confirmed', 'waitlist', 'cancelled'] as const;
+export type SubmissionStatus = (typeof SUBMISSION_STATUSES)[number];
+
+export const SUBMISSION_STATUS_LABELS: Record<SubmissionStatus, string> = {
+  confirmed: 'Angemeldet',
+  waitlist: 'Warteliste',
+  cancelled: 'Storniert',
 };
 
 export interface FormFieldDef {
@@ -107,6 +125,23 @@ export function validateSubmission(
       const value = raw === true;
       if (field.required && !value) return { ok: false, cleaned: {} };
       cleaned[field.field_key] = value;
+      continue;
+    }
+
+    // Foto vor der Text-Pruefung: kein trim/Steuerzeichen-Check auf mehreren
+    // hundert KB Base64.
+    if (field.field_type === 'photo') {
+      if (raw !== undefined && typeof raw !== 'string') return { ok: false, cleaned: {} };
+      const photo = raw ?? '';
+      if (!photo) {
+        if (field.required) return { ok: false, cleaned: {} };
+        cleaned[field.field_key] = '';
+        continue;
+      }
+      if (photo.length > MAX_PHOTO_DATA_URL_LENGTH || !PHOTO_DATA_URL_PATTERN.test(photo)) {
+        return { ok: false, cleaned: {} };
+      }
+      cleaned[field.field_key] = photo;
       continue;
     }
 

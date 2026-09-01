@@ -73,6 +73,8 @@ export const translations = {
       allEvents: "Alle Veranstaltungen",
       noEvents: "Derzeit sind keine Veranstaltungen geplant.",
       loading: "Veranstaltungen werden geladen...",
+      register: "Jetzt anmelden",
+      registrationClosed: "Anmeldung geschlossen",
     },
 
     // News
@@ -368,6 +370,23 @@ export const translations = {
       errorToken: "Das Formular ist abgelaufen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
       errorValidation: "Bitte prüfen Sie Ihre Eingaben.",
       errorRequired: "Pflichtfeld",
+      // Foto-Upload
+      photoChoose: "Bild auswählen",
+      photoHint: "JPG, PNG oder WebP, max. 10 MB. Das Bild wird vor dem Senden verkleinert.",
+      photoRemove: "Entfernen",
+      errorPhoto: "Bild konnte nicht gelesen werden. Bitte ein anderes wählen.",
+      // Anmeldung mit Teilnehmerzahl
+      spotsLeft: "Noch {n} Plätze frei",
+      lastSpot: "Nur noch 1 Platz frei",
+      closesAt: "Anmeldeschluss: {date}",
+      registrationClosed: "Der Anmeldeschluss ist vorbei. Eine Anmeldung ist nicht mehr möglich.",
+      fullWaitlist: "Die Veranstaltung ist ausgebucht. Sie können sich auf die Warteliste setzen lassen.",
+      fullClosed: "Die Veranstaltung ist ausgebucht.",
+      errorClosed: "Der Anmeldeschluss ist inzwischen vorbei.",
+      errorFull: "Die Veranstaltung ist inzwischen ausgebucht.",
+      errorDuplicate: "Mit dieser E-Mail-Adresse liegt bereits eine Anmeldung vor.",
+      successWaitlistTitle: "Sie stehen auf der Warteliste",
+      successWaitlistText: "Die Veranstaltung ist ausgebucht. Wir melden uns, sobald ein Platz frei wird.",
     },
 
     // Donations
@@ -626,6 +645,8 @@ export const translations = {
       allEvents: "جميع الفعاليات",
       noEvents: "لا توجد فعاليات مخططة حالياً.",
       loading: "جاري تحميل الفعاليات...",
+      register: "سجّل الآن",
+      registrationClosed: "التسجيل مغلق",
     },
 
     // News
@@ -921,6 +942,23 @@ export const translations = {
       errorToken: "انتهت صلاحية الاستمارة. يرجى إعادة تحميل الصفحة والمحاولة مجدداً.",
       errorValidation: "يرجى التحقق من المدخلات.",
       errorRequired: "حقل إلزامي",
+      // Foto-Upload
+      photoChoose: "اختر صورة",
+      photoRemove: "إزالة",
+      photoHint: "JPG أو PNG أو WebP، بحد أقصى 10 ميغابايت. يتم تصغير الصورة قبل الإرسال.",
+      errorPhoto: "تعذّر قراءة الصورة. يرجى اختيار صورة أخرى.",
+      // Anmeldung mit Teilnehmerzahl
+      spotsLeft: "بقي {n} مقعد",
+      lastSpot: "بقي مقعد واحد فقط",
+      closesAt: "آخر موعد للتسجيل: {date}",
+      registrationClosed: "انتهى موعد التسجيل. لم يعد التسجيل ممكناً.",
+      fullWaitlist: "اكتمل العدد. يمكنك التسجيل على قائمة الانتظار.",
+      fullClosed: "اكتمل العدد.",
+      errorClosed: "انتهى موعد التسجيل في هذه الأثناء.",
+      errorFull: "اكتمل العدد في هذه الأثناء.",
+      errorDuplicate: "يوجد تسجيل مسبق بهذا البريد الإلكتروني.",
+      successWaitlistTitle: "أنت على قائمة الانتظار",
+      successWaitlistText: "اكتمل العدد حالياً. سنتواصل معك فور توفر مكان.",
     },
 
     // Donations
