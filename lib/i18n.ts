@@ -567,6 +567,17 @@ export const translations = {
       },
     },
 
+    // App-Installation (PWA)
+    pwa: {
+      installTitle: "App installieren",
+      installText: "SGIS zum Startbildschirm hinzufügen — schneller Zugriff, funktioniert auch offline.",
+      installButton: "Installieren",
+      installLater: "Später",
+      iosTitle: "Zum Startbildschirm hinzufügen",
+      iosStep1: "Auf „Teilen“ tippen",
+      iosStep2: "„Zum Home-Bildschirm“ wählen",
+    },
+
     // Gallery image titles
     images: {
       saarschleife: "Saarschleife",
@@ -1137,6 +1148,17 @@ export const translations = {
         "72": "قبل 3 أيام",
         "168": "قبل أسبوع",
       },
+    },
+
+    // App-Installation (PWA)
+    pwa: {
+      installTitle: "تثبيت التطبيق",
+      installText: "أضف SGIS إلى الشاشة الرئيسية — وصول أسرع، ويعمل أيضاً دون اتصال.",
+      installButton: "تثبيت",
+      installLater: "لاحقاً",
+      iosTitle: "أضف إلى الشاشة الرئيسية",
+      iosStep1: "اضغط على زر المشاركة",
+      iosStep2: "اختر «إضافة إلى الشاشة الرئيسية»",
     },
 
     // Gallery image titles

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Offline - Syrische Gemeinschaft im Saarland</title>
+    <style>
+      :root {
+        --bg: #fcfcfc;
+        --fg: #1a1a1a;
+        --muted: #6b7280;
+        --primary: #006911;
+        --card: #f4f4f5;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #141414;
+          --fg: #fafafa;
+          --muted: #a1a1aa;
+          --primary: #4ade80;
+          --card: #232323;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+        text-align: center;
+      }
+      .card {
+        max-width: 420px;
+        width: 100%;
+      }
+      img {
+        width: 72px;
+        height: 72px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+      }
+      h1 {
+        font-size: 1.5rem;
+        margin: 0 0 12px;
+      }
+      p {
+        color: var(--muted);
+        line-height: 1.6;
+        margin: 0 0 8px;
+      }
+      .ar {
+        direction: rtl;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid var(--card);
+      }
+      button {
+        margin-top: 28px;
+        background: var(--primary);
+        color: #fff;
+        border: 0;
+        border-radius: 10px;
+        padding: 12px 28px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:active {
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <img src="/icons/icon-192.png" alt="" />
+      <h1>Keine Verbindung</h1>
+      <p>
+        Diese Seite konnte nicht geladen werden, weil gerade keine Internetverbindung besteht.
+        Bereits besuchte Seiten funktionieren weiterhin.
+      </p>
+      <div class="ar">
+        <h1>لا يوجد اتصال</h1>
+        <p>
+          تعذّر تحميل هذه الصفحة لعدم وجود اتصال بالإنترنت. الصفحات التي زرتها سابقاً تعمل كالمعتاد.
+        </p>
+      </div>
+      <button onclick="location.reload()">Erneut versuchen / إعادة المحاولة</button>
+    </div>
+  </body>
+</html>
