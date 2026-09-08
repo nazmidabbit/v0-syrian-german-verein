@@ -84,6 +84,7 @@ export default function AdminParticipantsPage() {
   const [showing, setShowing] = useState(false)
   const [slide, setSlide] = useState(0)
   const [playing, setPlaying] = useState(true)
+  const [controlsVisible, setControlsVisible] = useState(true)
   const stageRef = useRef<HTMLDivElement | null>(null)
 
   const checkAuth = useCallback(async () => {
@@ -215,6 +216,25 @@ export default function AdminParticipantsPage() {
       document.removeEventListener("fullscreenchange", onFullscreenChange)
     }
   }, [showing, total, stopShow])
+
+  // Steuerung nach Ruhe ausblenden — am Beamer soll nur die Person zu sehen sein
+  useEffect(() => {
+    if (!showing) return
+    let timer = 0
+    const wake = () => {
+      setControlsVisible(true)
+      window.clearTimeout(timer)
+      timer = window.setTimeout(() => setControlsVisible(false), 3000)
+    }
+    wake()
+    window.addEventListener("mousemove", wake)
+    window.addEventListener("keydown", wake)
+    return () => {
+      window.clearTimeout(timer)
+      window.removeEventListener("mousemove", wake)
+      window.removeEventListener("keydown", wake)
+    }
+  }, [showing])
 
   const photoUrl = (p: Participant) => {
     if (!photo) return ""
@@ -516,95 +536,167 @@ export default function AdminParticipantsPage() {
         </div>
       )}
 
-      {/* Vollbild-Anzeige: nur Foto, Name und Kurzangaben */}
+      {/*
+        Vollbild-Anzeige fuer den Beamer, in Ebenen aufgebaut:
+        1. das eigene Foto stark unscharf als Farbgrund
+        2. Verlaeufe darueber, damit Text auf jedem Bild lesbar bleibt
+        3. Vereinsgruen als Lichtschimmer
+        4. Inhalt (Foto, Name, Kurzangaben)
+        5. Rahmen: Logo, Veranstaltung, Fortschritt, Steuerung
+        Kontaktdaten und Anschrift erscheinen hier bewusst nie.
+      */}
       <div
         ref={stageRef}
-        className={`${showing ? "fixed inset-0 z-[60] flex" : "hidden"} bg-neutral-950 text-white`}
+        className={`${showing ? "fixed inset-0 z-[60]" : "hidden"} overflow-hidden bg-neutral-950 text-white`}
       >
         {showing && current && (
-          <div className="flex-1 flex flex-col">
-            <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
-              {photoUrl(current) ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
+          <>
+            {/* Ebene 1 — Farbgrund aus dem Foto der Person */}
+            {photoUrl(current) && (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                key={`bg-${current.id}`}
+                src={photoUrl(current)}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full object-cover scale-125 blur-3xl opacity-35"
+              />
+            )}
+
+            {/* Ebene 2 — Verlaeufe fuer Lesbarkeit */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(10,10,10,.75)_70%,rgba(10,10,10,.95)_100%)]"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-b from-neutral-950/85 via-transparent to-neutral-950/95"
+            />
+
+            {/* Ebene 3 — Vereinsgruen als Lichtschimmer */}
+            <div
+              aria-hidden="true"
+              className="absolute -top-1/4 left-1/2 -translate-x-1/2 h-[70vh] w-[70vh] rounded-full bg-primary/20 blur-[120px] animate-glow-pulse"
+            />
+
+            {/* Ebene 5a — Kopfzeile mit Logo */}
+            <div className="absolute top-0 inset-x-0 flex items-center justify-between gap-6 px-10 py-7">
+              <div className="flex items-center gap-4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  key={current.id}
-                  src={photoUrl(current)}
+                  src="/images/logo.jpg"
                   alt=""
-                  className="h-[38vh] w-[38vh] rounded-full object-cover border-4 border-white/15 shadow-2xl mb-10"
+                  className="h-14 w-14 rounded-xl object-cover ring-1 ring-white/20 shadow-lg"
                 />
-              ) : (
-                <div className="h-[38vh] w-[38vh] rounded-full bg-white/10 flex items-center justify-center mb-10">
-                  <span className="text-7xl font-bold text-white/50">
-                    {participantInitials(participantName(fields, current))}
-                  </span>
+                <div className="leading-tight">
+                  <p className="font-semibold text-lg">Syrische Gemeinschaft</p>
+                  <p className="text-white/50 text-sm">im Saarland · تجمع السوريين في زارلاند</p>
+                </div>
+              </div>
+
+              {event && (
+                <div className="text-right leading-tight hidden sm:block">
+                  <p className="font-semibold text-lg max-w-[28rem] truncate">{event.title}</p>
+                  <p className="text-white/50 text-sm">{formatDate(event.date)}</p>
                 </div>
               )}
+            </div>
 
-              <h2 className="text-5xl md:text-6xl font-bold tracking-tight text-balance">
-                {participantName(fields, current)}
-              </h2>
-
-              <div className="flex flex-wrap justify-center gap-3 mt-6">
-                {highlights
-                  .map((f) => ({ f, v: fieldValue(current, f.field_key) }))
-                  .filter((x) => x.v)
-                  .slice(0, 2)
-                  .map(({ f, v }) => (
-                    <span
-                      key={f.field_key}
-                      className="text-xl md:text-2xl text-white/70 border border-white/20 rounded-full px-5 py-1.5"
-                    >
-                      {v}
+            {/* Ebene 4 — die Person */}
+            <div className="relative h-full flex flex-col items-center justify-center px-8 text-center">
+              <div key={current.id} className="animate-stage-photo-in relative mb-10">
+                <div
+                  aria-hidden="true"
+                  className="absolute -inset-6 rounded-full bg-primary/25 blur-2xl"
+                />
+                {photoUrl(current) ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={photoUrl(current)}
+                    alt=""
+                    className="relative h-[36vh] w-[36vh] rounded-full object-cover ring-4 ring-white/25 shadow-2xl"
+                  />
+                ) : (
+                  <div className="relative h-[36vh] w-[36vh] rounded-full bg-white/10 ring-4 ring-white/15 flex items-center justify-center">
+                    <span className="text-7xl font-bold text-white/50">
+                      {participantInitials(participantName(fields, current))}
                     </span>
-                  ))}
+                  </div>
+                )}
+              </div>
+
+              <div key={`text-${current.id}`} className="animate-stage-in">
+                <h2 className="text-5xl md:text-6xl font-bold tracking-tight text-balance drop-shadow-lg">
+                  {participantName(fields, current)}
+                </h2>
+
+                <div className="flex flex-wrap justify-center gap-3 mt-7">
+                  {highlights
+                    .map((f) => ({ f, v: fieldValue(current, f.field_key) }))
+                    .filter((x) => x.v)
+                    .slice(0, 2)
+                    .map(({ f, v }) => (
+                      <span
+                        key={f.field_key}
+                        className="text-xl md:text-2xl text-white/85 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full px-6 py-2"
+                      >
+                        {v}
+                      </span>
+                    ))}
+                </div>
               </div>
             </div>
 
-            {/* Fortschritt und Steuerung */}
-            <div className="px-8 pb-8 flex items-center justify-between gap-6">
-              <span className="text-white/50 tabular-nums text-lg">
+            {/* Ebene 5b — Fortschritt und Steuerung */}
+            <div className="absolute bottom-0 inset-x-0 px-10 pb-8 flex items-center justify-between gap-6">
+              <span className="text-white/60 tabular-nums text-lg font-medium">
                 {slide + 1} / {total}
               </span>
 
-              <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-white/60 transition-all duration-500"
+                  className="h-full bg-primary rounded-full transition-all duration-500"
                   style={{ width: `${((slide + 1) / total) * 100}%` }}
                 />
               </div>
 
-              <div className="flex items-center gap-2">
+              {/* Verschwindet nach kurzer Ruhe, damit das Bild frei bleibt */}
+              <div
+                className={`flex items-center gap-1 bg-white/10 backdrop-blur-sm rounded-full p-1 transition-opacity duration-500 ${
+                  controlsVisible ? "opacity-100" : "opacity-0"
+                }`}
+              >
                 <button
                   onClick={() => setSlide((i) => (i - 1 + total) % total)}
-                  className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                  className="p-2.5 rounded-full hover:bg-white/15 transition-colors"
                   aria-label="Zurück"
                 >
-                  <ChevronLeft className="h-6 w-6" />
+                  <ChevronLeft className="h-5 w-5" />
                 </button>
                 <button
-                  onClick={() => setPlaying((p) => !p)}
-                  className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                  onClick={() => setPlaying((prev) => !prev)}
+                  className="p-2.5 rounded-full hover:bg-white/15 transition-colors"
                   aria-label={playing ? "Pause" : "Weiter"}
                 >
-                  {playing ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+                  {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                 </button>
                 <button
                   onClick={() => setSlide((i) => (i + 1) % total)}
-                  className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                  className="p-2.5 rounded-full hover:bg-white/15 transition-colors"
                   aria-label="Weiter"
                 >
-                  <ChevronRight className="h-6 w-6" />
+                  <ChevronRight className="h-5 w-5" />
                 </button>
                 <button
                   onClick={stopShow}
-                  className="p-2 rounded-full hover:bg-white/10 transition-colors ml-2"
+                  className="p-2.5 rounded-full hover:bg-white/15 transition-colors"
                   aria-label="Beenden"
                 >
-                  <X className="h-6 w-6" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
             </div>
-          </div>
+          </>
         )}
       </div>
 

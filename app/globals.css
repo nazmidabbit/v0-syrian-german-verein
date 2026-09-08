@@ -137,6 +137,28 @@
   }
 }
 
+@keyframes stage-in {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes stage-photo-in {
+  0% {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @keyframes float {
   0%,
   100% {
@@ -196,6 +218,12 @@
   .animate-logo-in {
     animation: logo-in 1s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
+  .animate-stage-in {
+    animation: stage-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .animate-stage-photo-in {
+    animation: stage-photo-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
   .animate-float {
     animation: float 6s ease-in-out infinite;
   }
@@ -221,6 +249,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .animate-logo-in,
+  .animate-stage-in,
+  .animate-stage-photo-in,
   .animate-float,
   .animate-float-sm,
   .animate-blob,
