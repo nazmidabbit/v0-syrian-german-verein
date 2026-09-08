@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Building2, CalendarDays, ClipboardList, ListTodo, Newspaper, Users, ImageIcon, Mail, LogIn, Loader2, Shield, Vote, UserPlus } from "lucide-react"
+import { Building2, CalendarDays, ClipboardList, ListTodo, Newspaper, Presentation, Users, ImageIcon, Mail, LogIn, Loader2, Shield, Vote, UserPlus } from "lucide-react"
 
 interface AdminLink {
   title: string
@@ -66,6 +66,13 @@ const adminLinks: AdminLink[] = [
     href: "/admin/formulare",
     icon: ClipboardList,
     page: "formulare",
+  },
+  {
+    title: "Teilnehmer",
+    description: "Angemeldete Teilnehmer ansehen und im Vollbild präsentieren",
+    href: "/admin/teilnehmer",
+    icon: Presentation,
+    page: "teilnehmer",
   },
   {
     title: "Bilder",

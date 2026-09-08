@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Download, Loader2, LogIn, Shield, Table2, Trash2, UserCheck } from "lucide-react"
+import { ArrowLeft, Download, Loader2, LogIn, Presentation, Shield, Table2, Trash2, UserCheck } from "lucide-react"
 import { SUBMISSION_STATUS_LABELS, SUBMISSION_STATUSES, type SubmissionStatus } from "@/lib/forms"
 
 interface FormMeta {
@@ -262,6 +262,11 @@ export default function AdminFormSubmissionsPage({ params }: { params: Promise<{
                     <option key={value} value={value}>{SUBMISSION_STATUS_LABELS[value]}</option>
                   ))}
                 </select>
+                <Button size="sm" variant="outline" asChild className="gap-1">
+                  <Link href="/admin/teilnehmer">
+                    <Presentation className="h-4 w-4" /> Teilnehmer-Ansicht
+                  </Link>
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
