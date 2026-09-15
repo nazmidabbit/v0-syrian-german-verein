@@ -382,7 +382,7 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
         <section className="py-16 px-6 bg-secondary">
           <div className="max-w-4xl mx-auto text-center">
             <Image
-              src="/images/logo.jpg"
+              src="/images/logo.png"
               alt="Logo der Syrischen Gemeinschaft"
               width={80}
               height={80}

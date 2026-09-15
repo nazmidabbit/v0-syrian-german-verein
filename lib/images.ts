@@ -57,7 +57,7 @@ export const galleryImages: SiteImage[] = [
 ]
 
 export const logoImage = {
-  src: "/images/logo.jpg",
+  src: "/images/logo.png",
   alt: "Logo der Syrischen Gemeinschaft",
 }
 

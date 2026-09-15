@@ -584,9 +584,9 @@ export default function AdminParticipantsPage() {
               <div className="flex items-center gap-4">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/images/logo.jpg"
+                  src="/images/logo.png"
                   alt=""
-                  className="h-14 w-14 rounded-xl object-cover ring-1 ring-white/20 shadow-lg"
+                  className="h-14 w-14 rounded-full object-cover ring-1 ring-white/20 shadow-lg"
                 />
                 <div className="leading-tight">
                   <p className="font-semibold text-lg">Syrische Gemeinschaft</p>

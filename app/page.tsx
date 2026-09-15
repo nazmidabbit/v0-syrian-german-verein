@@ -113,10 +113,10 @@ export default function HomePage() {
             <div className="relative animate-float">
               <div className="group relative overflow-hidden rounded-3xl bg-white p-3 shadow-xl ring-1 ring-black/5 transition-transform duration-500 hover:scale-[1.03]">
                 <Image
-                  src="/images/logo.jpg"
+                  src="/images/logo.png"
                   alt={locale === "ar" ? t.hero.titleAr : t.hero.title}
-                  width={900}
-                  height={600}
+                  width={1024}
+                  height={1024}
                   priority
                   className="w-full max-w-md sm:max-w-lg md:max-w-xl h-auto rounded-2xl"
                 />
