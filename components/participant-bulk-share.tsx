@@ -3,7 +3,7 @@
 import React, { useCallback, useState } from "react"
 import { Loader2, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { cardFileName, renderCard, type CardData } from "@/lib/participant-card"
+import { cardFileName, markManyQrShared, renderCard, type CardData } from "@/lib/participant-card"
 
 // Alle gerade angezeigten Ausweise auf einmal weitergeben — etwa die eines
 // Vereins an dessen Trainer. Einzeln bleibt der Knopf auf jeder Kachel.
@@ -18,11 +18,12 @@ interface Eintrag {
 
 interface Props {
   entries: Eintrag[]
+  formId: string
   /** Wird fuer jeden tatsaechlich weitergegebenen Ausweis aufgerufen */
   onShared: (ids: string[]) => void
 }
 
-export function ParticipantBulkShare({ entries, onShared }: Props) {
+export function ParticipantBulkShare({ entries, formId, onShared }: Props) {
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState(0)
   const [hinweis, setHinweis] = useState("")
@@ -57,6 +58,7 @@ export function ParticipantBulkShare({ entries, onShared }: Props) {
         try {
           await navigator.share({ files, title: `${files.length} Teilnehmerausweise` })
           onShared(ids)
+          markManyQrShared(formId, ids)
           return
         } catch (error) {
           if ((error as Error)?.name === "AbortError") return
@@ -76,10 +78,11 @@ export function ParticipantBulkShare({ entries, onShared }: Props) {
       }
       setHinweis(`${files.length} Ausweise gespeichert.`)
       onShared(ids)
+      markManyQrShared(formId, ids)
     } finally {
       setBusy(false)
     }
-  }, [busy, entries, zuViele, onShared])
+  }, [busy, entries, zuViele, formId, onShared])
 
   if (entries.length === 0) return null
 

@@ -94,10 +94,11 @@ Wo kein Teilen-Menü für mehrere Dateien da ist, werden sie einzeln gespeichert
 
 > **Der Vermerk übersteht den Wechsel zu WhatsApp.**
 > Sobald eine andere App in den Vordergrund kommt, friert der Browser die
-> Seite ein und bricht laufende Anfragen ab. Deshalb wird die Kachel sofort
-> markiert, und die Meldung an den Server geht mit `keepalive` raus — die
-> stellt der Browser auch aus dem Hintergrund noch zu. Klappt sie trotzdem
-> nicht, wird sie beim nächsten Blick auf die Seite nachgeholt.
+> Seite ein. Eine laufende Anfrage kann dann einfach verschwinden — sie
+> schlägt nicht fehl, sie kommt nur nie an. Deshalb wird jeder Vermerk zuerst
+> im Browser festgehalten (`localStorage`) und erst gestrichen, wenn der
+> Server ihn bestätigt hat. Was offen bleibt, geht beim nächsten Blick auf die
+> Seite erneut raus — auch nach einem Neuladen oder Tage später.
 
 ## Am Eingang
 

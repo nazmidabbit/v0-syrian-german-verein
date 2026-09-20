@@ -263,43 +263,97 @@ export async function shareImage(
 // Vermerken, dass die Person ihren Ausweis hat.
 //
 // Heikel ist der Zeitpunkt: Sobald WhatsApp in den Vordergrund kommt, friert
-// der Browser die Seite ein und bricht laufende Anfragen ab. Deshalb
-// "keepalive" — damit stellt der Browser die Anfrage auch dann noch zu, wenn
-// die Seite schon im Hintergrund liegt. Klappt es trotzdem nicht, wird beim
-// Zurueckkommen nachgeholt.
-async function send(formId: string, id: string): Promise<boolean> {
+// der Browser die Seite ein. Eine laufende Anfrage kann dann einfach
+// verschwinden — sie schlaegt nicht fehl, sie kommt nur nie an. Deshalb wird
+// jeder Vermerk zuerst im Browser festgehalten und erst gestrichen, wenn der
+// Server ihn bestaetigt hat. Offene Vermerke gehen beim naechsten Blick auf
+// die Seite erneut raus, notfalls Tage spaeter.
+
+const SPEICHER = "sgis:qr-geteilt-offen"
+
+type Offen = Record<string, string> // Einsendungs-ID -> Formular-ID
+
+function lesen(): Offen {
   try {
-    const res = await fetch("/api/admin/participants/qr-shared", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ formId, id, shared: true }),
-      keepalive: true,
-    })
-    return res.ok
+    return JSON.parse(localStorage.getItem(SPEICHER) || "{}") as Offen
   } catch {
-    return false
+    return {}
   }
 }
 
-// Vermerke, die noch nicht beim Server angekommen sind
-const offen = new Map<string, string>()
+function schreiben(offen: Offen) {
+  try {
+    localStorage.setItem(SPEICHER, JSON.stringify(offen))
+  } catch {
+    // Kein Speicher (privates Fenster) — dann bleibt es beim Versuch unten
+  }
+}
+
+let laeuft = false
+
+// Alles Offene in einem Rutsch nachreichen, je Formular eine Anfrage
+async function absenden(): Promise<void> {
+  if (laeuft) return
+  const offen = lesen()
+  const ids = Object.keys(offen)
+  if (ids.length === 0) return
+
+  laeuft = true
+  try {
+    const jeFormular = new Map<string, string[]>()
+    for (const [id, formId] of Object.entries(offen)) {
+      jeFormular.set(formId, [...(jeFormular.get(formId) || []), id])
+    }
+
+    for (const [formId, formIds] of jeFormular) {
+      // In Haeppchen, damit eine Anfrage nicht zu gross wird
+      for (let i = 0; i < formIds.length; i += 50) {
+        const teil = formIds.slice(i, i + 50)
+        try {
+          const res = await fetch("/api/admin/participants/qr-shared", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ formId, ids: teil, shared: true }),
+            keepalive: true,
+          })
+          if (!res.ok) continue
+
+          // Erst jetzt streichen — und dabei neu Hinzugekommenes nicht
+          // ueberschreiben
+          const aktuell = lesen()
+          for (const id of teil) delete aktuell[id]
+          schreiben(aktuell)
+        } catch {
+          // bleibt offen, naechster Versuch spaeter
+        }
+      }
+    }
+  } finally {
+    laeuft = false
+  }
+}
+
 let lauscht = false
 
-function nachholen() {
-  if (document.visibilityState !== "visible" || offen.size === 0) return
-  for (const [id, formId] of [...offen]) {
-    send(formId, id).then((ok) => {
-      if (ok) offen.delete(id)
-    })
-  }
+function lauschen() {
+  if (lauscht || typeof document === "undefined") return
+  lauscht = true
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") absenden()
+  })
+  // Auch nach einem Neuladen: was offen blieb, geht jetzt raus
+  absenden()
 }
 
 export function markQrShared(formId: string, id: string) {
-  if (!lauscht) {
-    document.addEventListener("visibilitychange", nachholen)
-    lauscht = true
-  }
-  send(formId, id).then((ok) => {
-    if (!ok) offen.set(id, formId)
-  })
+  markManyQrShared(formId, [id])
+}
+
+export function markManyQrShared(formId: string, ids: string[]) {
+  if (ids.length === 0) return
+  const offen = lesen()
+  for (const id of ids) offen[id] = formId
+  schreiben(offen)
+  lauschen()
+  absenden()
 }

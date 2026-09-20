@@ -589,6 +589,7 @@ export default function AdminParticipantsPage() {
 
                 <ParticipantBulkShare
                   entries={visible.map((p) => ({ id: p.id, card: cardOf(p) }))}
+                  formId={formId}
                   onShared={markManyShared}
                 />
               </div>
