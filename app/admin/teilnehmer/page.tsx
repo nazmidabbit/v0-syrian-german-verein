@@ -17,7 +17,6 @@ import {
   Play,
   FilterX,
   Presentation,
-  QrCode,
   Search,
   Shield,
   UserCheck,
@@ -98,9 +97,9 @@ export default function AdminParticipantsPage() {
 
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<"" | SubmissionStatus>("confirmed")
-  // Wer hat seinen Ausweis noch nicht bekommen? Die Frage stellt sich beim
-  // Verteilen staendig, deshalb ein eigener Schalter statt einer Suche.
-  const [onlyUnshared, setOnlyUnshared] = useState(false)
+  // Wer ist schon eingeladen, wer noch nicht? Die Frage stellt sich beim
+  // Verteilen staendig, deshalb ein eigener Filter statt einer Suche.
+  const [inviteFilter, setInviteFilter] = useState<"" | "invited" | "open">("")
   // Auswahlfilter je Feld: {sportart: "Fußball · كرة القدم", …}
   const [fieldFilters, setFieldFilters] = useState<FilterValues>({})
   const [detailOf, setDetailOf] = useState<Participant | null>(null)
@@ -177,24 +176,28 @@ export default function AdminParticipantsPage() {
     () =>
       participants
         .filter((p) => (statusFilter ? p.status === statusFilter : true))
-        .filter((p) => (onlyUnshared ? !participantSharedAt(p) : true))
+        .filter((p) => {
+          if (!inviteFilter) return true
+          const eingeladen = Boolean(participantSharedAt(p))
+          return inviteFilter === "invited" ? eingeladen : !eingeladen
+        })
         .filter((p) => matchesFilters(p, fieldFilters))
         .filter((p) => matchesSearch(fields, p, search)),
-    [participants, statusFilter, onlyUnshared, fieldFilters, search, fields],
+    [participants, statusFilter, inviteFilter, fieldFilters, search, fields],
   )
 
   const activeFilters = useMemo(
     () =>
       Object.values(fieldFilters).filter(Boolean).length +
       (search ? 1 : 0) +
-      (onlyUnshared ? 1 : 0),
-    [fieldFilters, search, onlyUnshared],
+      (inviteFilter ? 1 : 0),
+    [fieldFilters, search, inviteFilter],
   )
 
   const resetFilters = useCallback(() => {
     setFieldFilters({})
     setSearch("")
-    setOnlyUnshared(false)
+    setInviteFilter("")
   }, [])
 
   // Alle Zahlen aus der Liste abgeleitet statt mitgezaehlt — so koennen sie
@@ -453,7 +456,7 @@ export default function AdminParticipantsPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                   { label: "Angemeldet", value: stats.confirmed, accent: true },
-                  { label: "QR geteilt", value: `${stats.qrShared}/${stats.total}` },
+                  { label: "Eingeladen", value: `${stats.qrShared}/${stats.total}` },
                   { label: "Eingecheckt", value: stats.checkedIn },
                   { label: stats.cancelled > 0 ? "Abgesagt" : "Warteliste", value: stats.cancelled > 0 ? stats.cancelled : stats.waitlist },
                 ].map((stat) => (
@@ -529,14 +532,25 @@ export default function AdminParticipantsPage() {
                 ))}
               </div>
 
-              <Button
-                variant={onlyUnshared ? "default" : "outline"}
-                onClick={() => setOnlyUnshared((v) => !v)}
-                className="h-10 gap-2"
-              >
-                <QrCode className="h-4 w-4" />
-                Ohne Ausweis
-              </Button>
+              <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+                {([
+                  ["", "Alle"],
+                  ["invited", "Eingeladen"],
+                  ["open", "Nicht eingeladen"],
+                ] as const).map(([value, label]) => (
+                  <button
+                    key={label}
+                    onClick={() => setInviteFilter(value)}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      inviteFilter === value
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Auswahlfilter — nur Felder, die auch gefüllt sind */}
@@ -661,7 +675,7 @@ export default function AdminParticipantsPage() {
                             {participantSharedAt(p) && (
                               <span
                                 className="bg-green-600 text-white rounded-full p-1.5 shadow"
-                                title={`Ausweis verschickt am ${formatDate(participantSharedAt(p))}`}
+                                title={`Eingeladen am ${formatDate(participantSharedAt(p))}`}
                               >
                                 <CheckCheck className="h-4 w-4" />
                               </span>
@@ -707,8 +721,8 @@ export default function AdminParticipantsPage() {
                                   die Bidi-Regel beide, weil die Ziffern zum
                                   arabischen Lauf gezogen werden */}
                               <span className="truncate">
-                                Ausweis verschickt · {formatDate(participantSharedAt(p))} ·{" "}
-                                تم الإرسال
+                                Eingeladen · {formatDate(participantSharedAt(p))} ·{" "}
+                                تمت الدعوة
                               </span>
                             </p>
                           )}

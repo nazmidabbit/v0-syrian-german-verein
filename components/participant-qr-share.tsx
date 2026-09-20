@@ -107,7 +107,7 @@ export function ParticipantQrShare(props: Props) {
           {sharedAt && (
             <p className="flex items-center justify-center gap-1.5 text-sm text-green-700 dark:text-green-500 mt-3">
               <Check className="h-4 w-4" />
-              Ausweis geteilt am{" "}
+              Eingeladen am{" "}
               {new Date(sharedAt).toLocaleDateString("de-DE", {
                 day: "2-digit",
                 month: "2-digit",

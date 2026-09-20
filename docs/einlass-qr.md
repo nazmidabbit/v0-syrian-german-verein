@@ -40,13 +40,18 @@ steht, braucht damit keinen Zugriff auf Formulare oder Mitgliedsanträge.
    Auf dem Handy öffnet „Teilen" direkt WhatsApp; am Rechner wird die Datei
    gespeichert. Der QR-Code funktioniert auch vom Handydisplay.
 
-   Sobald eine Karte weitergegeben ist, wird sie doppelt markiert: ein grünes
-   Häkchen oben rechts auf der Kachel und darunter die Zeile **„Ausweis
-   verschickt · تم الإرسال"** mit Datum. Der Zähler **QR geteilt** zeigt den
-   Gesamtstand, und der Knopf **Ohne Ausweis** blendet alle aus, die ihren
-   schon haben — so bleibt übrig, wer noch dran ist. Der Vermerk wird beim
-   Teilen *und* beim Speichern gesetzt; bricht man den Teilen-Dialog ab,
-   passiert nichts.
+   Sobald eine Karte weitergegeben ist, gilt die Person als eingeladen und
+   wird doppelt markiert: ein grünes Häkchen oben rechts auf der Kachel und
+   darunter die Zeile **„Eingeladen · تمت الدعوة"** mit Datum. Der Zähler
+   **Eingeladen** zeigt den Gesamtstand.
+
+   Rechts neben den Status-Filtern steht der Einladungsfilter:
+   **Alle · Eingeladen · Nicht eingeladen**. „Nicht eingeladen" lässt genau
+   die übrig, die noch dran sind — sie verschwinden daraus, sobald du geteilt
+   hast. Ist die Liste leer, sind alle versorgt.
+
+   Der Vermerk wird beim Teilen *und* beim Speichern gesetzt, einzeln wie im
+   Sammelversand; bricht man den Teilen-Dialog ab, passiert nichts.
 
 3. **Alte Check-ins zurücksetzen.** Wurde vorher getestet, stehen noch
    Häkchen in der Liste. Zurücknehmen lassen sie sich einzeln unter
