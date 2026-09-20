@@ -54,16 +54,20 @@ export async function POST(request: Request) {
     }
 
     const now = new Date().toISOString();
+    // Wer verschickt hat — damit spaeter nachvollziehbar ist, wer welche
+    // Einladung uebernommen hat
+    const wer = (authUser.name || authUser.email || '').trim();
     const results = await Promise.all(
       rows.map(async (row) => {
         const current = (row.data as Record<string, unknown>) || {};
-        // Das Datum des ersten Versands bleibt stehen — es zaehlt, dass die
-        // Person ihren Ausweis hat, nicht wie oft er verschickt wurde
+        // Datum und Absender des ersten Versands bleiben stehen — es zaehlt,
+        // dass die Person ihren Ausweis hat, nicht wie oft er verschickt wurde
         const sharedAt = shared ? (current.qr_geteilt_am as string) || now : '';
+        const sharedBy = shared ? (current.qr_geteilt_von as string) || wer : '';
 
         const { error: updateError } = await supabase
           .from('form_submissions')
-          .update({ data: { ...current, qr_geteilt_am: sharedAt } })
+          .update({ data: { ...current, qr_geteilt_am: sharedAt, qr_geteilt_von: sharedBy } })
           .eq('id', row.id);
 
         return { id: row.id, sharedAt, ok: !updateError };

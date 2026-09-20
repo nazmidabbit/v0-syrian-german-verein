@@ -43,6 +43,7 @@ export const FILTER_FIELDS = [
   { key: "kategorie_ar", label: "Kategorie", label_ar: "الفئة" },
   { key: "name_des_vereins", label: "Verein", label_ar: "النادي" },
   { key: "notiz_ar", label: "Notiz", label_ar: "ملاحظات" },
+  { key: "qr_geteilt_von", label: "Eingeladen von", label_ar: "من قام بالدعوة" },
 ] as const
 
 export type FilterValues = Record<string, string>
@@ -82,6 +83,21 @@ export function participantNameAr(p: Participant): string {
 export function participantSharedAt(p: Participant): string {
   const value = p.data["qr_geteilt_am"]
   return typeof value === "string" ? value.trim() : ""
+}
+
+// Wer ihn weitergegeben hat. Bei Einladungen aus der Zeit vor dieser
+// Aufzeichnung leer — das heisst nicht "niemand", sondern "nicht vermerkt".
+export function participantSharedBy(p: Participant): string {
+  const value = p.data["qr_geteilt_von"]
+  return typeof value === "string" ? value.trim() : ""
+}
+
+// Nur fuer die Anzeige: Die Helfer sind mit ihrer E-Mail hinterlegt, und
+// "oday.alshikh.dev@gmail.com" sprengt jede Kachel. Gespeichert bleibt die
+// volle Adresse, damit sie eindeutig ist.
+export function kurzName(value: string): string {
+  const at = value.indexOf("@")
+  return at > 0 ? value.slice(0, at) : value
 }
 
 // Gefuellte Listen-Angaben in fester Reihenfolge

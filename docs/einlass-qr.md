@@ -161,8 +161,14 @@ und nicht doppelt angelegt; bestehende Angaben bleiben stehen, es werden nur
 leere Felder gefüllt. Personen, die sich selbst über das Formular angemeldet
 haben, behalten ihre eigenen Angaben und bekommen nur eine Nummer.
 
-> **Nummern verschieben sich, wenn mitten in der Liste jemand dazukommt.**
-> Die Nummer folgt der Reihenfolge im Dokument. Sind die Ausweise schon
+> **Eine einmal vergebene Nummer bleibt.**
+> Wer schon eine Nummer hat, behält sie bei jedem weiteren Lauf — auch wenn er
+> im Dokument inzwischen an anderer Stelle steht. Sonst würden bereits
+> gedruckte und verschickte Ausweise falsch. Neue Personen bekommen die
+> nächsten freien Nummern.
+>
+> **Nur beim allerersten Lauf** folgt die Nummerierung der Reihenfolge im
+> Dokument. Sind die Ausweise schon
 > gedruckt, neue Namen besser hinten anhängen — oder nach dem Import neu
 > drucken. Der QR-Code selbst bleibt immer gültig, er hängt nicht an der
 > Nummer.

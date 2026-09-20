@@ -37,6 +37,8 @@ import {
   participantNameAr,
   participantNumber,
   participantSharedAt,
+  participantSharedBy,
+  kurzName,
   photoField,
   type FilterValues,
   type Participant,
@@ -213,6 +215,25 @@ export default function AdminParticipantsPage() {
     }),
     [participants],
   )
+
+  // Wie viele Einladungen hat wer uebernommen? Wer vor dieser Aufzeichnung
+  // verschickt hat, steht unter "ohne Angabe" — das ist keine Null, sondern
+  // schlicht nicht festgehalten.
+  const einladerStand = useMemo(() => {
+    const zaehler = new Map<string, number>()
+    let ohneAngabe = 0
+    for (const p of participants) {
+      if (!participantSharedAt(p)) continue
+      const wer = participantSharedBy(p)
+      if (wer) zaehler.set(wer, (zaehler.get(wer) || 0) + 1)
+      else ohneAngabe += 1
+    }
+    const liste = [...zaehler.entries()]
+      .map(([name, count]) => ({ name: kurzName(name), count }))
+      .sort((a, b) => b.count - a.count)
+    if (ohneAngabe > 0) liste.push({ name: "ohne Angabe", count: ohneAngabe })
+    return liste
+  }, [participants])
 
   // Nach dem Teilen sofort sichtbar machen, ohne die ganze Liste neu zu laden
   const markManyShared = useCallback((ids: string[], sharedAt = new Date().toISOString()) => {
@@ -577,7 +598,8 @@ export default function AdminParticipantsPage() {
                     </option>
                     {options.map((option) => (
                       <option key={option.value} value={option.value}>
-                        {option.value} ({option.count})
+                        {field.key === "qr_geteilt_von" ? kurzName(option.value) : option.value} (
+                        {option.count})
                       </option>
                     ))}
                   </select>
@@ -595,11 +617,19 @@ export default function AdminParticipantsPage() {
             {/* Trefferzahl und Sammelaktion */}
             {!loading && (
               <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
-                <p className="text-sm text-muted-foreground">
-                  {visible.length === participants.length
-                    ? `${participants.length} Teilnehmer`
-                    : `${visible.length} von ${participants.length} Teilnehmern`}
-                </p>
+                <div className="text-sm text-muted-foreground">
+                  <p>
+                    {visible.length === participants.length
+                      ? `${participants.length} Teilnehmer`
+                      : `${visible.length} von ${participants.length} Teilnehmern`}
+                  </p>
+                  {einladerStand.length > 0 && (
+                    <p className="mt-1">
+                      Eingeladen von:{" "}
+                      {einladerStand.map((e) => `${e.name} ${e.count}`).join(" · ")}
+                    </p>
+                  )}
+                </div>
 
                 <ParticipantBulkShare
                   entries={visible.map((p) => ({ id: p.id, card: cardOf(p) }))}
@@ -721,7 +751,10 @@ export default function AdminParticipantsPage() {
                                   die Bidi-Regel beide, weil die Ziffern zum
                                   arabischen Lauf gezogen werden */}
                               <span className="truncate">
-                                Eingeladen · {formatDate(participantSharedAt(p))} ·{" "}
+                                Eingeladen · {formatDate(participantSharedAt(p))}
+                                {participantSharedBy(p)
+                                  ? ` · von ${kurzName(participantSharedBy(p))}`
+                                  : ""} ·{" "}
                                 تمت الدعوة
                               </span>
                             </p>
@@ -860,6 +893,7 @@ export default function AdminParticipantsPage() {
                 submissionId={detailOf.id}
                 formId={formId}
                 sharedAt={participantSharedAt(detailOf)}
+                sharedBy={participantSharedBy(detailOf)}
                 onShared={(at) => markShared(detailOf.id, at)}
                 {...cardOf(detailOf)}
               />

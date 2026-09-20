@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { Check, Download, Loader2, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { kurzName } from "@/lib/participants"
 import {
   cardFileName,
   drawCard,
@@ -20,6 +21,7 @@ interface Props extends CardData {
   submissionId: string
   formId: string
   sharedAt: string
+  sharedBy: string
   onShared: (sharedAt: string) => void
 }
 
@@ -29,7 +31,7 @@ export function ParticipantQrShare(props: Props) {
   const [blob, setBlob] = useState<Blob | null>(null)
   const [error, setError] = useState("")
 
-  const { submissionId, formId, sharedAt, onShared } = props
+  const { submissionId, formId, sharedAt, sharedBy, onShared } = props
   const fileName = cardFileName(props)
 
   // Sofort markieren, nicht erst wenn der Server geantwortet hat: Die Antwort
@@ -113,6 +115,7 @@ export function ParticipantQrShare(props: Props) {
                 month: "2-digit",
                 year: "numeric",
               })}
+              {sharedBy ? ` von ${kurzName(sharedBy)}` : ""}
             </p>
           )}
           <div className="flex gap-2 mt-4">

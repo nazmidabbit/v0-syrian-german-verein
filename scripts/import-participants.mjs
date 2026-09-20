@@ -371,7 +371,11 @@ async function main() {
     .order('created_at', { ascending: true });
   if (subError) throw new Error(subError.message);
 
-  // Vorhandene Einsendungen indizieren — arabischer wie lateinischer Name
+  // Vorhandene Einsendungen indizieren — arabischer wie lateinischer Name.
+  //
+  // Dazu alias_ar: Wird ein Name nach dem Import berichtigt ("موفق سامر" ->
+  // "موفق قلة"), findet ihn dieser Lauf sonst nicht wieder und legt die Person
+  // ein zweites Mal an. Im alias_ar steht deshalb, wie sie in der Liste heisst.
   const index = new Map();
   for (const sub of existing) {
     const d = sub.data || {};
@@ -379,24 +383,46 @@ async function main() {
     const ar = normAr(d.name_ar || `${d.first_name || ''} ${d.last_name || ''}`);
     if (lat) index.set('lat:' + lat, sub);
     if (ar) index.set('ar:' + ar, sub);
+    for (const alias of String(d.alias_ar || '').split('·')) {
+      const a = normAr(alias);
+      if (a) index.set('ar:' + a, sub);
+      const l = normLat(alias);
+      if (l) index.set('lat:' + l, sub);
+    }
   }
   const matchExisting = (p) =>
     index.get('ar:' + normAr(p.name_ar)) || index.get('lat:' + normLat(p.name_lat)) || null;
 
   // Nummern folgen der Dokumentreihenfolge; Online-Anmeldungen, die in keiner
-  // Liste stehen, haengen hinten an
+  // Liste stehen, haengen hinten an.
+  //
+  // Wer schon eine Nummer hat, behaelt sie — auch wenn er im Dokument
+  // inzwischen an anderer Stelle steht. Sonst wuerden bereits gedruckte und
+  // verschickte Ausweise falsch.
+  const vergeben = new Set(
+    existing.map((s) => Number(s.data?.teilnehmer_nr) || 0).filter(Boolean),
+  );
+  let naechste = 0;
+  const naechsteFreie = () => {
+    do {
+      naechste += 1;
+    } while (vergeben.has(naechste));
+    vergeben.add(naechste);
+    return naechste;
+  };
+  const nummerVon = (sub) => Number(sub?.data?.teilnehmer_nr) || 0;
+
   const matched = new Set();
   const plan = [];
-  let nr = 0;
 
   for (const person of people) {
     const hit = matchExisting(person);
     if (hit) matched.add(hit.id);
-    plan.push({ person, nr: ++nr, existing: hit });
+    plan.push({ person, nr: nummerVon(hit) || naechsteFreie(), existing: hit });
   }
   const leftovers = existing.filter((s) => !matched.has(s.id));
   for (const sub of leftovers) {
-    plan.push({ person: null, nr: ++nr, existing: sub });
+    plan.push({ person: null, nr: nummerVon(sub) || naechsteFreie(), existing: sub });
   }
 
   // Fast-Treffer melden, bevor jemand doppelt in der Halle steht
@@ -418,6 +444,15 @@ async function main() {
 
   const neu = plan.filter((p) => !p.existing);
   const ergaenzt = plan.filter((p) => p.existing && p.person);
+  const erstmalsNummer = plan.filter((p) => p.existing && !nummerVon(p.existing));
+  if (erstmalsNummer.length > 0) {
+    console.log(`\nBekommen erstmals eine Nummer: ${erstmalsNummer.length}`);
+    erstmalsNummer.forEach((p) =>
+      console.log(
+        `  #${p.nr} ${p.existing.data?.name_ar || ''} ${p.existing.data?.first_name || ''} ${p.existing.data?.last_name || ''}`.trimEnd(),
+      ),
+    );
+  }
   console.log(
     `\nNeu anzulegen: ${neu.length} · schon angemeldet, wird ergaenzt: ${ergaenzt.length} · nur Nummer: ${leftovers.length}`,
   );
@@ -462,6 +497,9 @@ async function main() {
     if (entry.person) {
       for (const [key, value] of Object.entries(toSubmissionData(entry.person, entry.nr))) {
         if (!value || key === 'first_name' || key === 'last_name') continue;
+        // name_ar nicht ueberschreiben: Eine Berichtigung von Hand soll
+        // bestehen bleiben, auch wenn die Liste noch den alten Namen fuehrt.
+        if (key === 'name_ar' && merged.name_ar && merged.name_ar !== value) continue;
         if (!merged[key]) merged[key] = value;
       }
     }
