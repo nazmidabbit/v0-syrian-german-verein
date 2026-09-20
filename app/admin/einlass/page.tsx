@@ -8,6 +8,7 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
+  CalendarX,
   CameraOff,
   Check,
   CheckCircle2,
@@ -39,7 +40,7 @@ interface FormOption {
   submission_count: number
 }
 
-type Outcome = "checkedIn" | "already" | "unknown" | "unreadable" | "undone"
+type Outcome = "checkedIn" | "already" | "cancelled" | "unknown" | "unreadable" | "undone"
 
 interface ScanResult {
   outcome: Outcome
@@ -60,6 +61,7 @@ const FLASH_MS = 900
 const FLASH: Record<Outcome, { color: string; icon: React.ElementType }> = {
   checkedIn: { color: "bg-green-600/80", icon: Check },
   already: { color: "bg-amber-500/80", icon: UserCheck },
+  cancelled: { color: "bg-red-600/85", icon: X },
   unknown: { color: "bg-red-600/85", icon: X },
   unreadable: { color: "bg-neutral-600/70", icon: QrCode },
   undone: { color: "bg-neutral-600/70", icon: RotateCcw },
@@ -73,6 +75,10 @@ const TONES: Record<Outcome, { at: number; hz: number; len: number }[]> = {
     { at: 0.11, hz: 1320, len: 0.13 },
   ],
   already: [{ at: 0, hz: 660, len: 0.22 }],
+  cancelled: [
+    { at: 0, hz: 220, len: 0.18 },
+    { at: 0.22, hz: 180, len: 0.3 },
+  ],
   unknown: [
     { at: 0, hz: 220, len: 0.18 },
     { at: 0.22, hz: 180, len: 0.3 },
@@ -93,6 +99,12 @@ const OUTCOME_STYLE: Record<Outcome, { box: string; icon: React.ElementType; tit
     icon: UserCheck,
     title: "War schon da",
     title_ar: "سبق أن دخل",
+  },
+  cancelled: {
+    box: "bg-red-600 text-white border-red-700",
+    icon: CalendarX,
+    title: "Hat abgesagt",
+    title_ar: "اعتذر عن الحضور",
   },
   unknown: {
     box: "bg-red-600 text-white border-red-700",
@@ -168,7 +180,8 @@ export default function AdminEinlassPage() {
     flashTimer.current = window.setTimeout(() => setFlash(null), FLASH_MS)
 
     if (navigator.vibrate) {
-      navigator.vibrate(outcome === "checkedIn" ? 60 : outcome === "unknown" ? [80, 60, 80] : 120)
+      const abgewiesen = outcome === "unknown" || outcome === "cancelled"
+      navigator.vibrate(outcome === "checkedIn" ? 60 : abgewiesen ? [80, 60, 80] : 120)
     }
 
     const audio = audioRef.current
@@ -268,9 +281,11 @@ export default function AdminEinlassPage() {
             : "unknown"
           : action === "undo"
             ? "undone"
-            : data.alreadyCheckedIn
-              ? "already"
-              : "checkedIn"
+            : data.cancelled
+              ? "cancelled"
+              : data.alreadyCheckedIn
+                ? "already"
+                : "checkedIn"
 
         const entry: ScanResult = {
           outcome,

@@ -19,6 +19,7 @@ Liste. Wer den Ausweis vergessen hat, wird über seine Nummer gefunden.
 | `components/participant-bulk-share.tsx` | Alle angezeigten Ausweise auf einmal teilen |
 | `app/api/admin/participants/checkin/route.ts` | Code nachschlagen und ein- beziehungsweise auschecken |
 | `app/api/admin/participants/qr-shared/route.ts` | Vermerk, dass jemand seinen Ausweis bekommen hat |
+| `app/api/admin/participants/status/route.ts` | Absagen und Wiederanmelden |
 
 Beide Seiten liegen unter der Berechtigung **Teilnehmer**. Wer am Eingang
 steht, braucht damit keinen Zugriff auf Formulare oder Mitgliedsanträge.
@@ -45,6 +46,31 @@ steht, braucht damit keinen Zugriff auf Formulare oder Mitgliedsanträge.
    übrig, wer noch dran ist. Der Vermerk wird beim Teilen *und* beim Speichern
    gesetzt; bricht man den Teilen-Dialog ab, passiert nichts.
 
+3. **Alte Check-ins zurücksetzen.** Wurde vorher getestet, stehen noch
+   Häkchen in der Liste. Zurücknehmen lassen sie sich einzeln unter
+   Formulare → Ergebnisse oder direkt beim Scan über „Check-in zurücknehmen".
+
+### Wenn jemand absagt
+
+Admin → Teilnehmer → Person antippen → **„Hat abgesagt"**. Die Person bleibt
+mit ihrer Nummer in der Liste, zählt aber nicht mehr als angemeldet, und ein
+bereits gesetzter Check-in wird zurückgenommen. Über den Filter **Abgesagt**
+sieht man alle Absagen, im Detailfenster steht **„Wieder anmelden"** bereit,
+falls es sich doch noch ändert.
+
+Kommt jemand trotz Absage und lässt scannen, zeigt der Eingang **rot „Hat
+abgesagt · اعتذر عن الحضور"** — eingelassen wird er nicht stillschweigend.
+
+> **Absagen statt löschen.**
+> Die Nummer folgt der Reihenfolge im Dokument. Wird jemand mitten aus der
+> Liste entfernt, stimmen die bereits gedruckten und verschickten Ausweise
+> nicht mehr, und es ist nicht mehr nachvollziehbar, wer eingeladen war.
+> Deshalb bleibt die Person stehen und wird nur als abgesagt geführt.
+>
+> Endgültig löschen — samt hochgeladenem Foto, wie es die DSGVO bei einem
+> Löschverlangen verlangt — geht weiterhin unter Formulare → Ergebnisse, und
+> zwar nur mit der Berechtigung „formulare".
+
 ### Die Richtigen finden
 
 Über der Liste stehen sechs Auswahlmenüs: **Sportart · Liste · Ehrung ·
@@ -70,9 +96,6 @@ Wo kein Teilen-Menü für mehrere Dateien da ist, werden sie einzeln gespeichert
 > markiert, und die Meldung an den Server geht mit `keepalive` raus — die
 > stellt der Browser auch aus dem Hintergrund noch zu. Klappt sie trotzdem
 > nicht, wird sie beim nächsten Blick auf die Seite nachgeholt.
-3. **Alte Check-ins zurücksetzen.** Wurde vorher getestet, stehen noch
-   Häkchen in der Liste. Zurücknehmen lassen sie sich einzeln unter
-   Formulare → Ergebnisse oder direkt beim Scan über „Check-in zurücknehmen".
 
 ## Am Eingang
 
@@ -87,6 +110,7 @@ Wo kein Teilen-Menü für mehrere Dateien da ist, werden sie einzeln gespeichert
    | Grün — *Eingelassen* | zwei helle Töne | angemeldet, Check-in gerade gesetzt |
    | Gelb — *War schon da* | ein mittlerer Ton | der Code wurde bereits gescannt, mit Uhrzeit |
    | Rot — *Nicht angemeldet* | zwei tiefe Töne | der Code gehört zu niemandem auf der Liste |
+   | Rot — *Hat abgesagt* | zwei tiefe Töne | die Person hat abgesagt und wird nicht eingecheckt |
 
    So muss am Eingang niemand auf den Bildschirm starren. Der Ton lässt sich
    über das Lautsprecher-Symbol oben abschalten; Farbe und Vibration bleiben.

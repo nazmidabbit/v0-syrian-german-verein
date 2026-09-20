@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   CalendarDays,
+  CalendarX,
   ChevronLeft,
   ChevronRight,
   Loader2,
@@ -59,16 +60,6 @@ interface EventInfo {
   date: string
 }
 
-interface Counts {
-  total: number
-  confirmed: number
-  waitlist: number
-  cancelled: number
-  checkedIn: number
-  withPhoto: number
-  qrShared: number
-}
-
 const STATUS_DOT: Record<SubmissionStatus, string> = {
   confirmed: "bg-green-500",
   waitlist: "bg-orange-500",
@@ -92,7 +83,6 @@ export default function AdminParticipantsPage() {
   const [event, setEvent] = useState<EventInfo | null>(null)
   const [fields, setFields] = useState<ParticipantField[]>([])
   const [participants, setParticipants] = useState<Participant[]>([])
-  const [counts, setCounts] = useState<Counts | null>(null)
 
   const [authenticated, setAuthenticated] = useState(false)
   const [checking, setChecking] = useState(true)
@@ -159,7 +149,6 @@ export default function AdminParticipantsPage() {
       setEvent(data.event)
       setFields(data.fields || [])
       setParticipants(data.participants || [])
-      setCounts(data.counts || null)
       setAccessError("")
     } catch {
       setAccessError("Fehler beim Laden.")
@@ -200,10 +189,17 @@ export default function AdminParticipantsPage() {
     setOnlyUnshared(false)
   }, [])
 
-  // Aus der Liste abgeleitet statt mitgezaehlt — so kann der Stand nach dem
-  // Teilen gar nicht erst auseinanderlaufen
-  const qrShared = useMemo(
-    () => participants.filter((p) => participantSharedAt(p)).length,
+  // Alle Zahlen aus der Liste abgeleitet statt mitgezaehlt — so koennen sie
+  // nach einer Absage oder einem Versand gar nicht erst auseinanderlaufen
+  const stats = useMemo(
+    () => ({
+      total: participants.length,
+      confirmed: participants.filter((p) => p.status === "confirmed").length,
+      waitlist: participants.filter((p) => p.status === "waitlist").length,
+      cancelled: participants.filter((p) => p.status === "cancelled").length,
+      checkedIn: participants.filter((p) => p.checked_in_at).length,
+      qrShared: participants.filter((p) => participantSharedAt(p)).length,
+    }),
     [participants],
   )
 
@@ -222,6 +218,37 @@ export default function AdminParticipantsPage() {
   const markShared = useCallback(
     (id: string, sharedAt: string) => markManyShared([id], sharedAt),
     [markManyShared],
+  )
+
+  // Absagen und Wiederanmelden. Die Person bleibt mit ihrer Nummer stehen —
+  // sonst muesste man gedruckte Ausweise nachziehen. Endgueltiges Loeschen
+  // gibt es weiterhin nur auf der Ergebnisseite.
+  const [statusBusy, setStatusBusy] = useState("")
+  const setParticipantStatus = useCallback(
+    async (p: Participant, status: SubmissionStatus) => {
+      setStatusBusy(p.id)
+      try {
+        const res = await fetch("/api/admin/participants/status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ formId, id: p.id, status }),
+        })
+        if (!res.ok) {
+          setAccessError("Status konnte nicht geändert werden.")
+          return
+        }
+        const { participant } = await res.json()
+        const apply = (current: Participant) =>
+          current.id === participant.id ? (participant as Participant) : current
+        setParticipants((list) => list.map(apply))
+        setDetailOf((current) => (current ? apply(current) : current))
+      } catch {
+        setAccessError("Status konnte nicht geändert werden.")
+      } finally {
+        setStatusBusy("")
+      }
+    },
+    [formId],
   )
 
   // Vollbild zeigt nur bestätigte Anmeldungen — Wartelisten und Stornos
@@ -404,13 +431,13 @@ export default function AdminParticipantsPage() {
               </Button>
             </div>
 
-            {counts && (
+            {!loading && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                  { label: "Angemeldet", value: counts.confirmed, accent: true },
-                  { label: "QR geteilt", value: `${qrShared}/${counts.total}` },
-                  { label: "Eingecheckt", value: counts.checkedIn },
-                  { label: "Warteliste", value: counts.waitlist },
+                  { label: "Angemeldet", value: stats.confirmed, accent: true },
+                  { label: "QR geteilt", value: `${stats.qrShared}/${stats.total}` },
+                  { label: "Eingecheckt", value: stats.checkedIn },
+                  { label: stats.cancelled > 0 ? "Abgesagt" : "Warteliste", value: stats.cancelled > 0 ? stats.cancelled : stats.waitlist },
                 ].map((stat) => (
                   <div
                     key={stat.label}
@@ -466,6 +493,7 @@ export default function AdminParticipantsPage() {
               <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
                 {([
                   ["confirmed", "Angemeldet"],
+                  ["cancelled", "Abgesagt"],
                   ["waitlist", "Warteliste"],
                   ["", "Alle"],
                 ] as const).map(([value, label]) => (
@@ -735,6 +763,50 @@ export default function AdminParticipantsPage() {
                 </div>
               ))}
             </dl>
+
+            {/* Absage. Die Nummer bleibt stehen, damit gedruckte Ausweise und
+                die Reihenfolge auf der Bühne gültig bleiben. */}
+            <div className="px-6 pt-4">
+              {detailOf.status === "cancelled" ? (
+                <div className="border-t border-border pt-4 flex flex-wrap items-center gap-3">
+                  <p className="text-sm text-muted-foreground flex-1 min-w-[12rem]">
+                    Hat abgesagt · اعتذر عن الحضور — bleibt mit Nummer{" "}
+                    {participantNumber(detailOf) || "—"} in der Liste.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={statusBusy === detailOf.id}
+                    onClick={() => setParticipantStatus(detailOf, "confirmed")}
+                    className="gap-2"
+                  >
+                    {statusBusy === detailOf.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <UserCheck className="h-4 w-4" />
+                    )}
+                    Wieder anmelden
+                  </Button>
+                </div>
+              ) : (
+                <div className="border-t border-border pt-4 flex justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={statusBusy === detailOf.id}
+                    onClick={() => setParticipantStatus(detailOf, "cancelled")}
+                    className="gap-2 text-destructive hover:text-destructive"
+                  >
+                    {statusBusy === detailOf.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <CalendarX className="h-4 w-4" />
+                    )}
+                    Hat abgesagt
+                  </Button>
+                </div>
+              )}
+            </div>
 
             {/* Ausweis als Bild — zum Weiterschicken an die Person selbst */}
             <div className="px-6 pb-6 pt-4">

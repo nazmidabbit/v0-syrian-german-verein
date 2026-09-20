@@ -84,6 +84,12 @@ export async function POST(request: Request) {
     let participant = found;
     const wasCheckedIn = Boolean(found.checked_in_at);
 
+    // Wer abgesagt hat, wird nicht stillschweigend eingelassen. Der Code wird
+    // trotzdem erkannt, damit am Eingang Name und Grund zu sehen sind.
+    if (found.status === 'cancelled' && action === 'checkin') {
+      return NextResponse.json({ found: true, cancelled: true, participant: found });
+    }
+
     // Ein zweiter Scan derselben Person darf den ersten Zeitpunkt nicht
     // ueberschreiben — sonst ist nicht mehr zu sehen, wann sie kam.
     if ((action === 'checkin' && !wasCheckedIn) || action === 'undo') {
