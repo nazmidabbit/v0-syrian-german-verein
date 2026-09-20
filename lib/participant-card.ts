@@ -260,19 +260,46 @@ export async function shareImage(
   return "saved"
 }
 
-// Vermerken, dass die Person ihren Ausweis hat. Schlaegt das fehl, ist das
-// kein Grund, den Versand selbst als gescheitert zu behandeln.
-export async function markQrShared(formId: string, id: string): Promise<string> {
+// Vermerken, dass die Person ihren Ausweis hat.
+//
+// Heikel ist der Zeitpunkt: Sobald WhatsApp in den Vordergrund kommt, friert
+// der Browser die Seite ein und bricht laufende Anfragen ab. Deshalb
+// "keepalive" — damit stellt der Browser die Anfrage auch dann noch zu, wenn
+// die Seite schon im Hintergrund liegt. Klappt es trotzdem nicht, wird beim
+// Zurueckkommen nachgeholt.
+async function send(formId: string, id: string): Promise<boolean> {
   try {
     const res = await fetch("/api/admin/participants/qr-shared", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ formId, id, shared: true }),
+      keepalive: true,
     })
-    if (!res.ok) return ""
-    const data = await res.json()
-    return data.sharedAt || new Date().toISOString()
+    return res.ok
   } catch {
-    return ""
+    return false
   }
+}
+
+// Vermerke, die noch nicht beim Server angekommen sind
+const offen = new Map<string, string>()
+let lauscht = false
+
+function nachholen() {
+  if (document.visibilityState !== "visible" || offen.size === 0) return
+  for (const [id, formId] of [...offen]) {
+    send(formId, id).then((ok) => {
+      if (ok) offen.delete(id)
+    })
+  }
+}
+
+export function markQrShared(formId: string, id: string) {
+  if (!lauscht) {
+    document.addEventListener("visibilitychange", nachholen)
+    lauscht = true
+  }
+  send(formId, id).then((ok) => {
+    if (!ok) offen.set(id, formId)
+  })
 }

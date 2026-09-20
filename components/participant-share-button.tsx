@@ -71,9 +71,12 @@ export function ParticipantShareButton({ card, submissionId, formId, sharedAt, o
         window.clearTimeout(confirmTimer.current)
         confirmTimer.current = window.setTimeout(() => setJustShared(false), CONFIRM_MS)
 
+        // Sofort markieren, nicht erst wenn der Server geantwortet hat: Die
+        // Antwort kann ausbleiben, weil die Seite hinter WhatsApp einfriert.
+        // Der Vermerk selbst wird notfalls spaeter nachgereicht.
         if (!sharedAt) {
-          const at = await markQrShared(formId, submissionId)
-          if (at) onShared(at)
+          onShared(new Date().toISOString())
+          markQrShared(formId, submissionId)
         }
       } finally {
         setBusy(false)

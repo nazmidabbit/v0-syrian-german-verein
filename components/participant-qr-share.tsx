@@ -32,10 +32,13 @@ export function ParticipantQrShare(props: Props) {
   const { submissionId, formId, sharedAt, onShared } = props
   const fileName = cardFileName(props)
 
-  const remember = useCallback(async () => {
+  // Sofort markieren, nicht erst wenn der Server geantwortet hat: Die Antwort
+  // kann ausbleiben, weil die Seite hinter WhatsApp einfriert. Der Vermerk
+  // selbst wird notfalls spaeter nachgereicht.
+  const remember = useCallback(() => {
     if (sharedAt) return
-    const at = await markQrShared(formId, submissionId)
-    if (at) onShared(at)
+    onShared(new Date().toISOString())
+    markQrShared(formId, submissionId)
   }, [sharedAt, formId, submissionId, onShared])
 
   // Das Bild wird im Voraus erzeugt: Ein Teilen-Dialog laesst sich nur direkt

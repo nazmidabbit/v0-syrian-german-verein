@@ -43,6 +43,13 @@ steht, braucht damit keinen Zugriff auf Formulare oder Mitgliedsanträge.
    Knopf **Ohne Ausweis** blendet alle aus, die ihren schon haben — so bleibt
    übrig, wer noch dran ist. Der Vermerk wird beim Teilen *und* beim Speichern
    gesetzt; bricht man den Teilen-Dialog ab, passiert nichts.
+
+> **Der Vermerk übersteht den Wechsel zu WhatsApp.**
+> Sobald eine andere App in den Vordergrund kommt, friert der Browser die
+> Seite ein und bricht laufende Anfragen ab. Deshalb wird die Kachel sofort
+> markiert, und die Meldung an den Server geht mit `keepalive` raus — die
+> stellt der Browser auch aus dem Hintergrund noch zu. Klappt sie trotzdem
+> nicht, wird sie beim nächsten Blick auf die Seite nachgeholt.
 3. **Alte Check-ins zurücksetzen.** Wurde vorher getestet, stehen noch
    Häkchen in der Liste. Zurücknehmen lassen sie sich einzeln unter
    Formulare → Ergebnisse oder direkt beim Scan über „Check-in zurücknehmen".
