@@ -17,7 +17,10 @@ const nextConfig = {
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          // Kamera nur fuer eigene Seiten (QR-Scanner der Einlasskontrolle) —
+          // fremde eingebettete Inhalte bekommen sie nicht, und der Browser
+          // fragt weiterhin bei jedem Zugriff nach
+          { key: 'Permissions-Policy', value: 'camera=(self), microphone=(), geolocation=()' },
         ],
       },
     ];

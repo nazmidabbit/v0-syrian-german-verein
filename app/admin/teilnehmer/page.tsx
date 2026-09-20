@@ -14,6 +14,7 @@ import {
   Pause,
   Play,
   Presentation,
+  QrCode,
   Search,
   Shield,
   UserCheck,
@@ -24,14 +25,19 @@ import {
   detailFields,
   fieldValue,
   highlightFields,
+  listValues,
   matchesSearch,
   participantInitials,
   participantName,
+  participantNameAr,
+  participantNumber,
+  participantSharedAt,
   photoField,
   type Participant,
   type ParticipantField,
 } from "@/lib/participants"
 import { SUBMISSION_STATUS_LABELS, type SubmissionStatus } from "@/lib/forms"
+import { ParticipantQrShare } from "@/components/participant-qr-share"
 
 interface FormOption {
   id: string
@@ -52,6 +58,7 @@ interface Counts {
   cancelled: number
   checkedIn: number
   withPhoto: number
+  qrShared: number
 }
 
 const STATUS_DOT: Record<SubmissionStatus, string> = {
@@ -62,6 +69,14 @@ const STATUS_DOT: Record<SubmissionStatus, string> = {
 
 // Wie lange eine Person in der Vollbild-Anzeige stehen bleibt
 const SLIDE_MS = 6000
+
+// Inhalt des QR-Codes. Bewusst die konfigurierte Adresse und nicht die des
+// Browsers — ein auf localhost erzeugter Ausweis soll am Eingang trotzdem
+// auf sygs.de zeigen.
+const checkInUrl = (id: string) => {
+  const base = process.env.NEXT_PUBLIC_BASE_URL || (typeof window === "undefined" ? "" : window.location.origin)
+  return `${base.replace(/\/$/, "")}/admin/einlass?c=${id}`
+}
 
 export default function AdminParticipantsPage() {
   const [forms, setForms] = useState<FormOption[]>([])
@@ -78,6 +93,9 @@ export default function AdminParticipantsPage() {
 
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<"" | SubmissionStatus>("confirmed")
+  // Wer hat seinen Ausweis noch nicht bekommen? Die Frage stellt sich beim
+  // Verteilen staendig, deshalb ein eigener Schalter statt einer Suche.
+  const [onlyUnshared, setOnlyUnshared] = useState(false)
   const [detailOf, setDetailOf] = useState<Participant | null>(null)
 
   // Vollbild-Anzeige
@@ -152,9 +170,19 @@ export default function AdminParticipantsPage() {
     () =>
       participants
         .filter((p) => (statusFilter ? p.status === statusFilter : true))
+        .filter((p) => (onlyUnshared ? !participantSharedAt(p) : true))
         .filter((p) => matchesSearch(fields, p, search)),
-    [participants, statusFilter, search, fields],
+    [participants, statusFilter, onlyUnshared, search, fields],
   )
+
+  // Nach dem Teilen sofort sichtbar machen, ohne die ganze Liste neu zu laden
+  const markShared = useCallback((id: string, sharedAt: string) => {
+    const apply = (p: Participant) =>
+      p.id === id ? { ...p, data: { ...p.data, qr_geteilt_am: sharedAt } } : p
+    setParticipants((list) => list.map(apply))
+    setDetailOf((current) => (current && current.id === id ? apply(current) : current))
+    setCounts((current) => (current ? { ...current, qrShared: current.qrShared + 1 } : current))
+  }, [])
 
   // Vollbild zeigt nur bestätigte Anmeldungen — Wartelisten und Stornos
   // gehören nicht auf eine Leinwand
@@ -328,9 +356,9 @@ export default function AdminParticipantsPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                   { label: "Angemeldet", value: counts.confirmed, accent: true },
-                  { label: "Warteliste", value: counts.waitlist },
+                  { label: "QR geteilt", value: `${counts.qrShared}/${counts.total}` },
                   { label: "Eingecheckt", value: counts.checkedIn },
-                  { label: "Mit Foto", value: counts.withPhoto },
+                  { label: "Warteliste", value: counts.waitlist },
                 ].map((stat) => (
                   <div
                     key={stat.label}
@@ -402,6 +430,15 @@ export default function AdminParticipantsPage() {
                   </button>
                 ))}
               </div>
+
+              <Button
+                variant={onlyUnshared ? "default" : "outline"}
+                onClick={() => setOnlyUnshared((v) => !v)}
+                className="h-10 gap-2"
+              >
+                <QrCode className="h-4 w-4" />
+                Ohne Ausweis
+              </Button>
             </div>
 
             {loading ? (
@@ -420,6 +457,15 @@ export default function AdminParticipantsPage() {
                 {visible.map((p) => {
                   const name = participantName(fields, p)
                   const url = photoUrl(p)
+                  const nr = participantNumber(p)
+                  const nameAr = participantNameAr(p)
+                  // Formularfelder und Angaben aus den Ehrungslisten in einer Reihe
+                  const chips = [
+                    ...highlights.map((f) => ({ key: f.field_key, value: fieldValue(p, f.field_key) })),
+                    ...listValues(p).map((f) => ({ key: f.key, value: f.value })),
+                  ]
+                    .filter((c) => c.value)
+                    .slice(0, 3)
                   return (
                     <button
                       key={p.id}
@@ -442,31 +488,47 @@ export default function AdminParticipantsPage() {
                             </span>
                           </div>
                         )}
-                        {p.checked_in_at && (
-                          <span className="absolute top-3 right-3 bg-primary text-primary-foreground rounded-full p-1.5 shadow">
-                            <UserCheck className="h-4 w-4" />
-                          </span>
-                        )}
+                        <div className="absolute top-3 right-3 flex gap-1.5">
+                          {participantSharedAt(p) && (
+                            <span
+                              className="bg-background text-foreground rounded-full p-1.5 shadow"
+                              title={`Ausweis geteilt am ${formatDate(participantSharedAt(p))}`}
+                            >
+                              <QrCode className="h-4 w-4" />
+                            </span>
+                          )}
+                          {p.checked_in_at && (
+                            <span className="bg-primary text-primary-foreground rounded-full p-1.5 shadow" title="Eingecheckt">
+                              <UserCheck className="h-4 w-4" />
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       <div className="p-4">
                         <div className="flex items-center gap-2 mb-1">
                           <span className={`h-2 w-2 rounded-full flex-shrink-0 ${STATUS_DOT[p.status]}`} />
+                          {nr && (
+                            <span className="text-xs font-bold tabular-nums text-muted-foreground flex-shrink-0">
+                              #{nr}
+                            </span>
+                          )}
                           <h2 className="font-bold text-foreground truncate">{name}</h2>
                         </div>
+                        {nameAr && (
+                          <p className="text-sm text-muted-foreground truncate" dir="rtl">
+                            {nameAr}
+                          </p>
+                        )}
                         <div className="flex flex-wrap gap-1.5 mt-2">
-                          {highlights
-                            .map((f) => ({ f, v: fieldValue(p, f.field_key) }))
-                            .filter((x) => x.v)
-                            .slice(0, 3)
-                            .map(({ f, v }) => (
-                              <span
-                                key={f.field_key}
-                                className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full truncate max-w-[12rem]"
-                              >
-                                {v}
-                              </span>
-                            ))}
+                          {chips.map((chip) => (
+                            <span
+                              key={chip.key}
+                              className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full truncate max-w-[12rem]"
+                            >
+                              {chip.value}
+                            </span>
+                          ))}
                         </div>
                       </div>
                     </button>
@@ -506,8 +568,18 @@ export default function AdminParticipantsPage() {
                 )}
                 <div className="min-w-0">
                   <h2 className="text-xl font-bold truncate">
+                    {participantNumber(detailOf) && (
+                      <span className="text-muted-foreground tabular-nums">
+                        #{participantNumber(detailOf)}{" "}
+                      </span>
+                    )}
                     {participantName(fields, detailOf)}
                   </h2>
+                  {participantNameAr(detailOf) && (
+                    <p className="font-bold truncate" dir="rtl">
+                      {participantNameAr(detailOf)}
+                    </p>
+                  )}
                   <p className="text-sm text-muted-foreground">
                     {SUBMISSION_STATUS_LABELS[detailOf.status]}
                     {detailOf.checked_in_at ? " · eingecheckt" : ""}
@@ -519,19 +591,45 @@ export default function AdminParticipantsPage() {
               </Button>
             </div>
 
-            <dl className="px-6 pb-6 flex flex-col gap-3">
-              {[...highlights, ...details]
-                .map((f) => ({ f, v: fieldValue(detailOf, f.field_key) }))
-                .filter((x) => x.v)
-                .map(({ f, v }) => (
-                  <div key={f.field_key} className="border-t border-border pt-3">
-                    <dt className="text-xs uppercase tracking-wide text-muted-foreground">
-                      {f.label}
-                    </dt>
-                    <dd className="text-foreground whitespace-pre-line break-words mt-0.5">{v}</dd>
-                  </div>
-                ))}
+            <dl className="px-6 flex flex-col gap-3">
+              {[
+                ...[...highlights, ...details]
+                  .map((f) => ({ key: f.field_key, label: f.label, value: fieldValue(detailOf, f.field_key) }))
+                  .filter((x) => x.value),
+                ...listValues(detailOf).map((f) => ({
+                  key: f.key,
+                  label: `${f.label} · ${f.label_ar}`,
+                  value: f.value,
+                })),
+              ].map((entry) => (
+                <div key={entry.key} className="border-t border-border pt-3">
+                  <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {entry.label}
+                  </dt>
+                  <dd className="text-foreground whitespace-pre-line break-words mt-0.5">
+                    {entry.value}
+                  </dd>
+                </div>
+              ))}
             </dl>
+
+            {/* Ausweis als Bild — zum Weiterschicken an die Person selbst */}
+            <div className="px-6 pb-6 pt-4">
+              <ParticipantQrShare
+                submissionId={detailOf.id}
+                formId={formId}
+                sharedAt={participantSharedAt(detailOf)}
+                onShared={(at) => markShared(detailOf.id, at)}
+                url={checkInUrl(detailOf.id)}
+                nr={participantNumber(detailOf)}
+                name={participantName(fields, detailOf)}
+                nameAr={participantNameAr(detailOf)}
+                meta={[fieldValue(detailOf, "sportart"), fieldValue(detailOf, "ehrung_ar")]}
+                eventTitle={event?.title || ""}
+                eventTitleAr={event?.title_ar || ""}
+                eventDate={event ? formatDate(event.date) : ""}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -626,21 +724,34 @@ export default function AdminParticipantsPage() {
               </div>
 
               <div key={`text-${current.id}`} className="animate-stage-in">
+                {participantNameAr(current) && (
+                  <h2
+                    className="text-5xl md:text-6xl font-bold tracking-tight text-balance drop-shadow-lg mb-3"
+                    dir="rtl"
+                  >
+                    {participantNameAr(current)}
+                  </h2>
+                )}
                 <h2 className="text-5xl md:text-6xl font-bold tracking-tight text-balance drop-shadow-lg">
                   {participantName(fields, current)}
                 </h2>
 
                 <div className="flex flex-wrap justify-center gap-3 mt-7">
-                  {highlights
-                    .map((f) => ({ f, v: fieldValue(current, f.field_key) }))
-                    .filter((x) => x.v)
-                    .slice(0, 2)
-                    .map(({ f, v }) => (
+                  {[
+                    ...highlights.map((f) => ({
+                      key: f.field_key,
+                      value: fieldValue(current, f.field_key),
+                    })),
+                    ...listValues(current).map((f) => ({ key: f.key, value: f.value })),
+                  ]
+                    .filter((chip) => chip.value)
+                    .slice(0, 3)
+                    .map((chip) => (
                       <span
-                        key={f.field_key}
+                        key={chip.key}
                         className="text-xl md:text-2xl text-white/85 bg-white/10 backdrop-blur-sm border border-white/15 rounded-full px-6 py-2"
                       >
-                        {v}
+                        {chip.value}
                       </span>
                     ))}
                 </div>

@@ -21,6 +21,40 @@ export interface Participant {
   email: string
 }
 
+// Angaben aus den Ehrungslisten (siehe scripts/import-participants.mjs).
+// Sie stehen bewusst nicht im Formular-Baukasten — sonst taeuchten sie im
+// oeffentlichen Anmeldeformular auf — werden aber ueberall gezeigt, wo
+// Teilnehmer sichtbar sind.
+export const LIST_FIELDS = [
+  { key: "rolle_ar", label: "Funktion", label_ar: "الصفة" },
+  { key: "kategorie_ar", label: "Kategorie", label_ar: "الفئة" },
+  { key: "ehrung_ar", label: "Ehrung", label_ar: "نوع التكريم" },
+  { key: "liste_ar", label: "Liste", label_ar: "القائمة" },
+  { key: "notiz_ar", label: "Notiz", label_ar: "ملاحظات" },
+] as const
+
+// Laufende Nummer auf dem Ausweis und im QR-Code
+export function participantNumber(p: Participant): string {
+  const value = p.data["teilnehmer_nr"]
+  return typeof value === "string" ? value.trim() : ""
+}
+
+export function participantNameAr(p: Participant): string {
+  const value = p.data["name_ar"]
+  return typeof value === "string" ? value.trim() : ""
+}
+
+// Wann der Ausweis an die Person weitergegeben wurde — leer heisst: noch nicht
+export function participantSharedAt(p: Participant): string {
+  const value = p.data["qr_geteilt_am"]
+  return typeof value === "string" ? value.trim() : ""
+}
+
+// Gefuellte Listen-Angaben in fester Reihenfolge
+export function listValues(p: Participant): { key: string; label: string; label_ar: string; value: string }[] {
+  return LIST_FIELDS.map((f) => ({ ...f, value: fieldValue(p, f.key) })).filter((f) => f.value)
+}
+
 // Kontaktdaten und Anschrift: gehoeren in die Detailansicht, niemals auf
 // eine Leinwand vor Publikum.
 const CONTACT_TYPES = new Set(["email", "tel"])

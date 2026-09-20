@@ -25,3 +25,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# Vorschau des Teilnehmer-Imports (Probelauf)
+/scripts/import-vorschau.json

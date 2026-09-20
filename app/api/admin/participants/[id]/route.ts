@@ -54,6 +54,7 @@ export async function GET(
       waitlist: rows.filter((s) => s.status === 'waitlist').length,
       cancelled: rows.filter((s) => s.status === 'cancelled').length,
       checkedIn: rows.filter((s) => Boolean(s.checked_in_at)).length,
+      qrShared: rows.filter((s) => Boolean((s.data as Record<string, unknown>)?.qr_geteilt_am)).length,
       withPhoto: rows.filter((s) =>
         Object.values((s.data as Record<string, unknown>) || {}).some(
           (v) => typeof v === 'string' && v.startsWith('http'),
