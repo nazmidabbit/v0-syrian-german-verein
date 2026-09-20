@@ -13,6 +13,7 @@ import {
   LogIn,
   Pause,
   Play,
+  FilterX,
   Presentation,
   QrCode,
   Search,
@@ -24,8 +25,11 @@ import {
 import {
   detailFields,
   fieldValue,
+  FILTER_FIELDS,
+  filterOptions,
   highlightFields,
   listValues,
+  matchesFilters,
   matchesSearch,
   participantInitials,
   participantName,
@@ -33,12 +37,14 @@ import {
   participantNumber,
   participantSharedAt,
   photoField,
+  type FilterValues,
   type Participant,
   type ParticipantField,
 } from "@/lib/participants"
 import { SUBMISSION_STATUS_LABELS, type SubmissionStatus } from "@/lib/forms"
 import { ParticipantQrShare } from "@/components/participant-qr-share"
 import { ParticipantShareButton } from "@/components/participant-share-button"
+import { ParticipantBulkShare } from "@/components/participant-bulk-share"
 import type { CardData } from "@/lib/participant-card"
 
 interface FormOption {
@@ -98,6 +104,8 @@ export default function AdminParticipantsPage() {
   // Wer hat seinen Ausweis noch nicht bekommen? Die Frage stellt sich beim
   // Verteilen staendig, deshalb ein eigener Schalter statt einer Suche.
   const [onlyUnshared, setOnlyUnshared] = useState(false)
+  // Auswahlfilter je Feld: {sportart: "Fußball · كرة القدم", …}
+  const [fieldFilters, setFieldFilters] = useState<FilterValues>({})
   const [detailOf, setDetailOf] = useState<Participant | null>(null)
 
   // Vollbild-Anzeige
@@ -173,18 +181,48 @@ export default function AdminParticipantsPage() {
       participants
         .filter((p) => (statusFilter ? p.status === statusFilter : true))
         .filter((p) => (onlyUnshared ? !participantSharedAt(p) : true))
+        .filter((p) => matchesFilters(p, fieldFilters))
         .filter((p) => matchesSearch(fields, p, search)),
-    [participants, statusFilter, onlyUnshared, search, fields],
+    [participants, statusFilter, onlyUnshared, fieldFilters, search, fields],
+  )
+
+  const activeFilters = useMemo(
+    () =>
+      Object.values(fieldFilters).filter(Boolean).length +
+      (search ? 1 : 0) +
+      (onlyUnshared ? 1 : 0),
+    [fieldFilters, search, onlyUnshared],
+  )
+
+  const resetFilters = useCallback(() => {
+    setFieldFilters({})
+    setSearch("")
+    setOnlyUnshared(false)
+  }, [])
+
+  // Aus der Liste abgeleitet statt mitgezaehlt — so kann der Stand nach dem
+  // Teilen gar nicht erst auseinanderlaufen
+  const qrShared = useMemo(
+    () => participants.filter((p) => participantSharedAt(p)).length,
+    [participants],
   )
 
   // Nach dem Teilen sofort sichtbar machen, ohne die ganze Liste neu zu laden
-  const markShared = useCallback((id: string, sharedAt: string) => {
+  const markManyShared = useCallback((ids: string[], sharedAt = new Date().toISOString()) => {
+    const treffer = new Set(ids)
     const apply = (p: Participant) =>
-      p.id === id ? { ...p, data: { ...p.data, qr_geteilt_am: sharedAt } } : p
+      treffer.has(p.id) && !participantSharedAt(p)
+        ? { ...p, data: { ...p.data, qr_geteilt_am: sharedAt } }
+        : p
+
     setParticipants((list) => list.map(apply))
-    setDetailOf((current) => (current && current.id === id ? apply(current) : current))
-    setCounts((current) => (current ? { ...current, qrShared: current.qrShared + 1 } : current))
+    setDetailOf((current) => (current ? apply(current) : current))
   }, [])
+
+  const markShared = useCallback(
+    (id: string, sharedAt: string) => markManyShared([id], sharedAt),
+    [markManyShared],
+  )
 
   // Vollbild zeigt nur bestätigte Anmeldungen — Wartelisten und Stornos
   // gehören nicht auf eine Leinwand
@@ -370,7 +408,7 @@ export default function AdminParticipantsPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                   { label: "Angemeldet", value: counts.confirmed, accent: true },
-                  { label: "QR geteilt", value: `${counts.qrShared}/${counts.total}` },
+                  { label: "QR geteilt", value: `${qrShared}/${counts.total}` },
                   { label: "Eingecheckt", value: counts.checkedIn },
                   { label: "Warteliste", value: counts.waitlist },
                 ].map((stat) => (
@@ -454,6 +492,61 @@ export default function AdminParticipantsPage() {
                 Ohne Ausweis
               </Button>
             </div>
+
+            {/* Auswahlfilter — nur Felder, die auch gefüllt sind */}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              {FILTER_FIELDS.map((field) => {
+                const options = filterOptions(participants, field.key)
+                if (options.length < 2) return null
+                return (
+                  <select
+                    key={field.key}
+                    value={fieldFilters[field.key] || ""}
+                    onChange={(e) =>
+                      setFieldFilters((f) => ({ ...f, [field.key]: e.target.value }))
+                    }
+                    aria-label={field.label}
+                    className={`h-9 max-w-[16rem] rounded-lg border px-2 text-sm ${
+                      fieldFilters[field.key]
+                        ? "border-primary bg-primary/5 text-foreground"
+                        : "border-input bg-background text-muted-foreground"
+                    }`}
+                  >
+                    <option value="">
+                      {field.label} · {field.label_ar}
+                    </option>
+                    {options.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.value} ({option.count})
+                      </option>
+                    ))}
+                  </select>
+                )
+              })}
+
+              {activeFilters > 0 && (
+                <Button variant="ghost" size="sm" onClick={resetFilters} className="gap-1.5 h-9">
+                  <FilterX className="h-4 w-4" />
+                  Zurücksetzen
+                </Button>
+              )}
+            </div>
+
+            {/* Trefferzahl und Sammelaktion */}
+            {!loading && (
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
+                <p className="text-sm text-muted-foreground">
+                  {visible.length === participants.length
+                    ? `${participants.length} Teilnehmer`
+                    : `${visible.length} von ${participants.length} Teilnehmern`}
+                </p>
+
+                <ParticipantBulkShare
+                  entries={visible.map((p) => ({ id: p.id, card: cardOf(p) }))}
+                  onShared={markManyShared}
+                />
+              </div>
+            )}
 
             {loading ? (
               <div className="flex justify-center py-24">

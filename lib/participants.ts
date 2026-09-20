@@ -33,6 +33,40 @@ export const LIST_FIELDS = [
   { key: "notiz_ar", label: "Notiz", label_ar: "ملاحظات" },
 ] as const
 
+// Felder, nach denen sich die Liste eingrenzen laesst. Bewusst nur solche mit
+// wenigen, wiederkehrenden Werten — die Funktion (rolle_ar) hat ueber vierzig
+// verschiedene und gehoert deshalb in die Volltextsuche, nicht in ein Menue.
+export const FILTER_FIELDS = [
+  { key: "sportart", label: "Sportart", label_ar: "نوع اللعبة" },
+  { key: "liste_ar", label: "Liste", label_ar: "القائمة" },
+  { key: "ehrung_ar", label: "Ehrung", label_ar: "نوع التكريم" },
+  { key: "kategorie_ar", label: "Kategorie", label_ar: "الفئة" },
+  { key: "name_des_vereins", label: "Verein", label_ar: "النادي" },
+  { key: "notiz_ar", label: "Notiz", label_ar: "ملاحظات" },
+] as const
+
+export type FilterValues = Record<string, string>
+
+// Vorhandene Werte eines Feldes mit ihrer Haeufigkeit, haeufigste zuerst.
+// Was niemand hat, steht auch nicht im Menue.
+export function filterOptions(
+  participants: Participant[],
+  key: string,
+): { value: string; count: number }[] {
+  const counts = new Map<string, number>()
+  for (const p of participants) {
+    const value = fieldValue(p, key)
+    if (value) counts.set(value, (counts.get(value) || 0) + 1)
+  }
+  return [...counts.entries()]
+    .map(([value, count]) => ({ value, count }))
+    .sort((a, b) => b.count - a.count || a.value.localeCompare(b.value, "de"))
+}
+
+export function matchesFilters(p: Participant, filters: FilterValues): boolean {
+  return Object.entries(filters).every(([key, value]) => !value || fieldValue(p, key) === value)
+}
+
 // Laufende Nummer auf dem Ausweis und im QR-Code
 export function participantNumber(p: Participant): string {
   const value = p.data["teilnehmer_nr"]

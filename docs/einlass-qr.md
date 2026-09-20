@@ -16,6 +16,7 @@ Liste. Wer den Ausweis vergessen hat, wird über seine Nummer gefunden.
 | `lib/participant-card.ts` | Zeichnet den Ausweis auf ein Canvas und reicht ihn zum Teilen weiter |
 | `components/participant-qr-share.tsx` | Ausweis mit Vorschau in der Detailansicht |
 | `components/participant-share-button.tsx` | Teilen-Knopf auf jeder Kachel der Liste |
+| `components/participant-bulk-share.tsx` | Alle angezeigten Ausweise auf einmal teilen |
 | `app/api/admin/participants/checkin/route.ts` | Code nachschlagen und ein- beziehungsweise auschecken |
 | `app/api/admin/participants/qr-shared/route.ts` | Vermerk, dass jemand seinen Ausweis bekommen hat |
 
@@ -43,6 +44,25 @@ steht, braucht damit keinen Zugriff auf Formulare oder Mitgliedsanträge.
    Knopf **Ohne Ausweis** blendet alle aus, die ihren schon haben — so bleibt
    übrig, wer noch dran ist. Der Vermerk wird beim Teilen *und* beim Speichern
    gesetzt; bricht man den Teilen-Dialog ab, passiert nichts.
+
+### Die Richtigen finden
+
+Über der Liste stehen sechs Auswahlmenüs: **Sportart · Liste · Ehrung ·
+Kategorie · Verein · Notiz**. Sie lassen sich kombinieren — „Ringen" plus
+„ميدالية" zeigt die fünfzehn Ringer mit Medaille, „Notiz: ضيف" die achtzehn
+Gäste von außerhalb. Neben jedem Wert steht, wie viele Personen ihn haben;
+Werte, die niemand hat, tauchen gar nicht erst auf.
+
+Das Suchfeld daneben durchsucht alles Übrige: Namen auf Deutsch und Arabisch,
+Nummer, Funktion, Verein, Notizen. Die Funktion (لاعب, حكم كرة قدم, …) hat über
+vierzig verschiedene Werte und steht deshalb bewusst nicht als Menü da — dafür
+ist die Suche schneller.
+
+Unter den Filtern steht, wie viele übrig sind, und rechts daneben
+**„N Ausweise teilen"**: damit gehen alle angezeigten Ausweise in einem Rutsch
+ins Teilen-Menü — etwa die einer Mannschaft an deren Trainer. Über dreißig
+Stück nimmt WhatsApp nicht an, dann bittet der Knopf um eine engere Auswahl.
+Wo kein Teilen-Menü für mehrere Dateien da ist, werden sie einzeln gespeichert.
 
 > **Der Vermerk übersteht den Wechsel zu WhatsApp.**
 > Sobald eine andere App in den Vordergrund kommt, friert der Browser die
