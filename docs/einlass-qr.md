@@ -40,11 +40,13 @@ steht, braucht damit keinen Zugriff auf Formulare oder Mitgliedsanträge.
    Auf dem Handy öffnet „Teilen" direkt WhatsApp; am Rechner wird die Datei
    gespeichert. Der QR-Code funktioniert auch vom Handydisplay.
 
-   Wer seinen Ausweis bekommen hat, trägt in der Liste oben rechts auf der
-   Kachel ein QR-Zeichen, und der Zähler **QR geteilt** zeigt den Stand. Der
-   Knopf **Ohne Ausweis** blendet alle aus, die ihren schon haben — so bleibt
-   übrig, wer noch dran ist. Der Vermerk wird beim Teilen *und* beim Speichern
-   gesetzt; bricht man den Teilen-Dialog ab, passiert nichts.
+   Sobald eine Karte weitergegeben ist, wird sie doppelt markiert: ein grünes
+   Häkchen oben rechts auf der Kachel und darunter die Zeile **„Ausweis
+   verschickt · تم الإرسال"** mit Datum. Der Zähler **QR geteilt** zeigt den
+   Gesamtstand, und der Knopf **Ohne Ausweis** blendet alle aus, die ihren
+   schon haben — so bleibt übrig, wer noch dran ist. Der Vermerk wird beim
+   Teilen *und* beim Speichern gesetzt; bricht man den Teilen-Dialog ab,
+   passiert nichts.
 
 3. **Alte Check-ins zurücksetzen.** Wurde vorher getestet, stehen noch
    Häkchen in der Liste. Zurücknehmen lassen sie sich einzeln unter

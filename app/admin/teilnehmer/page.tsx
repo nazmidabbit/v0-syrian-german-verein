@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import {
   CalendarDays,
   CalendarX,
+  CheckCheck,
   ChevronLeft,
   ChevronRight,
   Loader2,
@@ -641,10 +642,10 @@ export default function AdminParticipantsPage() {
                           <div className="absolute top-3 right-3 flex gap-1.5">
                             {participantSharedAt(p) && (
                               <span
-                                className="bg-background text-foreground rounded-full p-1.5 shadow"
-                                title={`Ausweis geteilt am ${formatDate(participantSharedAt(p))}`}
+                                className="bg-green-600 text-white rounded-full p-1.5 shadow"
+                                title={`Ausweis verschickt am ${formatDate(participantSharedAt(p))}`}
                               >
-                                <QrCode className="h-4 w-4" />
+                                <CheckCheck className="h-4 w-4" />
                               </span>
                             )}
                             {p.checked_in_at && (
@@ -680,6 +681,19 @@ export default function AdminParticipantsPage() {
                               </span>
                             ))}
                           </div>
+
+                          {participantSharedAt(p) && (
+                            <p className="flex items-center gap-1.5 text-xs font-medium text-green-700 dark:text-green-500 mt-2">
+                              <CheckCheck className="h-3.5 w-3.5 flex-shrink-0" />
+                              {/* Datum vor dem arabischen Text: sonst tauscht
+                                  die Bidi-Regel beide, weil die Ziffern zum
+                                  arabischen Lauf gezogen werden */}
+                              <span className="truncate">
+                                Ausweis verschickt · {formatDate(participantSharedAt(p))} ·{" "}
+                                تم الإرسال
+                              </span>
+                            </p>
+                          )}
                         </div>
                       </button>
                     </div>
