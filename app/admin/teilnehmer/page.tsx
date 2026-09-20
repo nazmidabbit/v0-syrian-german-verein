@@ -48,6 +48,7 @@ import { SUBMISSION_STATUS_LABELS, type SubmissionStatus } from "@/lib/forms"
 import { ParticipantQrShare } from "@/components/participant-qr-share"
 import { ParticipantShareButton } from "@/components/participant-share-button"
 import { ParticipantBulkShare } from "@/components/participant-bulk-share"
+import { ParticipantNameEdit } from "@/components/participant-name-edit"
 import type { CardData } from "@/lib/participant-card"
 
 interface FormOption {
@@ -251,6 +252,13 @@ export default function AdminParticipantsPage() {
     (id: string, sharedAt: string) => markManyShared([id], sharedAt),
     [markManyShared],
   )
+
+  // Ein geaenderter Teilnehmer ersetzt sich in Liste und Detailfenster
+  const ersetzeTeilnehmer = useCallback((geaendert: Participant) => {
+    const apply = (p: Participant) => (p.id === geaendert.id ? geaendert : p)
+    setParticipants((list) => list.map(apply))
+    setDetailOf((current) => (current ? apply(current) : current))
+  }, [])
 
   // Absagen und Wiederanmelden. Die Person bleibt mit ihrer Nummer stehen —
   // sonst muesste man gedruckte Ausweise nachziehen. Endgueltiges Loeschen
@@ -810,10 +818,17 @@ export default function AdminParticipantsPage() {
                       {participantNameAr(detailOf)}
                     </p>
                   )}
-                  <p className="text-sm text-muted-foreground">
-                    {SUBMISSION_STATUS_LABELS[detailOf.status]}
-                    {detailOf.checked_in_at ? " · eingecheckt" : ""}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
+                    <span>
+                      {SUBMISSION_STATUS_LABELS[detailOf.status]}
+                      {detailOf.checked_in_at ? " · eingecheckt" : ""}
+                    </span>
+                    <ParticipantNameEdit
+                      participant={detailOf}
+                      formId={formId}
+                      onSaved={ersetzeTeilnehmer}
+                    />
+                  </div>
                 </div>
               </div>
               <Button variant="ghost" size="sm" onClick={() => setDetailOf(null)}>

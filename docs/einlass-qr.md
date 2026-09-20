@@ -20,6 +20,8 @@ Liste. Wer den Ausweis vergessen hat, wird über seine Nummer gefunden.
 | `app/api/admin/participants/checkin/route.ts` | Code nachschlagen und ein- beziehungsweise auschecken |
 | `app/api/admin/participants/qr-shared/route.ts` | Vermerk, dass jemand seinen Ausweis bekommen hat |
 | `app/api/admin/participants/status/route.ts` | Absagen und Wiederanmelden |
+| `app/api/admin/participants/name/route.ts` | Namen berichtigen, alte Schreibweise aufheben |
+| `components/participant-name-edit.tsx` | Maske dafür in der Detailansicht |
 
 Beide Seiten liegen unter der Berechtigung **Teilnehmer**. Wer am Eingang
 steht, braucht damit keinen Zugriff auf Formulare oder Mitgliedsanträge.
@@ -77,6 +79,19 @@ abgesagt · اعتذر عن الحضور"** — eingelassen wird er nicht stills
 > Endgültig löschen — samt hochgeladenem Foto, wie es die DSGVO bei einem
 > Löschverlangen verlangt — geht weiterhin unter Formulare → Ergebnisse, und
 > zwar nur mit der Berechtigung „formulare".
+
+### Einen Namen berichtigen
+
+Admin → Teilnehmer → Person antippen → **„Name ändern"**. Dort stehen Vorname,
+Nachname und der arabische Name.
+
+Die bisherige Schreibweise wird dabei aufgehoben. Das ist kein Beiwerk: Das
+Import-Skript erkennt Personen am Namen, und ohne diesen Vermerk fände es
+jemanden nach einer Korrektur nicht wieder und legte ihn ein zweites Mal an.
+
+> **Wer seine Karte schon hat, braucht nach einer Namensänderung eine neue.**
+> Der QR-Code bleibt gültig — er hängt nicht am Namen —, aber auf dem Ausweis
+> steht noch die alte Schreibweise.
 
 ### Die Richtigen finden
 
