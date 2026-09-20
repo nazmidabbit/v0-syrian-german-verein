@@ -115,7 +115,7 @@ export async function drawCard(canvas: HTMLCanvasElement, data: CardData) {
   ctx.textAlign = "right"
   ctx.fillStyle = "rgba(255,255,255,.85)"
   ctx.font = "400 32px Outfit, system-ui, sans-serif"
-  ctx.fillText("تجمع السوريين في زارلاند", WIDTH - 60, 165)
+  ctx.fillText("تجمع السوريين في سارلاند", WIDTH - 60, 165)
   ctx.direction = "ltr"
 
   // Veranstaltung, zweisprachig

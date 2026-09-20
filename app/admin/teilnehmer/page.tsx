@@ -61,6 +61,11 @@ interface EventInfo {
   date: string
 }
 
+interface FormInfo {
+  title: string
+  title_ar: string
+}
+
 const STATUS_DOT: Record<SubmissionStatus, string> = {
   confirmed: "bg-green-500",
   waitlist: "bg-orange-500",
@@ -82,6 +87,7 @@ export default function AdminParticipantsPage() {
   const [forms, setForms] = useState<FormOption[]>([])
   const [formId, setFormId] = useState("")
   const [event, setEvent] = useState<EventInfo | null>(null)
+  const [form, setForm] = useState<FormInfo | null>(null)
   const [fields, setFields] = useState<ParticipantField[]>([])
   const [participants, setParticipants] = useState<Participant[]>([])
 
@@ -148,6 +154,7 @@ export default function AdminParticipantsPage() {
       }
       const data = await res.json()
       setEvent(data.event)
+      setForm(data.form)
       setFields(data.fields || [])
       setParticipants(data.participants || [])
       setAccessError("")
@@ -341,6 +348,16 @@ export default function AdminParticipantsPage() {
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" })
 
+  // Ueberschrift des Ausweises. Bei manchen Veranstaltungen ist nur eine
+  // Sprache gepflegt — dann nimmt der Ausweis den Titel des Formulars, der
+  // in aller Regel beide traegt.
+  const titel =
+    event?.title && event?.title_ar
+      ? { de: event.title, ar: event.title_ar }
+      : form?.title && form?.title_ar
+        ? { de: form.title, ar: form.title_ar }
+        : { de: event?.title || form?.title || "", ar: event?.title_ar || form?.title_ar || "" }
+
   // Angaben fuer den Ausweis — in der Liste und in der Detailansicht dieselben
   const cardOf = (p: Participant): CardData => ({
     url: checkInUrl(p.id),
@@ -348,8 +365,8 @@ export default function AdminParticipantsPage() {
     name: participantName(fields, p),
     nameAr: participantNameAr(p),
     meta: [fieldValue(p, "sportart"), fieldValue(p, "ehrung_ar")],
-    eventTitle: event?.title || "",
-    eventTitleAr: event?.title_ar || "",
+    eventTitle: titel.de,
+    eventTitleAr: titel.ar,
     eventDate: event ? formatDate(event.date) : "",
   })
 
