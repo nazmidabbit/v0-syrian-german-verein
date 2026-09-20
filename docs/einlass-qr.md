@@ -13,7 +13,9 @@ Liste. Wer den Ausweis vergessen hat, wird über seine Nummer gefunden.
 | `scripts/import-participants.mjs` | Namen aus den Ehrungslisten (.docx) in die Teilnehmerliste übernehmen |
 | `app/admin/einlass/page.tsx` | Einlasskontrolle: Kamera-Scanner, Nummerneingabe, Zähler |
 | `app/admin/einlass/ausweise/page.tsx` | Teilnehmerausweise mit QR-Code zum Ausdrucken |
-| `components/participant-qr-share.tsx` | Einzelner Ausweis als Bild — zum Teilen über WhatsApp |
+| `lib/participant-card.ts` | Zeichnet den Ausweis auf ein Canvas und reicht ihn zum Teilen weiter |
+| `components/participant-qr-share.tsx` | Ausweis mit Vorschau in der Detailansicht |
+| `components/participant-share-button.tsx` | Teilen-Knopf auf jeder Kachel der Liste |
 | `app/api/admin/participants/checkin/route.ts` | Code nachschlagen und ein- beziehungsweise auschecken |
 | `app/api/admin/participants/qr-shared/route.ts` | Vermerk, dass jemand seinen Ausweis bekommen hat |
 
@@ -27,11 +29,14 @@ steht, braucht damit keinen Zugriff auf Formulare oder Mitgliedsanträge.
 1. **Ausweise drucken.** Admin → Einlass → „Ausweise drucken". Zehn Ausweise
    pro A4-Seite, mit Nummer, Namen auf Deutsch und Arabisch, Sportart, Ehrung
    und QR-Code. Am besten auf festeres Papier, dann halten sie den Abend durch.
-2. **Ausweise verteilen.** Mit der Einladung, oder einzeln als Bild: Admin →
-   Teilnehmer → Person antippen. Unten im Fenster liegt der fertige Ausweis mit
-   „Teilen" und „Speichern". Auf dem Handy öffnet „Teilen" direkt WhatsApp; am
-   Rechner wird die Datei gespeichert. Der QR-Code funktioniert auch vom
-   Handydisplay.
+2. **Ausweise verteilen.** Mit der Einladung, oder einzeln als Bild. Für den
+   schnellen Weg sitzt in der Teilnehmerliste links oben auf jeder Kachel ein
+   **Teilen-Knopf** — einmal antippen, das Teilen-Menü geht auf, fertig. Wer
+   den Ausweis vorher sehen will, tippt die Kachel an und findet ihn unten in
+   der Detailansicht mit „Teilen" und „Speichern".
+
+   Auf dem Handy öffnet „Teilen" direkt WhatsApp; am Rechner wird die Datei
+   gespeichert. Der QR-Code funktioniert auch vom Handydisplay.
 
    Wer seinen Ausweis bekommen hat, trägt in der Liste oben rechts auf der
    Kachel ein QR-Zeichen, und der Zähler **QR geteilt** zeigt den Stand. Der

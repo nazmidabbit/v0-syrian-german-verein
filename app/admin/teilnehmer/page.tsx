@@ -38,6 +38,8 @@ import {
 } from "@/lib/participants"
 import { SUBMISSION_STATUS_LABELS, type SubmissionStatus } from "@/lib/forms"
 import { ParticipantQrShare } from "@/components/participant-qr-share"
+import { ParticipantShareButton } from "@/components/participant-share-button"
+import type { CardData } from "@/lib/participant-card"
 
 interface FormOption {
   id: string
@@ -273,6 +275,18 @@ export default function AdminParticipantsPage() {
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" })
 
+  // Angaben fuer den Ausweis — in der Liste und in der Detailansicht dieselben
+  const cardOf = (p: Participant): CardData => ({
+    url: checkInUrl(p.id),
+    nr: participantNumber(p),
+    name: participantName(fields, p),
+    nameAr: participantNameAr(p),
+    meta: [fieldValue(p, "sportart"), fieldValue(p, "ehrung_ar")],
+    eventTitle: event?.title || "",
+    eventTitleAr: event?.title_ar || "",
+    eventDate: event ? formatDate(event.date) : "",
+  })
+
   if (checking) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -467,71 +481,87 @@ export default function AdminParticipantsPage() {
                     .filter((c) => c.value)
                     .slice(0, 3)
                   return (
-                    <button
+                    <div
                       key={p.id}
-                      onClick={() => setDetailOf(p)}
-                      className="group text-left bg-background border border-border rounded-2xl overflow-hidden hover:border-primary/40 hover:shadow-lg transition-all"
+                      className="group relative bg-background border border-border rounded-2xl overflow-hidden hover:border-primary/40 hover:shadow-lg transition-all"
                     >
-                      <div className="aspect-[4/3] bg-muted relative overflow-hidden">
-                        {url ? (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img
-                            src={url}
-                            alt=""
-                            loading="lazy"
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <span className="text-4xl font-bold text-muted-foreground/40">
-                              {participantInitials(name)}
-                            </span>
-                          </div>
-                        )}
-                        <div className="absolute top-3 right-3 flex gap-1.5">
-                          {participantSharedAt(p) && (
-                            <span
-                              className="bg-background text-foreground rounded-full p-1.5 shadow"
-                              title={`Ausweis geteilt am ${formatDate(participantSharedAt(p))}`}
-                            >
-                              <QrCode className="h-4 w-4" />
-                            </span>
-                          )}
-                          {p.checked_in_at && (
-                            <span className="bg-primary text-primary-foreground rounded-full p-1.5 shadow" title="Eingecheckt">
-                              <UserCheck className="h-4 w-4" />
-                            </span>
-                          )}
-                        </div>
+                      {/* Teilen liegt neben der Kachel, nicht darin — ein Knopf
+                          im Knopf waere ungueltiges HTML */}
+                      <div className="absolute top-3 left-3 z-10">
+                        <ParticipantShareButton
+                          card={cardOf(p)}
+                          submissionId={p.id}
+                          formId={formId}
+                          sharedAt={participantSharedAt(p)}
+                          onShared={(at) => markShared(p.id, at)}
+                        />
                       </div>
 
-                      <div className="p-4">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className={`h-2 w-2 rounded-full flex-shrink-0 ${STATUS_DOT[p.status]}`} />
-                          {nr && (
-                            <span className="text-xs font-bold tabular-nums text-muted-foreground flex-shrink-0">
-                              #{nr}
-                            </span>
+                      <button
+                        onClick={() => setDetailOf(p)}
+                        className="block w-full text-left"
+                      >
+                        <div className="aspect-[4/3] bg-muted relative overflow-hidden">
+                          {url ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                              src={url}
+                              alt=""
+                              loading="lazy"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <span className="text-4xl font-bold text-muted-foreground/40">
+                                {participantInitials(name)}
+                              </span>
+                            </div>
                           )}
-                          <h2 className="font-bold text-foreground truncate">{name}</h2>
+                          <div className="absolute top-3 right-3 flex gap-1.5">
+                            {participantSharedAt(p) && (
+                              <span
+                                className="bg-background text-foreground rounded-full p-1.5 shadow"
+                                title={`Ausweis geteilt am ${formatDate(participantSharedAt(p))}`}
+                              >
+                                <QrCode className="h-4 w-4" />
+                              </span>
+                            )}
+                            {p.checked_in_at && (
+                              <span className="bg-primary text-primary-foreground rounded-full p-1.5 shadow" title="Eingecheckt">
+                                <UserCheck className="h-4 w-4" />
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        {nameAr && (
-                          <p className="text-sm text-muted-foreground truncate" dir="rtl">
-                            {nameAr}
-                          </p>
-                        )}
-                        <div className="flex flex-wrap gap-1.5 mt-2">
-                          {chips.map((chip) => (
-                            <span
-                              key={chip.key}
-                              className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full truncate max-w-[12rem]"
-                            >
-                              {chip.value}
-                            </span>
-                          ))}
+
+                        <div className="p-4">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`h-2 w-2 rounded-full flex-shrink-0 ${STATUS_DOT[p.status]}`} />
+                            {nr && (
+                              <span className="text-xs font-bold tabular-nums text-muted-foreground flex-shrink-0">
+                                #{nr}
+                              </span>
+                            )}
+                            <h2 className="font-bold text-foreground truncate">{name}</h2>
+                          </div>
+                          {nameAr && (
+                            <p className="text-sm text-muted-foreground truncate" dir="rtl">
+                              {nameAr}
+                            </p>
+                          )}
+                          <div className="flex flex-wrap gap-1.5 mt-2">
+                            {chips.map((chip) => (
+                              <span
+                                key={chip.key}
+                                className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full truncate max-w-[12rem]"
+                              >
+                                {chip.value}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    </button>
+                      </button>
+                    </div>
                   )
                 })}
               </div>
@@ -620,14 +650,7 @@ export default function AdminParticipantsPage() {
                 formId={formId}
                 sharedAt={participantSharedAt(detailOf)}
                 onShared={(at) => markShared(detailOf.id, at)}
-                url={checkInUrl(detailOf.id)}
-                nr={participantNumber(detailOf)}
-                name={participantName(fields, detailOf)}
-                nameAr={participantNameAr(detailOf)}
-                meta={[fieldValue(detailOf, "sportart"), fieldValue(detailOf, "ehrung_ar")]}
-                eventTitle={event?.title || ""}
-                eventTitleAr={event?.title_ar || ""}
-                eventDate={event ? formatDate(event.date) : ""}
+                {...cardOf(detailOf)}
               />
             </div>
           </div>
