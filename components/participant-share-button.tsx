@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useCallback, useEffect, useRef, useState } from "react"
-import { Check, Loader2, Share2 } from "lucide-react"
+import { AlertTriangle, Check, Loader2, Share2 } from "lucide-react"
 import {
   cardFileName,
   markQrShared,
@@ -31,6 +31,9 @@ export function ParticipantShareButton({ card, submissionId, formId, sharedAt, o
   // dass jemand seinen Ausweis hat, steht schon am QR-Zeichen der Kachel,
   // und der Knopf bleibt ein Knopf.
   const [justShared, setJustShared] = useState(false)
+  // Der Server hat den Vermerk nicht bestaetigt — er liegt im Zwischenspeicher
+  // und geht spaeter erneut raus, aber verschweigen wollen wir es nicht
+  const [ungesichert, setUngesichert] = useState(false)
   const blobRef = useRef<Blob | null>(null)
   const pendingRef = useRef<Promise<Blob | null> | null>(null)
   const confirmTimer = useRef(0)
@@ -76,7 +79,7 @@ export function ParticipantShareButton({ card, submissionId, formId, sharedAt, o
         // Der Vermerk selbst wird notfalls spaeter nachgereicht.
         if (!sharedAt) {
           onShared(new Date().toISOString())
-          markQrShared(formId, submissionId)
+          setUngesichert(!(await markQrShared(formId, submissionId)))
         }
       } finally {
         setBusy(false)
@@ -92,12 +95,20 @@ export function ParticipantShareButton({ card, submissionId, formId, sharedAt, o
       onFocus={prepare}
       onClick={onClick}
       disabled={busy}
-      title={sharedAt ? "Ausweis erneut teilen" : "Ausweis teilen"}
+      title={
+        ungesichert
+          ? "Geteilt, aber noch nicht gespeichert — wird beim nächsten Laden nachgereicht"
+          : sharedAt
+            ? "Ausweis erneut teilen"
+            : "Ausweis teilen"
+      }
       aria-label={sharedAt ? "Ausweis erneut teilen" : "Ausweis teilen"}
       className="rounded-full bg-background/90 backdrop-blur-sm text-foreground p-2 shadow hover:bg-background hover:text-primary transition-colors disabled:opacity-70"
     >
       {busy ? (
         <Loader2 className="h-4 w-4 animate-spin" />
+      ) : ungesichert ? (
+        <AlertTriangle className="h-4 w-4 text-amber-600" />
       ) : justShared ? (
         <Check className="h-4 w-4 text-green-600" />
       ) : (

@@ -273,6 +273,9 @@ const SPEICHER = "sgis:qr-geteilt-offen"
 
 type Offen = Record<string, string> // Einsendungs-ID -> Formular-ID
 
+// Der Zwischenspeicher ist nur das Sicherheitsnetz. Er kann fehlen — in einem
+// privaten Fenster, bei gesperrtem Seitenspeicher, in manchem In-App-Browser.
+// Deshalb darf der Versand nie davon abhaengen, dass er funktioniert.
 function lesen(): Offen {
   try {
     return JSON.parse(localStorage.getItem(SPEICHER) || "{}") as Offen
@@ -281,22 +284,49 @@ function lesen(): Offen {
   }
 }
 
-function schreiben(offen: Offen) {
+function merken(formId: string, ids: string[]) {
   try {
+    const offen = lesen()
+    for (const id of ids) offen[id] = formId
     localStorage.setItem(SPEICHER, JSON.stringify(offen))
   } catch {
-    // Kein Speicher (privates Fenster) — dann bleibt es beim Versuch unten
+    // ohne Zwischenspeicher bleibt der unmittelbare Versand unten
+  }
+}
+
+function vergessen(ids: string[]) {
+  try {
+    const offen = lesen()
+    for (const id of ids) delete offen[id]
+    localStorage.setItem(SPEICHER, JSON.stringify(offen))
+  } catch {
+    // nichts zu streichen
+  }
+}
+
+// keepalive: stellt die Anfrage auch dann noch zu, wenn WhatsApp in den
+// Vordergrund kommt und der Browser die Seite einfriert
+async function senden(formId: string, ids: string[]): Promise<boolean> {
+  try {
+    const res = await fetch("/api/admin/participants/qr-shared", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ formId, ids, shared: true }),
+      keepalive: true,
+    })
+    return res.ok
+  } catch {
+    return false
   }
 }
 
 let laeuft = false
 
-// Alles Offene in einem Rutsch nachreichen, je Formular eine Anfrage
-async function absenden(): Promise<void> {
+// Was beim ersten Versuch nicht ankam, spaeter nachreichen
+async function nachholen(): Promise<void> {
   if (laeuft) return
   const offen = lesen()
-  const ids = Object.keys(offen)
-  if (ids.length === 0) return
+  if (Object.keys(offen).length === 0) return
 
   laeuft = true
   try {
@@ -304,28 +334,11 @@ async function absenden(): Promise<void> {
     for (const [id, formId] of Object.entries(offen)) {
       jeFormular.set(formId, [...(jeFormular.get(formId) || []), id])
     }
-
     for (const [formId, formIds] of jeFormular) {
       // In Haeppchen, damit eine Anfrage nicht zu gross wird
       for (let i = 0; i < formIds.length; i += 50) {
         const teil = formIds.slice(i, i + 50)
-        try {
-          const res = await fetch("/api/admin/participants/qr-shared", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ formId, ids: teil, shared: true }),
-            keepalive: true,
-          })
-          if (!res.ok) continue
-
-          // Erst jetzt streichen — und dabei neu Hinzugekommenes nicht
-          // ueberschreiben
-          const aktuell = lesen()
-          for (const id of teil) delete aktuell[id]
-          schreiben(aktuell)
-        } catch {
-          // bleibt offen, naechster Versuch spaeter
-        }
+        if (await senden(formId, teil)) vergessen(teil)
       }
     }
   } finally {
@@ -339,21 +352,31 @@ function lauschen() {
   if (lauscht || typeof document === "undefined") return
   lauscht = true
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") absenden()
+    if (document.visibilityState === "visible") nachholen()
   })
   // Auch nach einem Neuladen: was offen blieb, geht jetzt raus
-  absenden()
+  nachholen()
 }
 
-export function markQrShared(formId: string, id: string) {
-  markManyQrShared(formId, [id])
+export function markQrShared(formId: string, id: string): Promise<boolean> {
+  return markManyQrShared(formId, [id])
 }
 
-export function markManyQrShared(formId: string, ids: string[]) {
-  if (ids.length === 0) return
-  const offen = lesen()
-  for (const id of ids) offen[id] = formId
-  schreiben(offen)
+// Liefert, ob der Server den Vermerk bestaetigt hat. Ein false heisst nicht,
+// dass er verloren ist — er liegt dann im Zwischenspeicher und geht spaeter
+// erneut raus —, aber der Knopf kann es anzeigen, statt Sicherheit
+// vorzutaeuschen.
+export function markManyQrShared(formId: string, ids: string[]): Promise<boolean> {
+  if (ids.length === 0) return Promise.resolve(true)
+
+  // Erst merken, dann senden: Bricht der Versand ab, ist der Vermerk schon
+  // gesichert. Gesendet wird aber in jedem Fall — auch wenn das Merken
+  // fehlgeschlagen ist.
+  merken(formId, ids)
   lauschen()
-  absenden()
+
+  return senden(formId, ids).then((ok) => {
+    if (ok) vergessen(ids)
+    return ok
+  })
 }

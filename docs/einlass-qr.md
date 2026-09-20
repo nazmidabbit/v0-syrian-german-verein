@@ -100,10 +100,14 @@ Wo kein Teilen-Menü für mehrere Dateien da ist, werden sie einzeln gespeichert
 > **Der Vermerk übersteht den Wechsel zu WhatsApp.**
 > Sobald eine andere App in den Vordergrund kommt, friert der Browser die
 > Seite ein. Eine laufende Anfrage kann dann einfach verschwinden — sie
-> schlägt nicht fehl, sie kommt nur nie an. Deshalb wird jeder Vermerk zuerst
-> im Browser festgehalten (`localStorage`) und erst gestrichen, wenn der
-> Server ihn bestätigt hat. Was offen bleibt, geht beim nächsten Blick auf die
-> Seite erneut raus — auch nach einem Neuladen oder Tage später.
+> schlägt nicht fehl, sie kommt nur nie an. Deshalb geht jeder Vermerk sofort
+> an den Server *und* wird zugleich im Browser vorgemerkt; gestrichen wird er
+> erst, wenn der Server bestätigt hat. Was offen bleibt, geht beim nächsten
+> Blick auf die Seite erneut raus — auch nach einem Neuladen.
+>
+> Bestätigt der Server nicht sofort, zeigt der Teilen-Knopf ein gelbes
+> Warnzeichen statt des grünen Häkchens. Dann ist der Ausweis zwar draußen,
+> der Vermerk aber noch unterwegs — nach dem nächsten Laden der Seite steht er.
 
 ## Am Eingang
 

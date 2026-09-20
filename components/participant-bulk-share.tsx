@@ -58,7 +58,9 @@ export function ParticipantBulkShare({ entries, formId, onShared }: Props) {
         try {
           await navigator.share({ files, title: `${files.length} Teilnehmerausweise` })
           onShared(ids)
-          markManyQrShared(formId, ids)
+          if (!(await markManyQrShared(formId, ids))) {
+            setHinweis("Geteilt, aber noch nicht gespeichert — wird beim nächsten Laden nachgereicht.")
+          }
           return
         } catch (error) {
           if ((error as Error)?.name === "AbortError") return
@@ -76,9 +78,13 @@ export function ParticipantBulkShare({ entries, formId, onShared }: Props) {
         setTimeout(() => URL.revokeObjectURL(url), 10_000)
         await new Promise((r) => setTimeout(r, 120))
       }
-      setHinweis(`${files.length} Ausweise gespeichert.`)
       onShared(ids)
-      markManyQrShared(formId, ids)
+      const gesichert = await markManyQrShared(formId, ids)
+      setHinweis(
+        gesichert
+          ? `${files.length} Ausweise gespeichert.`
+          : `${files.length} Ausweise gespeichert, der Vermerk aber noch nicht — wird beim nächsten Laden nachgereicht.`,
+      )
     } finally {
       setBusy(false)
     }
