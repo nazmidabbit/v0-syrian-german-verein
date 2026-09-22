@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { AdminRouteList } from "@/components/admin-route-list"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -295,10 +294,6 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         </section>
-
-        {/* Vollstaendige Seitenliste — Administratoren sehen damit auch die
-            Unterseiten, die in den Kacheln nicht auftauchen */}
-        {userRole === "admin" && <AdminRouteList />}
       </main>
 
       <Footer />
