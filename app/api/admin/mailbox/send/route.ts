@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import type { Attachment } from 'nodemailer/lib/mailer';
 import { getAuthUser, hasPermission } from '@/lib/auth';
-import { getTransporter } from '@/lib/mailer';
+import { getTransporter, ABSENDER } from '@/lib/mailer';
 import { fetchParsedMessage, findSpecialFolder, withImap } from '@/lib/mailbox';
 
 export const dynamic = 'force-dynamic';
@@ -98,7 +98,7 @@ export async function POST(request: Request) {
 
     const fromAddress = process.env.MAIL_FROM || process.env.SMTP_USER || '';
     const mailOptions = {
-      from: `"Syrisch-Deutscher Verein" <${fromAddress}>`,
+      from: `"${ABSENDER}" <${fromAddress}>`,
       to: to.join(', '),
       cc: cc.length ? cc.join(', ') : undefined,
       bcc: bcc.length ? bcc.join(', ') : undefined,

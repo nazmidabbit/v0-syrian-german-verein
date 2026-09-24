@@ -1,5 +1,9 @@
 import nodemailer from 'nodemailer';
 
+// Wie der Verein in jeder Mail auftritt — Absenderzeile wie Fusszeile.
+// Einmal hier, damit der Name nicht wieder auseinanderlaeuft.
+export const ABSENDER = 'Syrische Gemeinschaft im Saarland';
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT),
@@ -35,7 +39,7 @@ function escapeHtml(value: string): string {
 export async function sendVerificationEmail(email: string, token: string) {
   const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/verify?token=${token}`;
   await transporter.sendMail({
-    from: `"Syrisch-Deutscher Verein" <${process.env.SMTP_USER}>`,
+    from: `"${ABSENDER}" <${process.env.SMTP_USER}>`,
     to: email,
     subject: 'Bitte bestätigen Sie Ihre E-Mail - SYGS',
     html: `
@@ -49,7 +53,7 @@ export async function sendVerificationEmail(email: string, token: string) {
         </p>
         <p style="color: #666; font-size: 14px;">Nach der Bestätigung muss Ihr Konto noch vom Administrator freigegeben werden.</p>
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-        <p style="color: #999; font-size: 12px;">Syrisch-Deutscher Verein - sygs.de</p>
+        <p style="color: #999; font-size: 12px;">Syrische Gemeinschaft im Saarland - sygs.de</p>
       </div>
     `,
   });
@@ -133,7 +137,7 @@ export async function sendMembershipApprovedEmail(email: string, firstName: stri
     : '';
 
   await getTransporter().sendMail({
-    from: `"Syrisch-Deutscher Verein" <${from}>`,
+    from: `"${ABSENDER}" <${from}>`,
     to: email,
     subject: numberFormatted
       ? `Ihr Mitgliedsantrag wurde angenommen (${numberFormatted}) - SYGS`
@@ -154,7 +158,7 @@ export async function sendMembershipApprovedEmail(email: string, firstName: stri
           <p style="line-height: 1.6;">سنتواصل معك قريباً بكل المعلومات حول رسوم العضوية والفعاليات القادمة.</p>
         </div>
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-        <p style="color: #999; font-size: 12px;">Syrisch-Deutscher Verein - sygs.de</p>
+        <p style="color: #999; font-size: 12px;">Syrische Gemeinschaft im Saarland - sygs.de</p>
       </div>
     `,
   });
@@ -193,7 +197,7 @@ export async function sendFormConfirmation(
       : `vielen Dank — wir haben Ihre Angaben über das Formular „${title}" erhalten. Falls nötig, melden wir uns bei Ihnen.`;
 
   await getTransporter().sendMail({
-    from: `"Syrisch-Deutscher Verein" <${from}>`,
+    from: `"${ABSENDER}" <${from}>`,
     to: email,
     subject,
     html: `
@@ -201,7 +205,7 @@ export async function sendFormConfirmation(
         <h2 style="color: #333;">${heading}</h2>
         <p style="line-height: 1.6;">${body}</p>
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-        <p style="color: #999; font-size: 12px;">Syrisch-Deutscher Verein - sygs.de</p>
+        <p style="color: #999; font-size: 12px;">Syrische Gemeinschaft im Saarland - sygs.de</p>
       </div>
     `,
   });
@@ -225,7 +229,7 @@ export async function sendMembershipConfirmation(email: string, firstName: strin
     : 'Hinweis: Unser Verein befindet sich in der Gründungsphase. Die offizielle Mitgliedschaft wird nach Eintragung ins Vereinsregister wirksam.';
 
   await getTransporter().sendMail({
-    from: `"Syrisch-Deutscher Verein" <${from}>`,
+    from: `"${ABSENDER}" <${from}>`,
     to: email,
     subject,
     html: `
@@ -234,7 +238,7 @@ export async function sendMembershipConfirmation(email: string, firstName: strin
         <p style="line-height: 1.6;">${body}</p>
         <p style="color: #666; font-size: 14px; line-height: 1.6;">${note}</p>
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-        <p style="color: #999; font-size: 12px;">Syrisch-Deutscher Verein - sygs.de</p>
+        <p style="color: #999; font-size: 12px;">Syrische Gemeinschaft im Saarland - sygs.de</p>
       </div>
     `,
   });
@@ -304,7 +308,7 @@ function taskMailHtml(data: TaskMailData, headingDe: string, headingAr: string, 
           </p>
         </div>
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-        <p style="color: #999; font-size: 12px;">Syrisch-Deutscher Verein - sygs.de</p>
+        <p style="color: #999; font-size: 12px;">Syrische Gemeinschaft im Saarland - sygs.de</p>
       </div>
   `;
 }
@@ -314,7 +318,7 @@ export async function sendTaskAssignedEmail(email: string, data: TaskMailData) {
   const from = process.env.MAIL_FROM || process.env.SMTP_USER;
 
   await getTransporter().sendMail({
-    from: `"Syrisch-Deutscher Verein" <${from}>`,
+    from: `"${ABSENDER}" <${from}>`,
     to: email,
     subject: `Neue Aufgabe: ${data.title} - SYGS`,
     html: taskMailHtml(
@@ -332,7 +336,7 @@ export async function sendTaskDueSoonEmail(email: string, data: TaskMailData) {
   const from = process.env.MAIL_FROM || process.env.SMTP_USER;
 
   await getTransporter().sendMail({
-    from: `"Syrisch-Deutscher Verein" <${from}>`,
+    from: `"${ABSENDER}" <${from}>`,
     to: email,
     subject: `Erinnerung: ${data.title} - Frist läuft ab`,
     html: taskMailHtml(
@@ -351,7 +355,7 @@ export async function sendTaskOverdueEmail(email: string, data: TaskMailData, cc
   const from = process.env.MAIL_FROM || process.env.SMTP_USER;
 
   await getTransporter().sendMail({
-    from: `"Syrisch-Deutscher Verein" <${from}>`,
+    from: `"${ABSENDER}" <${from}>`,
     to: email,
     cc: cc || undefined,
     subject: `Überfällig: ${data.title} - SYGS`,
