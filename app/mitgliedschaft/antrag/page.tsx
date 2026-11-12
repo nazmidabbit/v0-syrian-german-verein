@@ -223,7 +223,7 @@ export default function MembershipApplicationPage() {
                   Name/Label duerfen keinem Autofill-Feld aehneln — Browser
                   fuellen sonst per Adress-Autofill mit (autocomplete="off"
                   wird ignoriert) und echte Antraege werden als Bot verworfen. */}
-              <div className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+              <div className="sr-only" aria-hidden="true">
                 <label htmlFor="form_check_field">Bitte nicht ausfüllen</label>
                 <input
                   id="form_check_field"

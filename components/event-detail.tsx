@@ -35,7 +35,7 @@ export function EventDetail({ event }: { event: EventDetailData }) {
   const path = `/veranstaltungen/${event.id}`
   const absoluteUrl = `${SITE_URL}${path}`
 
-  const formattedDate = new Date(event.date).toLocaleDateString(locale === "ar" ? "ar-SA" : "de-DE", {
+  const formattedDate = new Date(event.date).toLocaleDateString(locale === "ar" ? "ar-SY-u-nu-latn" : "de-DE", {
     weekday: "long",
     year: "numeric",
     month: "long",

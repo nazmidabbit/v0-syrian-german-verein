@@ -134,7 +134,7 @@ export default function MitgliedschaftPage() {
             <Button asChild size="lg" variant="secondary" className="gap-2">
               <Link href="/mitgliedschaft/antrag">
                 {t.membership.ctaButton}
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4 rtl:rotate-180" />
               </Link>
             </Button>
           </div>

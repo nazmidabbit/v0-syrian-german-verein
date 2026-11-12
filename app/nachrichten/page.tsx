@@ -35,7 +35,7 @@ export default function NewsPage() {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
-    return date.toLocaleDateString(locale === "ar" ? "ar-SA" : "de-DE", {
+    return date.toLocaleDateString(locale === "ar" ? "ar-SY-u-nu-latn" : "de-DE", {
       year: "numeric",
       month: "long",
       day: "numeric",

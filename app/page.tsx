@@ -72,7 +72,7 @@ export default function HomePage() {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
-    return date.toLocaleDateString(locale === "ar" ? "ar-SA" : "de-DE", {
+    return date.toLocaleDateString(locale === "ar" ? "ar-SY-u-nu-latn" : "de-DE", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -144,7 +144,7 @@ export default function HomePage() {
               <Link href="/mitgliedschaft">
                 <Users className="h-5 w-5" />
                 {t.nav.membership}
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
             <Button
@@ -181,7 +181,7 @@ export default function HomePage() {
               <Button asChild size="lg" className="gap-2 shrink-0">
                 <Link href={`/wahlen/${activeElection.id}`}>
                   {t.election.homeBannerCta}
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                 </Link>
               </Button>
             </div>

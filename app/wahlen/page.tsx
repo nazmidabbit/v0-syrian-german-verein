@@ -37,7 +37,7 @@ export default function ElectionsPage() {
     locale === "ar" && e.description_ar ? e.description_ar : e.description
 
   const formatDate = (s: string) =>
-    new Date(s).toLocaleString(locale === "ar" ? "ar-SA" : "de-DE", {
+    new Date(s).toLocaleString(locale === "ar" ? "ar-SY-u-nu-latn" : "de-DE", {
       year: "numeric",
       month: "long",
       day: "numeric",

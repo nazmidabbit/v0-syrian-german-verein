@@ -276,7 +276,7 @@ export default function MyTasksPage() {
   }
 
   const formatDue = (iso: string) =>
-    new Date(iso).toLocaleString(locale === "ar" ? "ar-SA" : "de-DE", {
+    new Date(iso).toLocaleString(locale === "ar" ? "ar-SY-u-nu-latn" : "de-DE", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",

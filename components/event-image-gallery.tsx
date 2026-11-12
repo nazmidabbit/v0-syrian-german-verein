@@ -28,7 +28,7 @@ export function EventImageGallery({ images, alt }: { images: string[]; alt: stri
       <button
         type="button"
         onClick={() => setCurrent((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
-        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100 transition-opacity"
         aria-label="Vorheriges Bild"
       >
         <ChevronLeft className="h-5 w-5" />
@@ -36,7 +36,7 @@ export function EventImageGallery({ images, alt }: { images: string[]; alt: stri
       <button
         type="button"
         onClick={() => setCurrent((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
-        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100 transition-opacity"
         aria-label="Nächstes Bild"
       >
         <ChevronRight className="h-5 w-5" />
@@ -56,7 +56,7 @@ export function EventImageGallery({ images, alt }: { images: string[]; alt: stri
       </div>
 
       {/* Counter */}
-      <div className="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+      <div dir="ltr" className="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
         {current + 1} / {images.length}
       </div>
     </div>

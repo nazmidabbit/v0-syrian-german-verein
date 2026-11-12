@@ -258,7 +258,7 @@ export default function KontaktPage() {
                     </div>
 
                     {/* Honeypot: fuer Menschen unsichtbar und nicht per Tab erreichbar */}
-                    <div className="absolute -left-[9999px] top-0 h-0 w-0 overflow-hidden" aria-hidden="true">
+                    <div className="sr-only" aria-hidden="true">
                       <label htmlFor="website">Website</label>
                       <input
                         id="website"

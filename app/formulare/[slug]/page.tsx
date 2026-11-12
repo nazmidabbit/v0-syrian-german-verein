@@ -363,7 +363,7 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
   const closesAtText = registration?.closesAt
     ? td.closesAt.replace(
         "{date}",
-        new Date(registration.closesAt).toLocaleString(locale === "ar" ? "ar-SA" : "de-DE", {
+        new Date(registration.closesAt).toLocaleString(locale === "ar" ? "ar-SY-u-nu-latn" : "de-DE", {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
@@ -442,7 +442,7 @@ export default function PublicFormPage({ params }: { params: Promise<{ slug: str
             ) : (
             <form onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
               {/* Honeypot: fuer Menschen unsichtbar, Bots fuellen es aus */}
-              <div className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+              <div className="sr-only" aria-hidden="true">
                 <label htmlFor="form_check_field">Bitte nicht ausfüllen</label>
                 <input
                   id="form_check_field"

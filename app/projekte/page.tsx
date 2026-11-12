@@ -75,7 +75,7 @@ export default function ProjektePage() {
             <Button asChild size="lg" variant="secondary" className="gap-2">
               <Link href="/kontakt">
                 {t.projects.ctaButton}
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4 rtl:rotate-180" />
               </Link>
             </Button>
           </div>

@@ -117,7 +117,7 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
   const getResultName = (r: ResultRow) => (locale === "ar" && r.nameAr ? r.nameAr : r.name)
 
   const formatDate = (s: string) =>
-    new Date(s).toLocaleString(locale === "ar" ? "ar-SA" : "de-DE", {
+    new Date(s).toLocaleString(locale === "ar" ? "ar-SY-u-nu-latn" : "de-DE", {
       year: "numeric",
       month: "long",
       day: "numeric",

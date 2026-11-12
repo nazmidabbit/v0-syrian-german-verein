@@ -38,7 +38,7 @@ export default function EventsPage() {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
-    return date.toLocaleDateString(locale === "ar" ? "ar-SA" : "de-DE", {
+    return date.toLocaleDateString(locale === "ar" ? "ar-SY-u-nu-latn" : "de-DE", {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -126,7 +126,9 @@ export default function EventsPage() {
                             {getTitle(event)}
                           </Link>
                         </h2>
-                        <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                        {/* In der Liste nur ein Ausschnitt — der volle Text steht auf der
+                            Detailseite. Sonst wird die Liste auf dem Handy kilometerlang. */}
+                        <p className="text-muted-foreground leading-relaxed whitespace-pre-line line-clamp-6">
                           {getDescription(event)}
                         </p>
 
