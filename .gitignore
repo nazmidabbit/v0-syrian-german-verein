@@ -33,3 +33,6 @@ next-env.d.ts
 
 # Lokale Ausgaben (Skripte, Probelaeufe)
 /output/
+
+# Vorlage ohne Geheimnisse darf ins Repo
+!.env.example

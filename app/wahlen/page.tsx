@@ -53,7 +53,7 @@ export default function ElectionsPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-1 pt-20">
+      <main id="main" className="flex-1 pt-20">
         <section className="py-16 px-6 bg-gradient-to-b from-white to-primary/10">
           <div className="max-w-4xl mx-auto text-center">
             <Vote className="h-12 w-12 text-primary mx-auto mb-4" />

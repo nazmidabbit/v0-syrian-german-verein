@@ -52,7 +52,7 @@ export default function NewsPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-1 pt-20">
+      <main id="main" className="flex-1 pt-20">
         <section className="py-16 px-6 bg-gradient-to-b from-white to-primary/10">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">

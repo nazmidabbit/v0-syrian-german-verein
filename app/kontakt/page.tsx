@@ -8,19 +8,30 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Mail, Phone, MapPin, Facebook, Instagram, Send } from "lucide-react"
+import { Mail, Phone, MapPin, Facebook, Instagram, MessageCircle, Send, ExternalLink } from "lucide-react"
 import { useLanguage } from "@/components/language-provider"
+import { ADDRESS, CONTACT_EMAIL, MAPS_URL, SOCIAL } from "@/lib/site"
+
+type FormStatus = "idle" | "sending" | "sent" | "error" | "rateLimited" | "validation"
 
 export default function KontaktPage() {
-  const [formStatus, setFormStatus] = useState<"idle" | "sending" | "sent" | "error">("idle")
+  const [formStatus, setFormStatus] = useState<FormStatus>("idle")
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     subject: "",
     message: "",
+    // Honeypot — bleibt bei Menschen leer, Bots fuellen es aus
+    website: "",
   })
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
+
+  const socialLinks = [
+    { href: SOCIAL.facebook, label: "Facebook", icon: Facebook },
+    { href: SOCIAL.instagram, label: "Instagram", icon: Instagram },
+    { href: SOCIAL.whatsapp, label: "WhatsApp", icon: MessageCircle },
+  ].filter((item) => item.href)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -29,10 +40,15 @@ export default function KontaktPage() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, locale }),
       })
       if (res.ok) {
         setFormStatus("sent")
+        setFormData({ firstName: "", lastName: "", email: "", subject: "", message: "", website: "" })
+      } else if (res.status === 429) {
+        setFormStatus("rateLimited")
+      } else if (res.status === 400 || res.status === 413 || res.status === 415) {
+        setFormStatus("validation")
       } else {
         setFormStatus("error")
       }
@@ -41,11 +57,20 @@ export default function KontaktPage() {
     }
   }
 
+  const errorMessage =
+    formStatus === "rateLimited"
+      ? t.contact.rateLimited
+      : formStatus === "validation"
+        ? t.contact.validation
+        : formStatus === "error"
+          ? t.contact.error
+          : ""
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-1 pt-20">
+      <main id="main" className="flex-1 pt-20">
         {/* Hero Section */}
         <section className="py-16 px-6 bg-secondary">
           <div className="max-w-4xl mx-auto text-center">
@@ -79,10 +104,10 @@ export default function KontaktPage() {
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">{t.contact.email}</h3>
                       <a
-                        href="mailto:info@sygs.de"
+                        href={`mailto:${CONTACT_EMAIL}`}
                         className="text-muted-foreground hover:text-primary transition-colors"
                       >
-                        info@sygs.de
+                        {CONTACT_EMAIL}
                       </a>
                     </div>
                   </div>
@@ -103,35 +128,40 @@ export default function KontaktPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">{t.contact.location}</h3>
-                      <p className="text-muted-foreground">{t.contact.locationValue}</p>
+                      <p className="text-muted-foreground">{ADDRESS}</p>
+                      <a
+                        href={MAPS_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 mt-1 text-sm text-primary hover:underline"
+                      >
+                        {t.contact.route}
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
                     </div>
                   </div>
                 </div>
 
-                {/* Social Media */}
-                <div className="mt-10">
-                  <h3 className="font-semibold text-foreground mb-4">{t.contact.followUs}</h3>
-                  <div className="flex gap-4">
-                    <a
-                      href="https://www.facebook.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
-                      aria-label="Facebook"
-                    >
-                      <Facebook className="h-5 w-5" />
-                    </a>
-                    <a
-                      href="https://www.instagram.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
-                      aria-label="Instagram"
-                    >
-                      <Instagram className="h-5 w-5" />
-                    </a>
+                {/* Social Media — nur, wenn Kanaele eingetragen sind */}
+                {socialLinks.length > 0 && (
+                  <div className="mt-10">
+                    <h3 className="font-semibold text-foreground mb-4">{t.contact.followUs}</h3>
+                    <div className="flex gap-4">
+                      {socialLinks.map(({ href, label, icon: Icon }) => (
+                        <a
+                          key={label}
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+                          aria-label={label}
+                        >
+                          <Icon className="h-5 w-5" />
+                        </a>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Contact Form */}
@@ -163,7 +193,9 @@ export default function KontaktPage() {
                         <Input
                           id="firstName"
                           name="firstName"
+                          autoComplete="given-name"
                           required
+                          maxLength={100}
                           value={formData.firstName}
                           onChange={e => setFormData({ ...formData, firstName: e.target.value })}
                         />
@@ -173,7 +205,9 @@ export default function KontaktPage() {
                         <Input
                           id="lastName"
                           name="lastName"
+                          autoComplete="family-name"
                           required
+                          maxLength={100}
                           value={formData.lastName}
                           onChange={e => setFormData({ ...formData, lastName: e.target.value })}
                         />
@@ -186,7 +220,9 @@ export default function KontaktPage() {
                         id="email"
                         name="email"
                         type="email"
+                        autoComplete="email"
                         required
+                        maxLength={254}
                         value={formData.email}
                         onChange={e => setFormData({ ...formData, email: e.target.value })}
                       />
@@ -199,6 +235,8 @@ export default function KontaktPage() {
                         name="subject"
                         placeholder={t.contact.subjectPlaceholder}
                         required
+                        minLength={2}
+                        maxLength={150}
                         value={formData.subject}
                         onChange={e => setFormData({ ...formData, subject: e.target.value })}
                       />
@@ -212,14 +250,37 @@ export default function KontaktPage() {
                         placeholder={t.contact.messagePlaceholder}
                         rows={5}
                         required
+                        minLength={10}
+                        maxLength={5000}
                         value={formData.message}
                         onChange={e => setFormData({ ...formData, message: e.target.value })}
                       />
                     </div>
 
+                    {/* Honeypot: fuer Menschen unsichtbar und nicht per Tab erreichbar */}
+                    <div className="absolute -left-[9999px] top-0 h-0 w-0 overflow-hidden" aria-hidden="true">
+                      <label htmlFor="website">Website</label>
+                      <input
+                        id="website"
+                        name="website"
+                        type="text"
+                        tabIndex={-1}
+                        autoComplete="off"
+                        value={formData.website}
+                        onChange={e => setFormData({ ...formData, website: e.target.value })}
+                      />
+                    </div>
+
+                    {errorMessage && (
+                      <p role="alert" className="text-sm text-destructive bg-destructive/10 rounded-lg px-4 py-3">
+                        {errorMessage}
+                      </p>
+                    )}
+
                     <Button type="submit" className="w-full" disabled={formStatus === "sending"}>
                       {formStatus === "sending" ? t.contact.sending : t.contact.send}
                     </Button>
+                    <p className="text-xs text-muted-foreground text-center">{t.contact.confirmationNote}</p>
                   </form>
                 )}
               </div>

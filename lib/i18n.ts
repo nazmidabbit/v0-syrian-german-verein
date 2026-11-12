@@ -24,6 +24,22 @@ export const translations = {
       faq: "FAQ",
       projects: "Projekte",
       tasks: "Meine Aufgaben",
+      login: "Anmelden",
+      logout: "Abmelden",
+    },
+
+    // 404 und Fehlerseite
+    notFound: {
+      title: "Seite nicht gefunden",
+      text: "Die Seite, die Sie suchen, gibt es nicht oder sie wurde verschoben.",
+      home: "Zur Startseite",
+      events: "Zu den Veranstaltungen",
+    },
+    errorPage: {
+      title: "Etwas ist schiefgelaufen",
+      text: "Bitte versuchen Sie es noch einmal. Bleibt das Problem bestehen, schreiben Sie uns an info@sygs.de.",
+      retry: "Erneut versuchen",
+      home: "Zur Startseite",
     },
 
     // Header
@@ -75,6 +91,13 @@ export const translations = {
       loading: "Veranstaltungen werden geladen...",
       register: "Jetzt anmelden",
       registrationClosed: "Anmeldung geschlossen",
+      details: "Details ansehen",
+      share: "Teilen",
+      shareText: "Schau dir diese Veranstaltung der Syrischen Gemeinschaft im Saarland an:",
+      linkCopied: "Link kopiert",
+      backToEvents: "Alle Veranstaltungen",
+      addToCalendar: "In den Kalender",
+      imagesLabel: "Bilder",
     },
 
     // News
@@ -186,6 +209,11 @@ export const translations = {
       sent: "Nachricht gesendet!",
       sentText: "Vielen Dank für Ihre Nachricht. Wir werden uns bald bei Ihnen melden.",
       newMessage: "Neue Nachricht senden",
+      error: "Die Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es später erneut oder schreiben Sie direkt an info@sygs.de.",
+      rateLimited: "Zu viele Nachrichten in kurzer Zeit. Bitte versuchen Sie es in ein paar Minuten noch einmal.",
+      validation: "Bitte prüfen Sie Ihre Angaben: Die Nachricht muss mindestens 10 Zeichen lang sein.",
+      route: "Route planen",
+      confirmationNote: "Sie erhalten eine Eingangsbestätigung per E-Mail.",
     },
 
     // Footer
@@ -218,17 +246,17 @@ export const translations = {
     impressum: {
       pageTitle: "Impressum",
       inGruendung: "Verein in Gründung (i. Gr.)",
-      angaben: "Angaben gemäß § 5 TMG",
+      angaben: "Angaben gemäß § 5 DDG",
       name: "Syrische Gemeinschaft im Saarland e.V. (i. Gr.)",
       alwadi: "Alwadi",
       address: "Breite Straße 28, 66115 Saarbrücken",
       contact: "Kontakt",
       email: "E-Mail: info@sygs.de",
-      responsible: "Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV",
+      responsible: "Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV",
       responsibleNote: "Die verantwortliche Person wird nach Abschluss der Vereinsgründung hier benannt.",
       disclaimer: "Haftungsausschluss",
       disclaimerContent: "Haftung für Inhalte",
-      disclaimerText: "Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.",
+      disclaimerText: "Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Wir sind jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Bei Bekanntwerden von Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.",
       linksTitle: "Haftung für Links",
       linksText: "Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.",
       copyrightTitle: "Urheberrecht",
@@ -239,25 +267,66 @@ export const translations = {
     // Datenschutz
     datenschutz: {
       pageTitle: "Datenschutzerklärung",
-      intro: "Wir nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend der gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.",
-      responsibleTitle: "1. Verantwortliche Stelle",
-      responsibleText: "Verantwortlich für die Datenverarbeitung auf dieser Website ist:",
-      responsibleName: "Syrische Gemeinschaft im Saarland e.V. (i. Gr.)",
-      responsibleEmail: "E-Mail: info@sygs.de",
-      dataCollectionTitle: "2. Erhebung und Speicherung personenbezogener Daten",
-      dataCollectionText: "Beim Besuch unserer Website werden automatisch Informationen allgemeiner Natur erfasst (Server-Logfiles). Diese Informationen beinhalten u.a. die Art des Webbrowsers, das verwendete Betriebssystem, den Domainnamen Ihres Internet-Service-Providers und Ähnliches. Hierbei handelt es sich ausschließlich um Informationen, welche keine Rückschlüsse auf Ihre Person zulassen.",
-      contactFormTitle: "3. Kontaktformular",
-      contactFormText: "Wenn Sie uns per Kontaktformular Anfragen zukommen lassen, werden Ihre Angaben aus dem Anfrageformular inklusive der von Ihnen dort angegebenen Kontaktdaten zwecks Bearbeitung der Anfrage und für den Fall von Anschlussfragen bei uns gespeichert. Diese Daten geben wir nicht ohne Ihre Einwilligung weiter.",
-      cookiesTitle: "4. Cookies",
-      cookiesText: "Unsere Website verwendet Cookies. Dabei handelt es sich um kleine Textdateien, die auf Ihrem Endgerät gespeichert werden. Wir verwenden ausschließlich technisch notwendige Cookies, die für den Betrieb der Website erforderlich sind (z.B. Authentifizierungs-Cookies für den Login-Bereich).",
-      rightsTitle: "5. Ihre Rechte",
-      rightsText: "Sie haben jederzeit das Recht auf unentgeltliche Auskunft über Ihre gespeicherten personenbezogenen Daten, deren Herkunft und Empfänger und den Zweck der Datenverarbeitung sowie ein Recht auf Berichtigung, Sperrung oder Löschung dieser Daten. Hierzu sowie zu weiteren Fragen zum Thema personenbezogene Daten können Sie sich jederzeit an uns wenden.",
-      hostingTitle: "6. Hosting",
-      hostingText: "Diese Website wird bei Vercel Inc. gehostet. Die Server befinden sich in verschiedenen Rechenzentren weltweit. Weitere Informationen finden Sie in der Datenschutzerklärung von Vercel.",
-      supabaseTitle: "7. Datenbank",
-      supabaseText: "Wir nutzen Supabase als Datenbankdienst zur Speicherung von Inhalten und Benutzerdaten. Die Daten werden auf Servern in der EU gespeichert.",
-      changesTitle: "8. Änderungen",
-      changesText: "Wir behalten uns vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen rechtlichen Anforderungen entspricht oder um Änderungen unserer Leistungen umzusetzen.",
+      stand: "Stand: November 2026",
+      intro: "Wir nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend der gesetzlichen Datenschutzvorschriften (DSGVO, BDSG) sowie dieser Datenschutzerklärung. Diese Erklärung beschreibt, welche Daten wir beim Besuch der Website, bei Anfragen, Anträgen und Anmeldungen verarbeiten und welche Rechte Sie haben.",
+      sections: [
+        {
+          title: "1. Verantwortliche Stelle",
+          text: "Verantwortlich für die Datenverarbeitung auf dieser Website ist:\nSyrische Gemeinschaft im Saarland e.V. (i. Gr.)\nBreite Straße 28, 66115 Saarbrücken\nE-Mail: info@sygs.de",
+        },
+        {
+          title: "2. Allgemeines und Rechtsgrundlagen",
+          text: "Wir verarbeiten personenbezogene Daten nur, soweit dies für den Betrieb dieser Website, die Beantwortung Ihrer Anfragen und die Vereinsarbeit erforderlich ist. Rechtsgrundlagen sind Art. 6 Abs. 1 lit. a DSGVO (Ihre Einwilligung, z. B. bei Formularen), Art. 6 Abs. 1 lit. b DSGVO (Durchführung der Mitgliedschaft oder einer Veranstaltungsanmeldung) und Art. 6 Abs. 1 lit. f DSGVO (unser berechtigtes Interesse an einem sicheren und stabilen Betrieb der Website).",
+        },
+        {
+          title: "3. Hosting und Server-Logfiles",
+          text: "Diese Website wird bei Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA, gehostet. Beim Aufruf werden automatisch technische Daten verarbeitet: IP-Adresse, Datum und Uhrzeit, aufgerufene Seite, Browser und Betriebssystem. Diese Daten dienen ausschließlich dem sicheren Betrieb und der Fehleranalyse und werden nicht mit anderen Daten zusammengeführt. Eine Übermittlung in die USA erfolgt auf Grundlage der EU-Standardvertragsklauseln sowie des EU-US Data Privacy Framework.",
+        },
+        {
+          title: "4. Datenbank und Dateispeicher (Supabase)",
+          text: "Inhalte, Benutzerkonten, Anträge und hochgeladene Bilder speichern wir bei Supabase Inc. auf Servern innerhalb der Europäischen Union. Supabase verarbeitet die Daten ausschließlich in unserem Auftrag; der Zugriff erfolgt nur über unsere eigenen, geschützten Schnittstellen.",
+        },
+        {
+          title: "5. Reichweitenmessung (Vercel Web Analytics)",
+          text: "Wir nutzen Vercel Web Analytics, um zu erfahren, welche Seiten wie oft besucht werden. Dabei werden keine Cookies gesetzt und keine Nutzerprofile gebildet. Es wird lediglich ein täglich wechselnder, nicht auf Sie rückführbarer Kennwert gebildet; die Auswertung erfolgt anonym und zusammengefasst. Rechtsgrundlage ist unser berechtigtes Interesse (Art. 6 Abs. 1 lit. f DSGVO), unser Angebot zu verbessern.",
+        },
+        {
+          title: "6. Cookies und lokale Speicherung",
+          text: "Wir setzen ausschließlich technisch notwendige Cookies ein: ein Anmelde-Cookie für den Mitgliederbereich (Gültigkeit 7 Tage) und ein Cookie, das Ihre Entscheidung zum Cookie-Hinweis speichert (ein Jahr). Außerdem merkt sich Ihr Browser lokal die gewählte Sprache und ob Sie den Hinweis zur App-Installation ausgeblendet haben. Für die Nutzung als App legt der Browser Seiten im Offline-Speicher ab; persönliche Daten (Anmeldung, Aufgaben, Verwaltungsbereich) werden dabei ausdrücklich nicht zwischengespeichert.",
+        },
+        {
+          title: "7. Kontaktformular und E-Mail",
+          text: "Wenn Sie uns über das Kontaktformular oder per E-Mail schreiben, speichern wir Ihre Angaben (Name, E-Mail-Adresse, Betreff, Nachricht) zur Bearbeitung der Anfrage und für Anschlussfragen. Sie erhalten eine automatische Eingangsbestätigung. Zum Schutz vor Missbrauch wird die IP-Adresse nur als gekürzter Hashwert verarbeitet. Die Daten werden nach abschließender Bearbeitung gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten bestehen.",
+        },
+        {
+          title: "8. Mitgliedsantrag",
+          text: "Beim Online-Mitgliedsantrag erheben wir Name, Geburtsdatum und Geburtsort, Anschrift, E-Mail-Adresse, Telefonnummer, Beruf und Qualifikation, auf Wunsch ein Foto sowie Ihre Nachricht. Die Daten dienen der Prüfung des Antrags und der Durchführung der Mitgliedschaft (Art. 6 Abs. 1 lit. b DSGVO). Der Vorstand sieht die Anträge im geschützten Verwaltungsbereich ein. Abgelehnte oder zurückgezogene Anträge werden gelöscht; bei Annahme bleiben die Daten für die Dauer der Mitgliedschaft gespeichert.",
+        },
+        {
+          title: "9. Veranstaltungsanmeldungen und Formulare",
+          text: "Für Veranstaltungen bieten wir Online-Anmeldeformulare an. Welche Angaben erhoben werden, steht im jeweiligen Formular (in der Regel Name, E-Mail-Adresse, Telefonnummer, gegebenenfalls ein Foto). Zur Teilnahme kann eine Teilnehmernummer mit QR-Code erstellt werden, die am Einlass geprüft wird. Die Anmeldedaten werden nach Abschluss der Veranstaltung gelöscht, auf Ihr Verlangen auch früher.",
+        },
+        {
+          title: "10. Benutzerkonto und Wahlen",
+          text: "Mitglieder können ein Benutzerkonto anlegen (Name, E-Mail-Adresse, Passwort). Das Passwort wird nur verschlüsselt (gehasht) gespeichert; zur Bestätigung erhalten Sie eine E-Mail, anschließend schaltet der Vorstand das Konto frei. Bei Online-Wahlen wird gespeichert, dass und wofür Ihr Konto abgestimmt hat, damit jede Person nur einmal abstimmen kann; Einsicht haben nur die zuständigen Verwaltungspersonen. Aufgaben, die Ihnen zugewiesen werden, sowie Erinnerungen dazu erhalten Sie per E-Mail.",
+        },
+        {
+          title: "11. E-Mail-Versand",
+          text: "Für Bestätigungen, Benachrichtigungen und Erinnerungen versenden wir E-Mails über den Mailserver unseres Anbieters. Dabei werden Ihre E-Mail-Adresse und der jeweilige Inhalt verarbeitet. Einen Newsletter versenden wir nicht.",
+        },
+        {
+          title: "12. Speicherdauer",
+          text: "Wir speichern personenbezogene Daten nur so lange, wie es für den jeweiligen Zweck erforderlich ist oder gesetzliche Aufbewahrungsfristen es verlangen. Danach werden die Daten gelöscht.",
+        },
+        {
+          title: "13. Ihre Rechte",
+          text: "Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch (Art. 21 DSGVO). Eine erteilte Einwilligung können Sie jederzeit mit Wirkung für die Zukunft widerrufen. Wenden Sie sich dazu an info@sygs.de. Außerdem haben Sie das Recht, sich bei einer Aufsichtsbehörde zu beschweren, zum Beispiel beim Unabhängigen Datenschutzzentrum Saarland, Fritz-Dobisch-Straße 12, 66111 Saarbrücken.",
+        },
+        {
+          title: "14. Änderungen",
+          text: "Wir behalten uns vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen rechtlichen Anforderungen entspricht oder um Änderungen unserer Leistungen umzusetzen.",
+        },
+      ],
     },
 
     // Membership
@@ -607,6 +676,22 @@ export const translations = {
       faq: "الأسئلة الشائعة",
       projects: "المشاريع",
       tasks: "مهامي",
+      login: "تسجيل الدخول",
+      logout: "تسجيل الخروج",
+    },
+
+    // 404 und Fehlerseite
+    notFound: {
+      title: "الصفحة غير موجودة",
+      text: "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
+      home: "إلى الصفحة الرئيسية",
+      events: "إلى الفعاليات",
+    },
+    errorPage: {
+      title: "حدث خطأ ما",
+      text: "يرجى المحاولة مرة أخرى. إذا استمرت المشكلة، راسلنا على info@sygs.de.",
+      retry: "إعادة المحاولة",
+      home: "إلى الصفحة الرئيسية",
     },
 
     // Header
@@ -658,6 +743,13 @@ export const translations = {
       loading: "جاري تحميل الفعاليات...",
       register: "سجّل الآن",
       registrationClosed: "التسجيل مغلق",
+      details: "عرض التفاصيل",
+      share: "مشاركة",
+      shareText: "ألقِ نظرة على هذه الفعالية من تجمع السوريين في زارلاند:",
+      linkCopied: "تم نسخ الرابط",
+      backToEvents: "جميع الفعاليات",
+      addToCalendar: "إضافة إلى التقويم",
+      imagesLabel: "صور",
     },
 
     // News
@@ -769,6 +861,11 @@ export const translations = {
       sent: "تم إرسال الرسالة!",
       sentText: "شكراً لرسالتك. سنتواصل معك قريباً.",
       newMessage: "إرسال رسالة جديدة",
+      error: "تعذر إرسال الرسالة. يرجى المحاولة لاحقاً أو مراسلتنا مباشرة على info@sygs.de.",
+      rateLimited: "رسائل كثيرة في وقت قصير. يرجى المحاولة مرة أخرى بعد بضع دقائق.",
+      validation: "يرجى التحقق من بياناتك: يجب أن تحتوي الرسالة على 10 أحرف على الأقل.",
+      route: "تخطيط الطريق",
+      confirmationNote: "ستصلك رسالة تأكيد استلام عبر البريد الإلكتروني.",
     },
 
     // Footer
@@ -801,13 +898,13 @@ export const translations = {
     impressum: {
       pageTitle: "البيانات القانونية",
       inGruendung: "جمعية قيد التأسيس",
-      angaben: "المعلومات وفقاً للمادة 5 من قانون الاتصالات",
+      angaben: "المعلومات وفقاً للمادة 5 من قانون الخدمات الرقمية (DDG)",
       name: "تجمع السوريين في زارلاند (قيد التأسيس)",
       alwadi: "الوادي",
       address: "Breite Straße 28, 66115 Saarbrücken",
       contact: "التواصل",
       email: "البريد الإلكتروني: info@sygs.de",
-      responsible: "المسؤول عن المحتوى",
+      responsible: "المسؤول عن المحتوى وفقاً للمادة 18 فقرة 2 من معاهدة الإعلام (MStV)",
       responsibleNote: "سيتم تسمية الشخص المسؤول بعد الانتهاء من تأسيس الجمعية.",
       disclaimer: "إخلاء المسؤولية",
       disclaimerContent: "المسؤولية عن المحتوى",
@@ -822,25 +919,66 @@ export const translations = {
     // Datenschutz
     datenschutz: {
       pageTitle: "سياسة الخصوصية",
-      intro: "نأخذ حماية بياناتك الشخصية على محمل الجد. نتعامل مع بياناتك الشخصية بسرية ووفقاً للوائح حماية البيانات القانونية وسياسة الخصوصية هذه.",
-      responsibleTitle: "1. الجهة المسؤولة",
-      responsibleText: "المسؤول عن معالجة البيانات على هذا الموقع هو:",
-      responsibleName: "تجمع السوريين في زارلاند (قيد التأسيس)",
-      responsibleEmail: "البريد الإلكتروني: info@sygs.de",
-      dataCollectionTitle: "2. جمع وتخزين البيانات الشخصية",
-      dataCollectionText: "عند زيارة موقعنا، يتم تسجيل معلومات عامة تلقائياً. هذه المعلومات لا تسمح بالتعرف على شخصيتك.",
-      contactFormTitle: "3. نموذج الاتصال",
-      contactFormText: "عند إرسال استفسارات عبر نموذج الاتصال، يتم تخزين بياناتك لمعالجة الطلب. لن نشارك هذه البيانات دون موافقتك.",
-      cookiesTitle: "4. ملفات تعريف الارتباط",
-      cookiesText: "يستخدم موقعنا ملفات تعريف الارتباط الضرورية تقنياً فقط والمطلوبة لتشغيل الموقع.",
-      rightsTitle: "5. حقوقك",
-      rightsText: "لديك الحق في الحصول على معلومات مجانية حول بياناتك الشخصية المخزنة وحق التصحيح أو الحذف في أي وقت.",
-      hostingTitle: "6. الاستضافة",
-      hostingText: "يتم استضافة هذا الموقع لدى شركة Vercel Inc.",
-      supabaseTitle: "7. قاعدة البيانات",
-      supabaseText: "نستخدم Supabase كخدمة قاعدة بيانات. يتم تخزين البيانات على خوادم في الاتحاد الأوروبي.",
-      changesTitle: "8. التغييرات",
-      changesText: "نحتفظ بالحق في تعديل سياسة الخصوصية هذه لتتوافق دائماً مع المتطلبات القانونية الحالية.",
+      stand: "آخر تحديث: تشرين الثاني / نوفمبر 2026",
+      intro: "نأخذ حماية بياناتكم الشخصية على محمل الجد. نتعامل مع بياناتكم الشخصية بسرية ووفقاً للوائح حماية البيانات القانونية (اللائحة العامة لحماية البيانات DSGVO والقانون الألماني BDSG) وسياسة الخصوصية هذه. تشرح هذه السياسة البيانات التي نعالجها عند زيارة الموقع وعند الاستفسارات والطلبات والتسجيلات، وما هي حقوقكم.",
+      sections: [
+        {
+          title: "1. الجهة المسؤولة",
+          text: "المسؤول عن معالجة البيانات على هذا الموقع:\nتجمع السوريين في زارلاند (قيد التأسيس)\nBreite Straße 28, 66115 Saarbrücken\nالبريد الإلكتروني: info@sygs.de",
+        },
+        {
+          title: "2. معلومات عامة والأسس القانونية",
+          text: "نعالج البيانات الشخصية فقط بالقدر اللازم لتشغيل هذا الموقع والرد على استفساراتكم وعمل الجمعية. الأسس القانونية هي المادة 6 فقرة 1 (أ) من اللائحة العامة لحماية البيانات (موافقتكم، مثلاً في الاستمارات)، والمادة 6 فقرة 1 (ب) (تنفيذ العضوية أو التسجيل في فعالية)، والمادة 6 فقرة 1 (و) (مصلحتنا المشروعة في تشغيل آمن ومستقر للموقع).",
+        },
+        {
+          title: "3. الاستضافة وسجلات الخادم",
+          text: "يُستضاف هذا الموقع لدى شركة Vercel Inc.‏، 440 N Barranca Ave #4133, Covina, CA 91723, USA. عند زيارة الموقع تُعالج تلقائياً بيانات تقنية: عنوان IP، التاريخ والوقت، الصفحة المطلوبة، المتصفح ونظام التشغيل. تُستخدم هذه البيانات حصراً للتشغيل الآمن وتحليل الأخطاء ولا تُدمج مع بيانات أخرى. يتم نقل البيانات إلى الولايات المتحدة استناداً إلى البنود التعاقدية القياسية للاتحاد الأوروبي وإطار خصوصية البيانات بين الاتحاد الأوروبي والولايات المتحدة.",
+        },
+        {
+          title: "4. قاعدة البيانات وتخزين الملفات (Supabase)",
+          text: "نخزّن المحتوى وحسابات المستخدمين والطلبات والصور المرفوعة لدى Supabase Inc.‏ على خوادم داخل الاتحاد الأوروبي. تعالج Supabase البيانات حصراً نيابةً عنا، ولا يتم الوصول إليها إلا عبر واجهاتنا المحمية.",
+        },
+        {
+          title: "5. قياس عدد الزيارات (Vercel Web Analytics)",
+          text: "نستخدم Vercel Web Analytics لمعرفة الصفحات الأكثر زيارة. لا تُستخدم ملفات تعريف ارتباط ولا تُنشأ ملفات تعريف للمستخدمين؛ يُشتق فقط رمز يومي متغير لا يمكن إرجاعه إليكم، ويتم التقييم بشكل مجهول وإجمالي. الأساس القانوني هو مصلحتنا المشروعة في تحسين خدماتنا (المادة 6 فقرة 1 (و)).",
+        },
+        {
+          title: "6. ملفات تعريف الارتباط والتخزين المحلي",
+          text: "نستخدم فقط ملفات تعريف الارتباط الضرورية تقنياً: ملف لتسجيل الدخول إلى منطقة الأعضاء (صلاحية 7 أيام) وملف يحفظ قراركم بشأن إشعار ملفات تعريف الارتباط (سنة واحدة). كما يحفظ المتصفح محلياً اللغة المختارة وما إذا كنتم أخفيتم إشعار تثبيت التطبيق. عند الاستخدام كتطبيق يحفظ المتصفح الصفحات للعمل دون اتصال؛ ولا تُخزَّن فيها البيانات الشخصية (تسجيل الدخول، المهام، منطقة الإدارة) على الإطلاق.",
+        },
+        {
+          title: "7. استمارة الاتصال والبريد الإلكتروني",
+          text: "عندما تراسلوننا عبر استمارة الاتصال أو البريد الإلكتروني، نحفظ بياناتكم (الاسم، البريد الإلكتروني، الموضوع، الرسالة) لمعالجة الطلب والرد على الأسئلة اللاحقة. ستصلكم رسالة تأكيد استلام تلقائية. للحماية من إساءة الاستخدام يُعالج عنوان IP فقط كقيمة مشفّرة مختصرة. تُحذف البيانات بعد انتهاء المعالجة ما لم توجد التزامات قانونية بالاحتفاظ بها.",
+        },
+        {
+          title: "8. طلب الانتساب",
+          text: "عند تقديم طلب الانتساب عبر الإنترنت نجمع الاسم، تاريخ ومكان الولادة، العنوان، البريد الإلكتروني، رقم الهاتف، المهنة والمؤهل، وصورة اختيارية، بالإضافة إلى رسالتكم. تُستخدم البيانات لدراسة الطلب وتنفيذ العضوية (المادة 6 فقرة 1 (ب)). يطّلع مجلس الإدارة على الطلبات في منطقة الإدارة المحمية. تُحذف الطلبات المرفوضة أو المسحوبة؛ وعند القبول تبقى البيانات محفوظة طوال مدة العضوية.",
+        },
+        {
+          title: "9. التسجيل في الفعاليات والاستمارات",
+          text: "نوفّر استمارات تسجيل إلكترونية للفعاليات. البيانات المطلوبة مذكورة في كل استمارة (عادةً الاسم، البريد الإلكتروني، رقم الهاتف، وربما صورة). للمشاركة قد يُنشأ رقم مشارك مع رمز QR يُفحص عند الدخول. تُحذف بيانات التسجيل بعد انتهاء الفعالية، أو قبل ذلك بناءً على طلبكم.",
+        },
+        {
+          title: "10. حساب المستخدم والانتخابات",
+          text: "يمكن للأعضاء إنشاء حساب مستخدم (الاسم، البريد الإلكتروني، كلمة المرور). تُحفظ كلمة المرور بشكل مشفّر فقط؛ وتصلكم رسالة تأكيد بالبريد، ثم يقوم مجلس الإدارة بتفعيل الحساب. في الانتخابات الإلكترونية يُسجَّل أن حسابكم قد صوّت ولمن، حتى يتمكن كل شخص من التصويت مرة واحدة فقط؛ ولا يطّلع على ذلك سوى المسؤولين المخوّلين. المهام المسندة إليكم والتذكيرات المتعلقة بها تصلكم عبر البريد الإلكتروني.",
+        },
+        {
+          title: "11. إرسال البريد الإلكتروني",
+          text: "نرسل رسائل التأكيد والإشعارات والتذكيرات عبر خادم البريد الخاص بمزوّدنا. تُعالج في ذلك عناوين بريدكم ومحتوى الرسالة. لا نرسل نشرة إخبارية.",
+        },
+        {
+          title: "12. مدة الحفظ",
+          text: "نحتفظ بالبيانات الشخصية فقط للمدة اللازمة للغرض المعني أو التي تفرضها فترات الاحتفاظ القانونية، ثم تُحذف.",
+        },
+        {
+          title: "13. حقوقكم",
+          text: "لكم الحق في الاطلاع (المادة 15)، والتصحيح (المادة 16)، والحذف (المادة 17)، وتقييد المعالجة (المادة 18)، ونقل البيانات (المادة 20)، والاعتراض (المادة 21 من اللائحة العامة لحماية البيانات). ويمكنكم سحب أي موافقة منحتموها في أي وقت بأثر مستقبلي. للقيام بذلك تواصلوا معنا عبر info@sygs.de. كما يحق لكم تقديم شكوى لدى هيئة رقابية، مثل مركز حماية البيانات المستقل في زارلاند (Unabhängiges Datenschutzzentrum Saarland)، Fritz-Dobisch-Straße 12, 66111 Saarbrücken.",
+        },
+        {
+          title: "14. التغييرات",
+          text: "نحتفظ بحق تعديل سياسة الخصوصية هذه لتبقى متوافقة مع المتطلبات القانونية الحالية أو لتعكس تغييرات في خدماتنا.",
+        },
+      ],
     },
 
     // Membership
@@ -1171,6 +1309,6 @@ export const translations = {
       bostalsee: "بحيرة بوستال",
     },
   },
-} as const
+}
 
 export type Translations = typeof translations.de

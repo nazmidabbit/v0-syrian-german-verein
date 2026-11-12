@@ -42,7 +42,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 flex items-center justify-center px-6 pt-20">
+      <main id="main" className="flex-1 flex items-center justify-center px-6 pt-20">
         <div className="w-full max-w-md">
           <h1 className="text-3xl font-bold mb-6 text-center">Login</h1>
           <form onSubmit={handleLogin} className="flex flex-col gap-4">

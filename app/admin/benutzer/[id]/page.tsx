@@ -83,7 +83,7 @@ export default function AdminUserDetailPage({ params }: { params: Promise<{ id: 
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center pt-20">
+        <main id="main" className="flex-1 flex items-center justify-center pt-20">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
         <Footer />
@@ -95,7 +95,7 @@ export default function AdminUserDetailPage({ params }: { params: Promise<{ id: 
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center px-6 pt-20">
+        <main id="main" className="flex-1 flex items-center justify-center px-6 pt-20">
           <div className="text-center">
             <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h1 className="text-2xl font-bold mb-2">Kein Zugriff</h1>
@@ -111,7 +111,7 @@ export default function AdminUserDetailPage({ params }: { params: Promise<{ id: 
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center px-6 pt-20">
+        <main id="main" className="flex-1 flex items-center justify-center px-6 pt-20">
           <div className="text-center">
             <Button asChild variant="ghost" size="sm" className="mb-4">
               <Link href="/admin/benutzer"><ArrowLeft className="h-4 w-4 mr-2" />Zur&uuml;ck</Link>
@@ -128,7 +128,7 @@ export default function AdminUserDetailPage({ params }: { params: Promise<{ id: 
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-1 pt-20">
+      <main id="main" className="flex-1 pt-20">
         <section className="py-12 px-6 bg-secondary">
           <div className="max-w-4xl mx-auto">
             <Button asChild variant="ghost" size="sm" className="gap-2 mb-4">

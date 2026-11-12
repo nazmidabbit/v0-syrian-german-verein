@@ -182,7 +182,7 @@ export default function AdminDashboardPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center pt-20">
+        <main id="main" className="flex-1 flex items-center justify-center pt-20">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
         <Footer />
@@ -196,7 +196,7 @@ export default function AdminDashboardPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center px-6 pt-20">
+        <main id="main" className="flex-1 flex items-center justify-center px-6 pt-20">
           <div className="text-center">
             <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h1 className="text-2xl font-bold mb-2">Kein Zugriff</h1>
@@ -212,7 +212,7 @@ export default function AdminDashboardPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center px-6 pt-20">
+        <main id="main" className="flex-1 flex items-center justify-center px-6 pt-20">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
               <LogIn className="h-12 w-12 text-primary mx-auto mb-4" />
@@ -246,7 +246,7 @@ export default function AdminDashboardPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-1 pt-20">
+      <main id="main" className="flex-1 pt-20">
         <section className="py-16 px-6 bg-secondary">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">

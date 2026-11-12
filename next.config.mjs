@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   // IMAP-/Mail-Pakete nicht bundeln, sondern zur Laufzeit aus node_modules laden
   serverExternalPackages: ['imapflow', 'mailparser', 'nodemailer'],

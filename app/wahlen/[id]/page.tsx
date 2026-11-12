@@ -157,7 +157,7 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center pt-20">
+        <main id="main" className="flex-1 flex items-center justify-center pt-20">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
         <Footer />
@@ -169,7 +169,7 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center px-6 pt-20">
+        <main id="main" className="flex-1 flex items-center justify-center px-6 pt-20">
           <p className="text-muted-foreground">{t.election.noElections}</p>
         </main>
         <Footer />
@@ -186,7 +186,7 @@ export default function ElectionDetailPage({ params }: { params: Promise<{ id: s
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-1 pt-20">
+      <main id="main" className="flex-1 pt-20">
         <section className="py-12 px-6 bg-gradient-to-b from-white to-primary/10">
           <div className="max-w-4xl mx-auto">
             <Button asChild variant="ghost" size="sm" className="mb-4">

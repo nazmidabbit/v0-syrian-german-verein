@@ -187,7 +187,7 @@ export default function MembershipApplicationPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center px-6 pt-20">
+        <main id="main" className="flex-1 flex items-center justify-center px-6 pt-20">
           <div className="max-w-lg text-center py-20">
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="h-9 w-9 text-primary" />
@@ -208,7 +208,7 @@ export default function MembershipApplicationPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-1 pt-20">
+      <main id="main" className="flex-1 pt-20">
         <section className="py-16 px-6 bg-secondary">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">{tf.pageTitle}</h1>

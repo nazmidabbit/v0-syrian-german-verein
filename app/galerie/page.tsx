@@ -12,7 +12,7 @@ export default function GaleriePage() {
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-1 pt-20">
+      <main id="main" className="flex-1 pt-20">
         {/* Hero Section */}
         <section className="py-16 px-6 bg-secondary">
           <div className="max-w-4xl mx-auto text-center">

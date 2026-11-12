@@ -127,15 +127,15 @@ export function Header() {
           </DropdownMenu>
 
           {authenticated ? (
-            <Button variant="ghost" size="sm" className="gap-2" onClick={handleLogout}>
+            <Button variant="ghost" size="sm" className="gap-2" onClick={handleLogout} aria-label={t.nav.logout}>
               <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline text-sm">Logout</span>
+              <span className="hidden sm:inline text-sm">{t.nav.logout}</span>
             </Button>
           ) : (
             <Button variant="ghost" size="sm" className="gap-2" asChild>
-              <Link href="/login">
+              <Link href="/login" aria-label={t.nav.login}>
                 <LogIn className="h-4 w-4" />
-                <span className="hidden sm:inline text-sm">Login</span>
+                <span className="hidden sm:inline text-sm">{t.nav.login}</span>
               </Link>
             </Button>
           )}
@@ -186,7 +186,7 @@ export function Header() {
                 onClick={() => { setMobileMenuOpen(false); handleLogout() }}
                 className="block text-base font-medium text-destructive hover:text-destructive/80 transition-colors"
               >
-                Logout
+                {t.nav.logout}
               </button>
             ) : (
               <Link
@@ -194,7 +194,7 @@ export function Header() {
                 className="block text-base font-medium text-primary hover:text-primary/80 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Login
+                {t.nav.login}
               </Link>
             )}
           </div>

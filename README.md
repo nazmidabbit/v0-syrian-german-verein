@@ -1,30 +1,84 @@
-# Syrian German Verein
+# Syrische Gemeinschaft im Saarland — sygs.de
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+Vereinsseite der Syrischen Gemeinschaft im Saarland e.V. (i. Gr.), zweisprachig
+Deutsch/Arabisch, als installierbare App (PWA) nutzbar.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/nazmis-projects-34216c53/v0-syrian-german-verein)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/d6NRY4aZ3Vh)
+Live: **https://sygs.de** · Hosting: Vercel · Datenbank und Dateien: Supabase
 
-## Overview
+## Was die Seite kann
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+| Bereich | Öffentlich | Verwaltung (`/admin`) |
+| --- | --- | --- |
+| Veranstaltungen | Liste, Detailseite mit Teilen-Link, Bilder, Videos, Anmeldung | anlegen, bearbeiten, löschen |
+| Nachrichten | Liste | anlegen, bearbeiten, löschen |
+| Mitgliedschaft | Infoseite, Online-Antrag mit Foto | Anträge prüfen, annehmen (Mitgliedsnummer), ablehnen |
+| Formulare | Anmeldeformulare je Veranstaltung (Teilnehmerzahl, Warteliste, Anmeldeschluss) | Formular-Baukasten, Einsendungen, Check-in |
+| Teilnehmer / Einlass | — | Teilnehmerliste, QR-Ausweise, Einlasskontrolle per Kamera |
+| Wahlen | Abstimmung für freigeschaltete Mitglieder | Wahlen und Kandidaten anlegen, auswerten |
+| Aufgaben | eigene Aufgaben (angemeldet) | zuweisen, Fristen, E-Mail-Erinnerungen |
+| Mailbox | — | Postfach info@sygs.de lesen, antworten, weiterleiten |
+| Benutzer | Registrierung, E-Mail-Bestätigung | freischalten, Rollen und Berechtigungen |
+| Sonstiges | Galerie, Spenden, Vorstand, Satzung, FAQ, Projekte, Kontakt, Impressum, Datenschutz | Büros (Stammdaten), Bilder |
 
-## Deployment
+Anleitungen für den Verein liegen unter `docs/` (App-Installation, Einlass mit QR-Code).
 
-Your project is live at:
+## Technik
 
-**[https://vercel.com/nazmis-projects-34216c53/v0-syrian-german-verein](https://vercel.com/nazmis-projects-34216c53/v0-syrian-german-verein)**
+- Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, shadcn/ui
+- Supabase (Postgres + Storage) — alle Zugriffe laufen serverseitig über den
+  Service-Role-Key in den API-Routen; der Browser spricht nie direkt mit Supabase
+- Eigene Anmeldung mit JWT-Cookie (`auth-token`), Passwörter mit bcrypt
+- Mails per SMTP (nodemailer), Admin-Postfach per IMAP (imapflow)
+- Übersetzungen in `lib/i18n.ts` (Deutsch und Arabisch, Umschaltung im Header)
+- PWA: `app/manifest.ts`, `public/sw.js`, `public/offline.html`
 
-## Build your app
+## Lokal starten
 
-Continue building your app on:
+```bash
+npm install
+cp .env.example .env     # Werte eintragen, siehe Kommentare in der Datei
+npm run dev              # http://localhost:3000
+```
 
-**[https://v0.app/chat/d6NRY4aZ3Vh](https://v0.app/chat/d6NRY4aZ3Vh)**
+Für den Produktions-Build:
 
-## How It Works
+```bash
+npm run build && npm start
+```
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+Der Offline-Teil (Service Worker) läuft bewusst nur im gebauten Stand.
+
+## Datenbank einrichten
+
+Die SQL-Dateien unter `supabase-migrations/` im Supabase SQL-Editor in dieser
+Reihenfolge ausführen:
+
+1. `membership-applications.sql`, dann `membership-applications-add-profession.sql`
+   und `membership-member-number.sql`
+2. `offices-and-membership-extensions.sql`
+3. `elections.sql`
+4. `forms.sql`, dann `event-registration.sql`
+5. `tasks.sql`
+
+Die Tabellen `users`, `events`, `news` und `images` sowie der Storage-Bucket
+`uploads` (öffentlich lesbar) stammen aus der ersten Einrichtung.
+
+## Hilfsskripte
+
+```bash
+node scripts/export-participants.mjs [--fotos]        # Teilnehmer sichern (exports/, nicht im Repo)
+node scripts/restore-participants.mjs <sicherung.json> [--apply]
+node scripts/import-participants.mjs                  # Namen aus Ehrungslisten übernehmen
+```
+
+## Wiederkehrende Jobs
+
+`/api/cron/task-reminders` verschickt Erinnerungen zu fälligen Aufgaben. Der
+Aufruf ist mit `CRON_SECRET` geschützt und läuft stündlich über die GitHub
+Action `.github/workflows/task-reminders.yml` (Secrets `APP_URL` und
+`CRON_SECRET` im Repository hinterlegen).
+
+## Veröffentlichen
+
+Jeder Push auf `main` wird von Vercel gebaut und ausgerollt. Die Umgebungs-
+variablen aus `.env.example` müssen im Vercel-Projekt gesetzt sein.

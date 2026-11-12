@@ -8,7 +8,7 @@ import { CheckCircle, XCircle, Loader2 } from "lucide-react"
 
 function VerifyContent() {
   const searchParams = useSearchParams()
-  const token = searchParams.get("token")
+  const token = searchParams?.get("token") ?? null
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
   const [message, setMessage] = useState("")
 
@@ -69,7 +69,7 @@ export default function VerifyPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 flex items-center justify-center px-6 pt-20">
+      <main id="main" className="flex-1 flex items-center justify-center px-6 pt-20">
         <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin text-primary" />}>
           <VerifyContent />
         </Suspense>

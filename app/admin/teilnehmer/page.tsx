@@ -406,7 +406,7 @@ export default function AdminParticipantsPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center pt-20">
+        <main id="main" className="flex-1 flex items-center justify-center pt-20">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
         <Footer />
@@ -418,7 +418,7 @@ export default function AdminParticipantsPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center px-6 pt-20">
+        <main id="main" className="flex-1 flex items-center justify-center px-6 pt-20">
           <div className="text-center">
             <LogIn className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h1 className="text-2xl font-bold mb-2">Anmeldung erforderlich</h1>
@@ -437,7 +437,7 @@ export default function AdminParticipantsPage() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-center justify-center px-6 pt-20">
+        <main id="main" className="flex-1 flex items-center justify-center px-6 pt-20">
           <div className="text-center">
             <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h1 className="text-2xl font-bold mb-2">Kein Zugriff</h1>
@@ -455,7 +455,7 @@ export default function AdminParticipantsPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-1 pt-20">
+      <main id="main" className="flex-1 pt-20">
         {/* Kopfbereich mit Zahlen */}
         <section className="px-6 pt-12 pb-8 bg-gradient-to-b from-secondary to-background">
           <div className="max-w-6xl mx-auto">

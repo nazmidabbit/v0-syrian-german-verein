@@ -368,3 +368,79 @@ export async function sendTaskOverdueEmail(email: string, data: TaskMailData, cc
     ),
   });
 }
+
+export interface ContactMailData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+// Kontaktanfrage an den Verein — reine Text-Mail, damit Nutzereingaben
+// kein HTML einschleusen koennen. Antworten geht direkt an die absendende
+// Person (replyTo).
+export async function sendContactAdminNotification(data: ContactMailData) {
+  const to = process.env.MAIL_TO || 'info@sygs.de';
+  const from = process.env.MAIL_FROM || process.env.SMTP_USER;
+
+  const lines = [
+    `Neue Nachricht über das Kontaktformular:`,
+    ``,
+    `Name: ${data.firstName} ${data.lastName}`,
+    `E-Mail: ${data.email}`,
+    `Betreff: ${data.subject}`,
+    ``,
+    `Nachricht:`,
+    data.message,
+    ``,
+    `— Eine Antwort auf diese Mail geht direkt an die absendende Person.`,
+  ];
+
+  await getTransporter().sendMail({
+    from: `"Kontaktformular" <${from}>`,
+    to,
+    replyTo: { name: `${data.firstName} ${data.lastName}`, address: data.email },
+    subject: `Kontaktanfrage: ${data.subject}`,
+    text: lines.join('\n'),
+  });
+}
+
+// Eingangsbestaetigung an die absendende Person. Enthaelt bewusst nur den
+// Betreff, nicht die Nachricht — sonst liesse sich das Formular als
+// Spam-Weiterleiter missbrauchen.
+export async function sendContactConfirmation(
+  email: string,
+  firstName: string,
+  subject: string,
+  locale: 'de' | 'ar',
+) {
+  const from = process.env.MAIL_FROM || process.env.SMTP_USER;
+  const name = escapeHtml(firstName);
+  const topic = escapeHtml(subject);
+  const isAr = locale === 'ar';
+
+  const mailSubject = isAr ? 'استلمنا رسالتك - SYGS' : 'Wir haben Ihre Nachricht erhalten - SYGS';
+  const heading = isAr ? `مرحباً ${name}،` : `Hallo ${name},`;
+  const body = isAr
+    ? `شكراً لتواصلك معنا. لقد استلمنا رسالتك بعنوان «${topic}» وسنرد عليك في أقرب وقت ممكن.`
+    : `vielen Dank für Ihre Nachricht zum Betreff „${topic}". Wir haben sie erhalten und melden uns so bald wie möglich bei Ihnen.`;
+  const note = isAr
+    ? 'هذه رسالة تلقائية، لا داعي للرد عليها.'
+    : 'Dies ist eine automatische Eingangsbestätigung — Sie müssen darauf nicht antworten.';
+
+  await getTransporter().sendMail({
+    from: `"${ABSENDER}" <${from}>`,
+    to: email,
+    subject: mailSubject,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;" dir="${isAr ? 'rtl' : 'ltr'}">
+        <h2 style="color: #333;">${heading}</h2>
+        <p style="line-height: 1.6;">${body}</p>
+        <p style="color: #666; font-size: 14px; line-height: 1.6;">${note}</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="color: #999; font-size: 12px;">Syrische Gemeinschaft im Saarland - sygs.de</p>
+      </div>
+    `,
+  });
+}
