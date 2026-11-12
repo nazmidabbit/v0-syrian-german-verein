@@ -5,8 +5,18 @@ const nextConfig = {
   },
   // IMAP-/Mail-Pakete nicht bundeln, sondern zur Laufzeit aus node_modules laden
   serverExternalPackages: ['imapflow', 'mailparser', 'nodemailer'],
+  // Bilder laufen ueber die Vercel-Bildoptimierung: Handyfotos mit 6 MB aus
+  // Supabase werden einmal verkleinert (WebP, passende Breite) und am
+  // Vercel-Rand gecacht. Supabase bekommt pro Bild und Groesse nur einen
+  // Abruf statt einen je Besucher — das schont Egress und verhindert die
+  // 429-Fehler des Storage bei vielen gleichzeitigen Anfragen.
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      { protocol: 'https', hostname: '*.supabase.co', pathname: '/storage/v1/object/public/**' },
+    ],
+    formats: ['image/webp'],
+    // Dateinamen sind UUIDs und aendern sich nie — 30 Tage sind sicher
+    minimumCacheTTL: 60 * 60 * 24 * 30,
   },
   async headers() {
     return [

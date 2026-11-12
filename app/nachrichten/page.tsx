@@ -110,7 +110,7 @@ export default function NewsPage() {
                               muted
                               playsInline
                               className="w-full max-h-[500px] rounded-lg bg-black"
-                              preload="metadata"
+                              preload="none"
                             />
                           ))}
                         </div>

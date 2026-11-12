@@ -380,7 +380,7 @@ function AnimatedEventCard({
             controls
             muted
             playsInline
-            preload="metadata"
+            preload="none"
             className="w-full max-h-[250px] object-contain bg-black"
           />
           <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background/20 to-transparent pointer-events-none" />
