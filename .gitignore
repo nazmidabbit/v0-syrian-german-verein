@@ -25,5 +25,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# Teilnehmer-Sicherungen (personenbezogene Daten)
+/exports/
+
 # Vorschau des Teilnehmer-Imports (Probelauf)
 /scripts/import-vorschau.json
+
+# Lokale Ausgaben (Skripte, Probelaeufe)
+/output/

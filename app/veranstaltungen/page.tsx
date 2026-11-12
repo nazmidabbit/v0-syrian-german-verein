@@ -98,9 +98,7 @@ export default function EventsPage() {
                             key={i}
                             src={url}
                             controls
-                            autoPlay
                             muted
-                            loop
                             playsInline
                             className="w-full max-h-[500px] rounded-lg bg-black"
                             preload="metadata"

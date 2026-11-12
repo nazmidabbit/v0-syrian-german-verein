@@ -16,6 +16,29 @@ const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 
 const GENERIC_ERROR = { error: 'serverError' } as const;
 
+// Laufende Teilnehmernummer fuer die naechste Anmeldung.
+// Nur fuer Formulare, die bereits nummeriert werden — sonst bekaeme jedes
+// Formular ungefragt Nummern. Ohne Nummer bleibt die QR-Karte am Einlass
+// ohne Kennung, und genau daran haengt die Einlasskontrolle.
+async function naechsteTeilnehmerNummer(formId: string): Promise<string> {
+  const { data, error } = await getSupabase()
+    .from('form_submissions')
+    .select('nr:data->>teilnehmer_nr')
+    .eq('form_id', formId)
+    .limit(5000);
+
+  if (error || !data) return '';
+
+  // Die Nummern liegen als Text im JSON, deshalb wird das Maximum hier
+  // gerechnet und nicht von der Datenbank sortiert ("99" > "207" als Text).
+  let hoechste = 0;
+  for (const zeile of data as Array<{ nr: string | null }>) {
+    const nr = Number(zeile.nr);
+    if (Number.isFinite(nr) && nr > hoechste) hoechste = nr;
+  }
+  return hoechste ? String(hoechste + 1) : '';
+}
+
 const slugSchema = z.string().regex(/^[a-z0-9-]{1,60}$/);
 
 const submitSchema = z
@@ -155,7 +178,7 @@ async function storePhotos(
     const path = `forms/${formId}/${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage
       .from('uploads')
-      .upload(path, buffer, { contentType: `image/${match[1]}` });
+      .upload(path, buffer, { contentType: `image/${match[1]}`, cacheControl: '31536000' });
 
     if (error) {
       console.error('Formular-Foto-Upload fehlgeschlagen:', error.message);
@@ -272,6 +295,11 @@ export async function POST(
     if (hasPhotoField) {
       await storePhotos(loaded.form.id, loaded.fields, result.cleaned);
     }
+
+    // Teilnehmernummer vergeben, bevor gespeichert wird — sonst fehlt sie
+    // spaeter auf der QR-Karte.
+    const teilnehmerNr = await naechsteTeilnehmerNummer(loaded.form.id);
+    if (teilnehmerNr) result.cleaned['teilnehmer_nr'] = teilnehmerNr;
 
     const { error: insertError } = await supabase.from('form_submissions').insert({
       form_id: loaded.form.id,

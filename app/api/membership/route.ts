@@ -127,7 +127,7 @@ export async function POST(request: Request) {
           const path = `members/${crypto.randomUUID()}.${ext}`;
           const { error: uploadError } = await supabase.storage
             .from('uploads')
-            .upload(path, buffer, { contentType: `image/${match[1]}` });
+            .upload(path, buffer, { contentType: `image/${match[1]}`, cacheControl: '31536000' });
           if (uploadError) {
             console.error('Mitgliedsantrag-Foto-Upload fehlgeschlagen:', uploadError.message);
           } else {

@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
       .from("uploads")
       .upload(filePath, buffer, {
         contentType: file.type,
+        cacheControl: "31536000",
         upsert: false,
       })
 

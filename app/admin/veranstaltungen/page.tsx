@@ -538,7 +538,7 @@ export default function AdminEventsPage() {
                         {videoUrls.map((url, index) => (
                           <div key={index} className="relative group">
                             <div className="w-48 h-32 rounded-lg overflow-hidden border border-border bg-black">
-                              <video src={url} className="w-full h-full object-cover" muted />
+                              <video src={url} className="w-full h-full object-cover" muted preload="metadata" />
                             </div>
                             <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button

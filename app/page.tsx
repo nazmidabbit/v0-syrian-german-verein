@@ -369,14 +369,15 @@ function AnimatedEventCard({
         }`}
       style={{ transitionDelay: `${index * 150}ms` }}
     >
-      {/* Video (Autoplay, dauerhaft) — wenn vorhanden, sonst Bild */}
+      {/* Video — wenn vorhanden, sonst Bild. Kein Autoplay: Sonst laedt jeder
+          Besucher der Startseite das ganze Video (bis 500 MB) herunter, auch
+          wenn er es nie ansieht. */}
       {event.video_urls && event.video_urls.length > 0 ? (
         <div className="relative bg-black overflow-hidden">
           <video
             src={event.video_urls[0]}
-            autoPlay
+            controls
             muted
-            loop
             playsInline
             preload="metadata"
             className="w-full max-h-[250px] object-contain bg-black"
