@@ -1,13 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Image from "next/image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { useLanguage } from "@/components/language-provider"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { CalendarDays, ChevronLeft, ChevronRight, ClipboardList } from "lucide-react"
+import { EventImageGallery } from "@/components/event-image-gallery"
+import { ShareButton } from "@/components/share-button"
+import { ArrowRight, CalendarDays, ClipboardList } from "lucide-react"
 
 interface Event {
   id: string
@@ -55,7 +56,7 @@ export default function EventsPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-1 pt-20">
+      <main id="main" className="flex-1 pt-20">
         <section className="py-16 px-6 bg-gradient-to-b from-white to-primary/10">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">
@@ -81,55 +82,58 @@ export default function EventsPage() {
               </div>
             ) : (
               <div className="space-y-8">
-                {events.map((event) => (
-                  <article
-                    key={event.id}
-                    className="bg-background border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    {/* Bilder-Galerie */}
-                    {event.image_urls && event.image_urls.length > 0 && (
-                      <EventImageGallery images={event.image_urls} alt={getTitle(event)} />
-                    )}
-                    {/* Videos */}
-                    {event.video_urls && event.video_urls.length > 0 && (
-                      <div className="px-6 md:px-8 pt-6 space-y-4">
-                        {event.video_urls.map((url, i) => (
-                          <video
-                            key={i}
-                            src={url}
-                            controls
-                            muted
-                            playsInline
-                            className="w-full max-h-[500px] rounded-lg bg-black"
-                            preload="metadata"
-                          />
-                        ))}
-                      </div>
-                    )}
-                    <div className="p-6 md:p-8">
-                      <div className="flex items-center gap-2 text-primary mb-3">
-                        <CalendarDays className="h-4 w-4" />
-                        <time className="text-sm font-medium">
-                          {formatDate(event.date)}
-                        </time>
-                      </div>
-                      <h2 className="text-2xl font-bold text-foreground mb-3">
-                        {getTitle(event)}
-                      </h2>
-                      <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                        {getDescription(event)}
-                      </p>
+                {events.map((event) => {
+                  const detailPath = `/veranstaltungen/${event.id}`
+                  const registration = (event.registration_forms || []).find((f) => f.is_active)
+                  const closed = registration?.closes_at
+                    ? new Date(registration.closes_at).getTime() < Date.now()
+                    : false
 
-                      {/* Anmeldung, sofern ein aktives Formular verknuepft ist */}
-                      {(() => {
-                        const registration = (event.registration_forms || []).find((f) => f.is_active)
-                        if (!registration) return null
-                        const closed = registration.closes_at
-                          ? new Date(registration.closes_at).getTime() < Date.now()
-                          : false
-                        return (
-                          <div className="mt-6">
-                            {closed ? (
+                  return (
+                    <article
+                      key={event.id}
+                      className="bg-background border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                    >
+                      {/* Bilder-Galerie */}
+                      {event.image_urls && event.image_urls.length > 0 && (
+                        <EventImageGallery images={event.image_urls} alt={getTitle(event)} />
+                      )}
+                      {/* Videos */}
+                      {event.video_urls && event.video_urls.length > 0 && (
+                        <div className="px-6 md:px-8 pt-6 space-y-4">
+                          {event.video_urls.map((url, i) => (
+                            <video
+                              key={i}
+                              src={url}
+                              controls
+                              muted
+                              playsInline
+                              className="w-full max-h-[500px] rounded-lg bg-black"
+                              preload="metadata"
+                            />
+                          ))}
+                        </div>
+                      )}
+                      <div className="p-6 md:p-8">
+                        <div className="flex items-center gap-2 text-primary mb-3">
+                          <CalendarDays className="h-4 w-4" />
+                          <time dateTime={event.date} className="text-sm font-medium">
+                            {formatDate(event.date)}
+                          </time>
+                        </div>
+                        <h2 className="text-2xl font-bold text-foreground mb-3">
+                          <Link href={detailPath} className="hover:text-primary transition-colors">
+                            {getTitle(event)}
+                          </Link>
+                        </h2>
+                        <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                          {getDescription(event)}
+                        </p>
+
+                        <div className="mt-6 flex flex-wrap items-center gap-3">
+                          {/* Anmeldung, sofern ein aktives Formular verknuepft ist */}
+                          {registration && (
+                            closed ? (
                               <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
                                 <ClipboardList className="h-4 w-4" />
                                 {t.events.registrationClosed}
@@ -141,13 +145,20 @@ export default function EventsPage() {
                                   {t.events.register}
                                 </Link>
                               </Button>
-                            )}
-                          </div>
-                        )
-                      })()}
-                    </div>
-                  </article>
-                ))}
+                            )
+                          )}
+                          <Button asChild variant="outline" size="sm" className="gap-2">
+                            <Link href={detailPath}>
+                              {t.events.details}
+                              <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                            </Link>
+                          </Button>
+                          <ShareButton title={getTitle(event)} text={t.events.shareText} url={detailPath} />
+                        </div>
+                      </div>
+                    </article>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -155,54 +166,6 @@ export default function EventsPage() {
       </main>
 
       <Footer />
-    </div>
-  )
-}
-
-function EventImageGallery({ images, alt }: { images: string[]; alt: string }) {
-  const [current, setCurrent] = useState(0)
-
-  if (images.length === 1) {
-    return (
-      <div className="relative w-full flex justify-center bg-muted">
-        <Image src={images[0]} alt={alt} width={800} height={600} className="object-contain max-h-[500px] w-auto" />
-      </div>
-    )
-  }
-
-  return (
-    <div className="relative group bg-muted flex justify-center">
-      <Image src={images[current]} alt={`${alt} ${current + 1}`} width={800} height={600} className="object-contain max-h-[500px] w-auto" />
-
-      {/* Navigation */}
-      <button
-        onClick={() => setCurrent((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
-        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <ChevronLeft className="h-5 w-5" />
-      </button>
-      <button
-        onClick={() => setCurrent((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
-        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <ChevronRight className="h-5 w-5" />
-      </button>
-
-      {/* Dots */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-        {images.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrent(i)}
-            className={`w-2 h-2 rounded-full transition-colors ${i === current ? "bg-white" : "bg-white/50"}`}
-          />
-        ))}
-      </div>
-
-      {/* Counter */}
-      <div className="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
-        {current + 1} / {images.length}
-      </div>
     </div>
   )
 }

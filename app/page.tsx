@@ -89,7 +89,7 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-1 pt-20">
+      <main id="main" className="flex-1 pt-20">
         {/* Hero Section */}
         <section className="relative flex flex-col items-center justify-center min-h-[45vh] py-10 sm:py-16 px-6 bg-white overflow-hidden">
           {/* Animierte Deko-Blobs im Hintergrund */}
@@ -359,6 +359,7 @@ function AnimatedEventCard({
   getDescription: (e: Event) => string
 }) {
   const card = useInView(0.1)
+  const { t } = useLanguage()
 
   return (
     <div
@@ -397,7 +398,7 @@ function AnimatedEventCard({
           </div>
           {event.image_urls.length > 1 && (
             <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full">
-              {event.image_urls.length} Bilder
+              {event.image_urls.length} {t.events.imagesLabel}
             </div>
           )}
           {/* Gradient overlay */}
@@ -415,11 +416,19 @@ function AnimatedEventCard({
         </div>
 
         <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
-          {getTitle(event)}
+          <Link href={`/veranstaltungen/${event.id}`}>{getTitle(event)}</Link>
         </h3>
         <p className="text-muted-foreground text-sm line-clamp-3 leading-relaxed">
           {getDescription(event)}
         </p>
+
+        <Link
+          href={`/veranstaltungen/${event.id}`}
+          className="inline-flex items-center gap-1 mt-4 text-sm font-semibold text-primary hover:underline"
+        >
+          {t.events.details}
+          <ArrowRight className="h-4 w-4 rtl:rotate-180 transition-transform group-hover:translate-x-1" />
+        </Link>
 
         {/* Hover line */}
         <div className="mt-4 h-0.5 bg-primary/20 rounded-full overflow-hidden">
