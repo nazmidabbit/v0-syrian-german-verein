@@ -300,11 +300,11 @@ export const translations = {
         },
         {
           title: "8. Mitgliedsantrag",
-          text: "Beim Online-Mitgliedsantrag erheben wir Name, Geburtsdatum und Geburtsort, Anschrift, E-Mail-Adresse, Telefonnummer, Beruf und Qualifikation, auf Wunsch ein Foto sowie Ihre Nachricht. Die Daten dienen der Prüfung des Antrags und der Durchführung der Mitgliedschaft (Art. 6 Abs. 1 lit. b DSGVO). Der Vorstand sieht die Anträge im geschützten Verwaltungsbereich ein. Abgelehnte oder zurückgezogene Anträge werden gelöscht; bei Annahme bleiben die Daten für die Dauer der Mitgliedschaft gespeichert.",
+          text: "Beim Online-Mitgliedsantrag erheben wir Name, Geburtsdatum und Geburtsort, Anschrift, E-Mail-Adresse, Telefonnummer, Beruf und Qualifikation, auf Wunsch ein Foto sowie Ihre Nachricht. Die Daten dienen der Prüfung des Antrags und der Durchführung der Mitgliedschaft (Art. 6 Abs. 1 lit. b DSGVO). Der Vorstand sieht die Anträge im geschützten Verwaltungsbereich ein. Abgelehnte oder zurückgezogene Anträge löschen wir, sobald sie nicht mehr benötigt werden; bei Annahme bleiben die Daten für die Dauer der Mitgliedschaft gespeichert.",
         },
         {
           title: "9. Veranstaltungsanmeldungen und Formulare",
-          text: "Für Veranstaltungen bieten wir Online-Anmeldeformulare an. Welche Angaben erhoben werden, steht im jeweiligen Formular (in der Regel Name, E-Mail-Adresse, Telefonnummer, gegebenenfalls ein Foto). Zur Teilnahme kann eine Teilnehmernummer mit QR-Code erstellt werden, die am Einlass geprüft wird. Die Anmeldedaten werden nach Abschluss der Veranstaltung gelöscht, auf Ihr Verlangen auch früher.",
+          text: "Für Veranstaltungen bieten wir Online-Anmeldeformulare an. Welche Angaben erhoben werden, steht im jeweiligen Formular (in der Regel Name, E-Mail-Adresse, Telefonnummer, gegebenenfalls ein Foto). Zur Teilnahme kann eine Teilnehmernummer mit QR-Code erstellt werden, die am Einlass geprüft wird. Die Anmeldedaten löschen wir, sobald sie nach der Veranstaltung nicht mehr benötigt werden, auf Ihr Verlangen jederzeit auch früher.",
         },
         {
           title: "10. Benutzerkonto und Wahlen",
@@ -952,11 +952,11 @@ export const translations = {
         },
         {
           title: "8. طلب الانتساب",
-          text: "عند تقديم طلب الانتساب عبر الإنترنت نجمع الاسم، تاريخ ومكان الولادة، العنوان، البريد الإلكتروني، رقم الهاتف، المهنة والمؤهل، وصورة اختيارية، بالإضافة إلى رسالتكم. تُستخدم البيانات لدراسة الطلب وتنفيذ العضوية (المادة 6 فقرة 1 (ب)). يطّلع مجلس الإدارة على الطلبات في منطقة الإدارة المحمية. تُحذف الطلبات المرفوضة أو المسحوبة؛ وعند القبول تبقى البيانات محفوظة طوال مدة العضوية.",
+          text: "عند تقديم طلب الانتساب عبر الإنترنت نجمع الاسم، تاريخ ومكان الولادة، العنوان، البريد الإلكتروني، رقم الهاتف، المهنة والمؤهل، وصورة اختيارية، بالإضافة إلى رسالتكم. تُستخدم البيانات لدراسة الطلب وتنفيذ العضوية (المادة 6 فقرة 1 (ب)). يطّلع مجلس الإدارة على الطلبات في منطقة الإدارة المحمية. نحذف الطلبات المرفوضة أو المسحوبة عندما لا تعود هناك حاجة إليها؛ وعند القبول تبقى البيانات محفوظة طوال مدة العضوية.",
         },
         {
           title: "9. التسجيل في الفعاليات والاستمارات",
-          text: "نوفّر استمارات تسجيل إلكترونية للفعاليات. البيانات المطلوبة مذكورة في كل استمارة (عادةً الاسم، البريد الإلكتروني، رقم الهاتف، وربما صورة). للمشاركة قد يُنشأ رقم مشارك مع رمز QR يُفحص عند الدخول. تُحذف بيانات التسجيل بعد انتهاء الفعالية، أو قبل ذلك بناءً على طلبكم.",
+          text: "نوفّر استمارات تسجيل إلكترونية للفعاليات. البيانات المطلوبة مذكورة في كل استمارة (عادةً الاسم، البريد الإلكتروني، رقم الهاتف، وربما صورة). للمشاركة قد يُنشأ رقم مشارك مع رمز QR يُفحص عند الدخول. نحذف بيانات التسجيل عندما لا تعود هناك حاجة إليها بعد الفعالية، وفي أي وقت قبل ذلك بناءً على طلبكم.",
         },
         {
           title: "10. حساب المستخدم والانتخابات",
