@@ -5,7 +5,10 @@ import type { Metadata } from "next"
 export const SITE_NAME = "Syrische Gemeinschaft im Saarland"
 export const SITE_NAME_AR = "تجمع السوريين في زارلاند"
 export const SITE_SHORT = "SGIS"
-export const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || "https://sygs.de").replace(/\/+$/, "")
+// Kanonische Adresse: Vercel leitet sygs.de auf www.sygs.de um. Links in
+// Sitemap, Canonical und Open Graph muessen auf das Ziel zeigen, nicht auf
+// die Umleitung. Bewusst unabhaengig von NEXT_PUBLIC_BASE_URL (Mail-Links).
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.sygs.de").replace(/\/+$/, "")
 export const CONTACT_EMAIL = "info@sygs.de"
 export const ADDRESS = "Breite Straße 28, 66115 Saarbrücken"
 export const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ADDRESS)}`
