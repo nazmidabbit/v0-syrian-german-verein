@@ -44,13 +44,14 @@ export default function manifest(): MetadataRoute.Manifest {
     // Langes Druecken auf das App-Symbol zeigt diese Direkteinstiege
     shortcuts: [
       {
-        name: "Veranstaltungen",
-        url: "/veranstaltungen",
+        name: "Meine Aufgaben",
+        short_name: "Aufgaben",
+        url: "/aufgaben",
         icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }],
       },
       {
-        name: "Meine Aufgaben",
-        url: "/aufgaben",
+        name: "Veranstaltungen",
+        url: "/veranstaltungen",
         icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }],
       },
       {

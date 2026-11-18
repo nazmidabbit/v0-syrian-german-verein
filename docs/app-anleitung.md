@@ -120,6 +120,29 @@ Erlebnis.
 
 ---
 
+## Aufgaben in der App
+
+"Meine Aufgaben" ist als App-Maske gebaut und fühlt sich auf iPhone und
+Android an wie eine eigene Aufgaben-App:
+
+- **Direkt öffnen:** Langes Drücken auf das SGIS-Symbol zeigt "Meine Aufgaben"
+  als ersten Direkteinstieg. Ohne Anmeldung führt der Login danach direkt
+  zurück zu den Aufgaben.
+- **Abhaken:** Kreis links antippen. Fünf Sekunden lang lässt sich das mit
+  "Rückgängig" zurücknehmen (nicht bei wiederkehrenden Aufgaben, weil dann
+  schon der nächste Termin angelegt ist).
+- **Details:** Zeile antippen. Ein Blatt fährt von unten hoch mit Frist,
+  Beschreibung und großen Knöpfen für Erledigt, In Arbeit, Notiz, Bearbeiten
+  und Löschen.
+- **Neue Aufgabe:** Grüner "+"-Knopf unten.
+- **Gruppen:** Überfällig, Heute, Diese Woche, Später. Erledigte stehen im
+  zweiten Reiter.
+- **Zahl am App-Symbol:** Die installierte App zeigt am Symbol, wie viele
+  Aufgaben heute fällig oder überfällig sind (Android; iPhone ab iOS 16.4).
+- **Immer aktuell:** Beim Zurückkehren in die App lädt die Liste neu.
+
+---
+
 ## Was noch fehlt
 
 - **Push-Benachrichtigungen.** Auf Android funktionieren sie mit dieser Bauart;

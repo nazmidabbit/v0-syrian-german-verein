@@ -27,7 +27,12 @@ export default function LoginPage() {
       })
 
       if (res.ok) {
-        router.push("/admin/veranstaltungen")
+        // Zurueck dorthin, wo die Anmeldung angefordert wurde (z. B. aus der
+        // Aufgaben-App). Nur interne Pfade — sonst liesse sich der Login als
+        // Weiterleitung auf fremde Seiten missbrauchen.
+        const next = new URLSearchParams(window.location.search).get("next") || ""
+        const safeNext = next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\") ? next : ""
+        router.push(safeNext || "/admin/veranstaltungen")
       } else {
         const data = await res.json()
         setError(data.error || "Login fehlgeschlagen.")
