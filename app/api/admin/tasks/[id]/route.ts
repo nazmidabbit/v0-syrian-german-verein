@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getSupabase } from '@/lib/supabase';
 import { getAuthUser, hasPermission } from '@/lib/auth';
+import { withTaskPeopleNames } from '@/lib/user-name';
 import {
   buildRecurringFollowUp,
   TASK_COLUMNS_WITH_USERS,
@@ -105,7 +106,8 @@ export async function PATCH(
       if (payload) await supabase.from('tasks').insert(payload);
     }
 
-    return NextResponse.json({ task: data });
+    const [task] = await withTaskPeopleNames([data]);
+    return NextResponse.json({ task });
   } catch {
     return NextResponse.json({ error: 'Serverfehler.' }, { status: 500 });
   }

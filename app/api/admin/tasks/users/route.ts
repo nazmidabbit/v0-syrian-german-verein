@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
 import { getAuthUser, hasPermission } from '@/lib/auth';
+import { withDisplayNames } from '@/lib/user-name';
 
 // Auswahlliste fuer die Zuweisung. Bewusst schlank (kein Rollen-/Rechte-Detail),
 // damit auch Editoren mit der Berechtigung "aufgaben" sie laden duerfen.
@@ -21,7 +22,12 @@ export async function GET() {
       return NextResponse.json({ error: 'Fehler beim Laden.' }, { status: 500 });
     }
 
-    return NextResponse.json({ users: data || [] });
+    // Voller Name statt E-Mail, alphabetisch nach dem, was man sieht
+    const users = (await withDisplayNames(data || [])).sort((a, b) =>
+      a.name.localeCompare(b.name, 'de', { sensitivity: 'base' }),
+    );
+
+    return NextResponse.json({ users });
   } catch {
     return NextResponse.json({ error: 'Serverfehler.' }, { status: 500 });
   }

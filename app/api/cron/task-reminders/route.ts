@@ -9,6 +9,7 @@ import {
   TASK_COLUMNS_WITH_USERS,
 } from '@/lib/tasks';
 import { sendTaskDueSoonEmail, sendTaskOverdueEmail } from '@/lib/mailer';
+import { displayNameOf } from '@/lib/user-name';
 
 // Der Job braucht zusaetzlich die internen Erinnerungs-Zeitstempel
 const REMINDER_COLUMNS = `${TASK_COLUMNS_WITH_USERS}, reminder_sent_at, overdue_reminder_count, last_overdue_reminder_at`;
@@ -88,7 +89,7 @@ async function runReminders() {
       title: task.title,
       description: task.description || '',
       dueAt: task.due_at,
-      assigneeName: task.assignee?.name || '',
+      assigneeName: await displayNameOf(task.assignee),
     };
     const dueTime = new Date(task.due_at).getTime();
 

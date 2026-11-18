@@ -18,6 +18,7 @@ interface User {
   email_verified: boolean
   permissions: string[]
   created_at: string
+  name_source?: "account" | "membership" | "email"
 }
 
 const ROLES = [
@@ -327,7 +328,9 @@ export default function AdminUsersPage() {
                       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="text-lg font-bold text-foreground">{user.name || "Kein Name"}</h3>
+                            <h3 className="text-lg font-bold text-foreground">
+                              {user.name_source === "email" ? <span className="text-muted-foreground italic font-medium">Name fehlt</span> : user.name || "Kein Name"}
+                            </h3>
                             {isCurrentUser && (
                               <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">Sie</span>
                             )}

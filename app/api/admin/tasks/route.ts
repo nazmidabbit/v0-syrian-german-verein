@@ -4,6 +4,7 @@ import { getSupabase } from '@/lib/supabase';
 import { getAuthUser, hasPermission } from '@/lib/auth';
 import { TASK_COLUMNS_WITH_USERS, TASK_PRIORITIES, TASK_RECURRENCES, TASK_STATUSES } from '@/lib/tasks';
 import { sendTaskAssignedEmail } from '@/lib/mailer';
+import { displayNameOf, withTaskPeopleNames } from '@/lib/user-name';
 
 const createSchema = z
   .object({
@@ -53,7 +54,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Fehler beim Laden.' }, { status: 500 });
     }
 
-    return NextResponse.json({ tasks: data || [] });
+    return NextResponse.json({ tasks: await withTaskPeopleNames(data || []) });
   } catch {
     return NextResponse.json({ error: 'Serverfehler.' }, { status: 500 });
   }
@@ -115,7 +116,7 @@ export async function POST(request: Request) {
           title: parsed.data.title,
           description: parsed.data.description,
           dueAt: parsed.data.dueAt,
-          assigneeName: assignee.name || '',
+          assigneeName: await displayNameOf(assignee),
         });
         mailSent = true;
       } catch (mailError) {
@@ -123,7 +124,8 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ task: data, mailSent }, { status: 201 });
+    const [task] = await withTaskPeopleNames([data]);
+    return NextResponse.json({ task, mailSent }, { status: 201 });
   } catch {
     return NextResponse.json({ error: 'Serverfehler.' }, { status: 500 });
   }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
 import { getAuthUser } from '@/lib/auth';
+import { withDisplayNames } from '@/lib/user-name';
 
 export async function GET() {
   try {
@@ -19,7 +20,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Fehler beim Laden.' }, { status: 500 });
     }
 
-    return NextResponse.json({ users: users || [] });
+    return NextResponse.json({ users: await withDisplayNames(users || []) });
   } catch {
     return NextResponse.json({ error: 'Serverfehler.' }, { status: 500 });
   }
